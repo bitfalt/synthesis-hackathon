@@ -69,11 +69,18 @@ Preferred stack:
 - Tailwind CSS
 - Bun
 
+Canonical design-system implementation files:
+- `src/design-system/README.md`
+- `src/design-system/theme.ts`
+- `src/styles/app.css`
+
 When using Stitch outputs:
 - preserve raw exports as references
 - keep downloaded assets organized and named consistently
 - prefer incremental integration over wholesale rewrites
 - do not lose the original screen artifacts
+- do not treat raw HTML exports as production-ready route code
+- extract shared primitives, layout patterns, and repeated styling into reusable TSX components and shared design-system rules first
 
 ## Documentation rules
 
@@ -83,6 +90,27 @@ If you materially change the product direction, also update:
 - any implementation planning docs
 
 If you discover a judge-relevant decision, document it clearly instead of keeping it only in chat.
+
+## Design system rules for agents
+
+This project follows the "Sovereign Vault" design language.
+
+Key rules:
+- Use tonal layering instead of hard divider-heavy layouts.
+- Prefer dark surface stacks: foundation -> shell -> panel -> elevated -> glass overlay.
+- Use teal for trust, primary action, and positive system emphasis.
+- Use amber for warning/review states.
+- Use icy blue for informational or secondary system signals.
+- Use Manrope for authority-heavy headings and Inter for body/UI density.
+- Avoid degen/neon trading aesthetics.
+- Avoid random one-off Tailwind piles when a shared recipe or component should exist.
+- If the same structure appears twice, strongly consider extracting a component.
+
+Before creating new route UI, check whether the styling should live in:
+- shared component props
+- shared utility class recipes
+- `src/styles/app.css`
+- `src/design-system/theme.ts`
 
 ## Judge/reviewer guidance
 

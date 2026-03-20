@@ -1,20 +1,166 @@
 @import 'tailwindcss' source('../');
 
+:root {
+  --aegis-foundation: #131313;
+  --aegis-shell: #1c1b1b;
+  --aegis-panel: #201f1f;
+  --aegis-elevated: #2a2a2a;
+  --aegis-highest: #353534;
+  --aegis-primary: #2dd4bf;
+  --aegis-primary-bright: #57f1db;
+  --aegis-secondary: #60a5fa;
+  --aegis-warning: #f59e0b;
+  --aegis-text: #e5e2e1;
+  --aegis-text-muted: #bacac5;
+  --aegis-outline: #3c4a46;
+}
+
+@theme inline {
+  --color-aegis-foundation: var(--aegis-foundation);
+  --color-aegis-shell: var(--aegis-shell);
+  --color-aegis-panel: var(--aegis-panel);
+  --color-aegis-elevated: var(--aegis-elevated);
+  --color-aegis-highest: var(--aegis-highest);
+  --color-aegis-primary: var(--aegis-primary);
+  --color-aegis-primary-bright: var(--aegis-primary-bright);
+  --color-aegis-secondary: var(--aegis-secondary);
+  --color-aegis-warning: var(--aegis-warning);
+  --color-aegis-text: var(--aegis-text);
+  --color-aegis-text-muted: var(--aegis-text-muted);
+  --color-aegis-outline: var(--aegis-outline);
+  --font-headline: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-label: 'Inter', sans-serif;
+}
+
 @layer base {
   html {
-    color-scheme: light dark;
+    color-scheme: dark;
+    background: var(--aegis-foundation);
+  }
+
+  body {
+    @apply bg-aegis-foundation text-aegis-text font-body;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    @apply transition-all duration-200;
   }
 
   * {
-    @apply border-gray-200 dark:border-gray-800;
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .ghost-outline {
+    box-shadow: inset 0 0 0 1px rgba(60, 74, 70, 0.22);
   }
 
-  html,
-  body {
-    @apply text-gray-900 bg-gray-50 dark:bg-gray-950 dark:text-gray-200;
+  .surface-shell {
+    background: rgba(28, 27, 27, 0.96);
   }
 
-  .using-mouse * {
-    outline: none !important;
+  .surface-panel {
+    background: rgba(32, 31, 31, 0.96);
+  }
+
+  .surface-elevated {
+    background: rgba(42, 42, 42, 0.96);
+  }
+
+  .surface-glass {
+    background: rgba(53, 53, 52, 0.38);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .eyebrow {
+    @apply text-[0.7rem] font-semibold uppercase tracking-[0.24em] font-label;
+  }
+
+  .page-title {
+    @apply text-4xl font-extrabold tracking-tight text-aegis-text font-headline sm:text-5xl;
+  }
+
+  .page-description {
+    @apply text-sm leading-7 text-aegis-text-muted sm:text-base;
+  }
+
+  .console-nav-item {
+    @apply flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text;
+  }
+
+  .console-nav-item-active {
+    @apply bg-aegis-primary/10 text-aegis-primary;
+    box-shadow: inset 2px 0 0 0 var(--aegis-primary);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full bg-aegis-primary px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-aegis-primary-bright;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/12 px-5 py-3 text-sm font-semibold text-aegis-text hover:bg-white/5;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] font-label;
+  }
+
+  .badge-primary {
+    @apply bg-aegis-primary/12 text-aegis-primary;
+  }
+
+  .badge-warning {
+    @apply bg-aegis-warning/12 text-aegis-warning;
+  }
+
+  .badge-info {
+    @apply bg-aegis-secondary/12 text-aegis-secondary;
+  }
+
+  .badge-neutral {
+    @apply bg-white/6 text-aegis-text-muted;
+  }
+
+  .field-label {
+    @apply text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-aegis-text-muted font-label;
+  }
+
+  .field-control {
+    @apply w-full rounded-3xl bg-black/15 px-4 py-3 text-sm text-aegis-text outline-none placeholder:text-aegis-text-muted/70;
+    box-shadow: inset 0 0 0 1px rgba(60, 74, 70, 0.24);
+  }
+
+  .field-control:focus {
+    box-shadow:
+      inset 0 0 0 1px rgba(45, 212, 191, 0.65),
+      0 0 0 4px rgba(45, 212, 191, 0.08);
+  }
+
+  .metric-grid {
+    @apply grid gap-5 md:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .detail-list {
+    @apply space-y-3;
+  }
+
+  .detail-row {
+    @apply flex items-start justify-between gap-4 rounded-2xl bg-black/10 px-4 py-3 text-sm text-aegis-text-muted;
+  }
+
+  .stitch-preview-frame {
+    @apply overflow-hidden rounded-[28px] bg-aegis-panel;
+    box-shadow: inset 0 0 0 1px rgba(60, 74, 70, 0.22);
   }
 }
