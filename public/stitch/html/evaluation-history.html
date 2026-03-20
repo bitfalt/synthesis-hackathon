@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Evaluation History | Aegis Treasury Guardrails</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#131313",
+              "on-tertiary": "#472a00",
+              "background": "#131313",
+              "on-error": "#690005",
+              "on-secondary-container": "#d6e5ff",
+              "surface-variant": "#353534",
+              "on-surface": "#e5e2e1",
+              "tertiary-fixed": "#ffddb8",
+              "surface-container-lowest": "#0e0e0e",
+              "on-tertiary-fixed-variant": "#653e00",
+              "surface-container": "#201f1f",
+              "tertiary-fixed-dim": "#ffb95f",
+              "on-primary-fixed": "#00201c",
+              "on-secondary-fixed-variant": "#004883",
+              "inverse-surface": "#e5e2e1",
+              "primary": "#57f1db",
+              "inverse-on-surface": "#313030",
+              "surface-container-low": "#1c1b1b",
+              "primary-fixed": "#62fae3",
+              "on-secondary": "#00315d",
+              "error": "#ffb4ab",
+              "secondary-container": "#0267b8",
+              "secondary-fixed-dim": "#a4c9ff",
+              "surface-tint": "#3cddc7",
+              "on-primary-container": "#00574d",
+              "tertiary-container": "#ffad3a",
+              "surface-container-highest": "#353534",
+              "on-tertiary-container": "#6d4400",
+              "inverse-primary": "#006b5f",
+              "secondary-fixed": "#d4e3ff",
+              "on-tertiary-fixed": "#2a1700",
+              "primary-fixed-dim": "#3cddc7",
+              "surface-bright": "#393939",
+              "outline": "#859490",
+              "on-background": "#e5e2e1",
+              "outline-variant": "#3c4a46",
+              "surface": "#131313",
+              "on-surface-variant": "#bacac5",
+              "surface-container-high": "#2a2a2a",
+              "primary-container": "#2dd4bf",
+              "on-primary": "#003731",
+              "error-container": "#93000a",
+              "on-secondary-fixed": "#001c39",
+              "on-primary-fixed-variant": "#005047",
+              "on-error-container": "#ffdad6",
+              "secondary": "#a4c9ff",
+              "tertiary": "#ffd29f"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-8 py-4 h-16 sticky top-0 z-50 bg-[#131313]">
+<div class="flex items-center gap-8">
+<div class="text-xl font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="shield">shield</span>
+<span class="font-headline tracking-tight">Aegis Treasury Guardrails</span>
+</div>
+<nav class="hidden md:flex gap-6 items-center">
+<span class="text-on-surface-variant font-medium cursor-default">Treasury Status: Active</span>
+<span class="text-on-surface-variant font-medium cursor-default">Policies: 12</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant hover:bg-[#353534] transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined p-2 rounded-lg text-on-surface-variant hover:bg-[#353534] transition-colors" data-icon="account_balance_wallet">account_balance_wallet</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="User ENS Avatar" data-alt="Abstract geometric avatar for Ethereum Name Service identity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh8JkLlJE16rkQBO8_bNZflFHuIVuB2o8c4fAjEjZ8WRIW_7dGP37kgw_pZGeXPH4guknXD98lvgJSRsxNMZdgWo-v0Nmim7bdOz57WdI7emslQ1orZk1ruNScYSCsoVVAnd8OX_qHGKkd6sQHcAZaxCjS_QssJds2AprvBW-BrGyeeNQNL21fGp8zGrT82HBzQ-RKBgcjowOXc8w9P-1VVOU4dnQYfwMJKFOYzKmNYBQUF-3coh-sfMJdeGoo3eu9aMtdqw1b0qno"/>
+</div>
+<button class="ml-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-semibold hover:opacity-90 active:scale-[0.98] transition-all">
+                Request Service
+            </button>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-[#1C1B1B] border-r border-white/5">
+<div class="px-6 py-8">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="security">security</span>
+</div>
+<div>
+<div class="text-lg font-black tracking-tight text-[#2DD4BF] font-headline">Aegis Guardrails</div>
+<div class="text-[10px] uppercase tracking-widest text-on-surface-variant/60">Sovereign Vault</div>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body text-sm font-medium">Dashboard</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="security_update_good">security_update_good</span>
+<span class="font-body text-sm font-medium">Policy Management</span>
+</a>
+<!-- Active State: Evaluation History -->
+<a class="bg-[#2DD4BF]/10 text-[#2DD4BF] border-r-4 border-[#2DD4BF] px-4 py-3 flex items-center gap-3 transition-all rounded-l-none rounded-r-none" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-body text-sm font-semibold">Evaluation History</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body text-sm font-medium">Settings</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body text-sm font-medium">Help</span>
+</a>
+</nav>
+<div class="mt-8 px-4">
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                        New Policy
+                    </button>
+</div>
+</div>
+<div class="mt-auto px-6 py-6 border-t border-white/5">
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-body text-sm font-medium">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-0 md:ml-64 p-8 bg-surface">
+<div class="max-w-6xl mx-auto">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h1 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Evaluation History</h1>
+<p class="text-on-surface-variant text-sm font-body max-w-lg">
+                            Audit log of all cryptographic guardrail assessments and policy evaluations for your sovereign treasury vault.
+                        </p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-surface-container-highest border border-outline-variant/20 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-[#3c4a46] transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+                            Filter Logs
+                        </button>
+<button class="px-4 py-2 bg-surface-container-highest border border-outline-variant/20 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-[#3c4a46] transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+                            Export CSV
+                        </button>
+</div>
+</div>
+<!-- Cognition Metrics Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+<div class="bg-surface-container-low p-6 rounded-xl border border-white/5 flex flex-col justify-between">
+<div class="text-xs font-semibold text-on-surface-variant/60 uppercase tracking-widest mb-4">Total Evaluations</div>
+<div class="text-4xl font-headline font-bold text-primary">1,248</div>
+<div class="mt-2 text-[10px] text-primary/60 flex items-center gap-1 font-body">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span>
+                            +12% from last month
+                        </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-white/5 flex flex-col justify-between">
+<div class="text-xs font-semibold text-on-surface-variant/60 uppercase tracking-widest mb-4">Blocks Prevented</div>
+<div class="text-4xl font-headline font-bold text-error">42</div>
+<div class="mt-2 text-[10px] text-error/60 flex items-center gap-1 font-body">
+<span class="material-symbols-outlined text-xs" data-icon="gpp_bad">gpp_bad</span>
+                            Risk mitigated
+                        </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-white/5 flex flex-col justify-between">
+<div class="text-xs font-semibold text-on-surface-variant/60 uppercase tracking-widest mb-4">Mean Confidence</div>
+<div class="text-4xl font-headline font-bold text-secondary">99.4%</div>
+<div class="mt-2 text-[10px] text-secondary/60 flex items-center gap-1 font-body">
+<span class="material-symbols-outlined text-xs" data-icon="verified">verified</span>
+                            High-fidelity audit
+                        </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-white/5 flex flex-col justify-between">
+<div class="text-xs font-semibold text-on-surface-variant/60 uppercase tracking-widest mb-4">Vault Status</div>
+<div class="text-4xl font-headline font-bold text-on-surface">Secure</div>
+<div class="mt-2 text-[10px] text-on-surface-variant/60 flex items-center gap-1 font-body">
+<span class="material-symbols-outlined text-xs" data-icon="lock">lock</span>
+                            Policies synchronized
+                        </div>
+</div>
+</div>
+<!-- History Table Container -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden border border-white/5">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 border-b border-white/5">
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Date &amp; Time</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Action / Trigger</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Decision</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Confidence</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Receipt ID</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-right">Interactions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-5">
+<div class="text-sm font-medium text-on-surface">Oct 24, 2023</div>
+<div class="text-xs text-on-surface-variant/60">14:22:10 UTC</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="swap_horiz">swap_horiz</span>
+<div>
+<div class="text-sm font-semibold text-on-surface">Swap: 500 ETH → USDC</div>
+<div class="text-[10px] text-secondary-fixed-dim font-mono">0x71C...3a21</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-primary/10 text-primary uppercase tracking-tighter border border-primary/20">
+                                            ALLOW
+                                        </span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 98%"></div>
+</div>
+<span class="text-xs font-mono font-medium">98.2%</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-on-surface-variant cursor-pointer hover:text-primary transition-colors underline decoration-dotted underline-offset-4">TR-88291-XA</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="View Details">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="Download Receipt">
+<span class="material-symbols-outlined text-sm" data-icon="receipt_long">receipt_long</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-5">
+<div class="text-sm font-medium text-on-surface">Oct 24, 2023</div>
+<div class="text-xs text-on-surface-variant/60">09:15:44 UTC</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-lg" data-icon="account_balance">account_balance</span>
+<div>
+<div class="text-sm font-semibold text-on-surface">Withdrawal: 25,000 USDT</div>
+<div class="text-[10px] text-secondary-fixed-dim font-mono">Whitelisted: Ledger-V1</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-tertiary/10 text-tertiary uppercase tracking-tighter border border-tertiary/20">
+                                            WARN
+                                        </span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary" style="width: 76%"></div>
+</div>
+<span class="text-xs font-mono font-medium">76.4%</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-on-surface-variant cursor-pointer hover:text-primary transition-colors underline decoration-dotted underline-offset-4">TR-88285-LB</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="View Details">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="Download Receipt">
+<span class="material-symbols-outlined text-sm" data-icon="receipt_long">receipt_long</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-5">
+<div class="text-sm font-medium text-on-surface">Oct 23, 2023</div>
+<div class="text-xs text-on-surface-variant/60">22:04:12 UTC</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-lg" data-icon="warning">warning</span>
+<div>
+<div class="text-sm font-semibold text-on-surface">Add Liquidity: Uniswap V3</div>
+<div class="text-[10px] text-secondary-fixed-dim font-mono">Unknown Contract Interaction</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-error/10 text-error uppercase tracking-tighter border border-error/20">
+                                            BLOCK
+                                        </span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error" style="width: 99%"></div>
+</div>
+<span class="text-xs font-mono font-medium">99.8%</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-on-surface-variant cursor-pointer hover:text-primary transition-colors underline decoration-dotted underline-offset-4">TR-88190-ER</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="View Details">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="Download Receipt">
+<span class="material-symbols-outlined text-sm" data-icon="receipt_long">receipt_long</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-5">
+<div class="text-sm font-medium text-on-surface">Oct 23, 2023</div>
+<div class="text-xs text-on-surface-variant/60">18:55:01 UTC</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="lock_open">lock_open</span>
+<div>
+<div class="text-sm font-semibold text-on-surface">Policy Update: Max Slippage</div>
+<div class="text-[10px] text-secondary-fixed-dim font-mono">Signer: 0x9aC...F912</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-primary/10 text-primary uppercase tracking-tighter border border-primary/20">
+                                            ALLOW
+                                        </span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 100%"></div>
+</div>
+<span class="text-xs font-mono font-medium">100%</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-on-surface-variant cursor-pointer hover:text-primary transition-colors underline decoration-dotted underline-offset-4">TR-88177-PU</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="View Details">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container-highest rounded-lg transition-colors text-on-surface-variant" title="Download Receipt">
+<span class="material-symbols-outlined text-sm" data-icon="receipt_long">receipt_long</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-surface-container-high/30 border-t border-white/5 flex justify-between items-center">
+<div class="text-xs text-on-surface-variant/60">Showing 1 to 10 of 1,248 entries</div>
+<div class="flex gap-1">
+<button class="px-3 py-1.5 rounded bg-surface-container-highest text-xs font-bold hover:bg-outline-variant/30 transition-colors">Previous</button>
+<button class="px-3 py-1.5 rounded bg-primary-container text-on-primary-container text-xs font-bold">1</button>
+<button class="px-3 py-1.5 rounded bg-surface-container-highest text-xs font-bold hover:bg-outline-variant/30 transition-colors">2</button>
+<button class="px-3 py-1.5 rounded bg-surface-container-highest text-xs font-bold hover:bg-outline-variant/30 transition-colors">3</button>
+<button class="px-3 py-1.5 rounded bg-surface-container-highest text-xs font-bold hover:bg-outline-variant/30 transition-colors">Next</button>
+</div>
+</div>
+</div>
+<!-- Featured Audit Receipt Preview (Asymmetric Accent) -->
+<div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2">
+<div class="bg-surface-container-low p-8 rounded-xl border border-white/5 relative overflow-hidden group">
+<!-- Background pattern -->
+<div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+<h3 class="text-xl font-headline font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="verified_user">verified_user</span>
+                                Last Cryptographic Receipt
+                            </h3>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="text-sm text-on-surface-variant font-body">Verification Method</span>
+<span class="text-sm font-mono text-primary">Zero-Knowledge Proof (zk-SNARK)</span>
+</div>
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="text-sm text-on-surface-variant font-body">Validator Node</span>
+<span class="text-sm font-mono">AWS-SG-01-SHIELD</span>
+</div>
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="text-sm text-on-surface-variant font-body">Policy Hash</span>
+<span class="text-xs font-mono text-on-surface-variant/80 truncate ml-4">f392...a881bc01</span>
+</div>
+</div>
+<button class="mt-8 text-primary text-sm font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
+                                View full verification trail 
+                                <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-high p-8 rounded-xl border-l-4 border-primary flex flex-col justify-center">
+<div class="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary" data-icon="gavel">gavel</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-on-surface mb-2">Audit Compliance</h4>
+<p class="text-sm text-on-surface-variant font-body leading-relaxed">
+                            Your treasury logs are cryptographically sealed. Any unauthorized alteration to this ledger will invalidate the vault consistency check.
+                        </p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

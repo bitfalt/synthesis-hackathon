@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aegis Treasury | Support Access</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface-variant": "#bacac5",
+              "surface": "#131313",
+              "outline-variant": "#3c4a46",
+              "on-tertiary-fixed": "#2a1700",
+              "surface-tint": "#3cddc7",
+              "primary-fixed": "#62fae3",
+              "inverse-on-surface": "#313030",
+              "tertiary-fixed-dim": "#ffb95f",
+              "on-secondary": "#00315d",
+              "on-secondary-fixed": "#001c39",
+              "tertiary-container": "#ffad3a",
+              "on-primary-fixed-variant": "#005047",
+              "surface-container-highest": "#353534",
+              "surface-container-low": "#1C1B1B",
+              "tertiary-fixed": "#ffddb8",
+              "error-container": "#93000a",
+              "error": "#ffb4ab",
+              "secondary": "#a4c9ff",
+              "primary-container": "#2dd4bf",
+              "surface-container": "#201f1f",
+              "inverse-primary": "#006b5f",
+              "on-background": "#e5e2e1",
+              "tertiary": "#ffd29f",
+              "surface-container-lowest": "#0e0e0e",
+              "secondary-fixed-dim": "#a4c9ff",
+              "on-primary": "#003731",
+              "on-error-container": "#ffdad6",
+              "secondary-container": "#0267b8",
+              "secondary-fixed": "#d4e3ff",
+              "on-tertiary-fixed-variant": "#653e00",
+              "on-tertiary": "#472a00",
+              "outline": "#859490",
+              "on-secondary-fixed-variant": "#004883",
+              "on-error": "#690005",
+              "surface-dim": "#131313",
+              "primary-fixed-dim": "#3cddc7",
+              "on-primary-fixed": "#00201c",
+              "surface-container-high": "#2a2a2a",
+              "background": "#131313",
+              "surface-variant": "#353534",
+              "primary": "#57f1db",
+              "on-secondary-container": "#d6e5ff",
+              "surface-bright": "#393939",
+              "on-surface": "#e5e2e1",
+              "inverse-surface": "#e5e2e1",
+              "on-tertiary-container": "#6d4400",
+              "on-primary-container": "#00574d"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .glass-panel {
+        background: rgba(53, 53, 52, 0.6);
+        backdrop-filter: blur(12px);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-8 z-40 bg-[#1C1B1B] dark:bg-[#1C1B1B] h-screen w-64 border-r-0 font-inter text-[0.875rem] leading-relaxed">
+<div class="px-6 mb-10">
+<h1 class="font-manrope font-bold text-teal-400 text-xl tracking-tight">The Sovereign Vault</h1>
+<p class="text-zinc-500 text-xs tracking-widest uppercase mt-1">Enterprise Grade</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-[#353534] transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-[#353534] transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span>Policy Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-[#353534] transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Evaluation History</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-[#353534] transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-teal-400 font-bold border-r-2 border-teal-400 bg-teal-400/5 transition-all duration-300 translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Help</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-3 bg-primary-container text-on-primary-container font-semibold rounded-lg hover:brightness-110 transition-all mb-6">
+                New Policy
+            </button>
+<div class="flex items-center gap-3 px-4 py-3 text-zinc-400 border-t border-outline-variant/10">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="text-xs">Security Status</span>
+</div>
+</div>
+</aside>
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar (Authority: JSON) -->
+<header class="flex justify-between items-center w-full px-8 py-4 sticky top-0 z-50 bg-[#131313] dark:bg-[#131313] font-manrope text-sm font-medium tracking-tight bg-[#1C1B1B] tonal shift no borders flat no shadows">
+<div class="flex items-center gap-6">
+<span class="text-xl font-bold text-teal-400 tracking-tighter">Aegis Treasury</span>
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">search</span>
+<input class="bg-surface-container-lowest border-none text-xs rounded-lg pl-10 pr-4 py-2 w-64 focus:ring-1 focus:ring-teal-400/50" placeholder="Search treasury records..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 border-r border-outline-variant/20 pr-6">
+<button class="text-zinc-400 hover:bg-zinc-800/50 transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-zinc-400 hover:bg-zinc-800/50 transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+</button>
+<button class="text-zinc-400 hover:text-teal-400 transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</button>
+</div>
+<button class="bg-teal-400 text-[#131313] px-5 py-2 rounded font-bold text-xs uppercase tracking-wider hover:bg-teal-300 transition-all scale-95 duration-200">
+                    Connect Wallet
+                </button>
+</div>
+</header>
+<!-- Main Support Layout -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Sidebar: Active Tickets -->
+<section class="w-80 bg-surface-container-low flex flex-col border-r border-outline-variant/5">
+<div class="p-6">
+<h2 class="font-headline text-lg font-bold text-on-surface mb-1">Direct Support</h2>
+<p class="font-label text-xs text-on-surface-variant">Institutional Priority Access</p>
+</div>
+<div class="flex-1 overflow-y-auto scrollbar-hide px-3 space-y-1">
+<!-- Ticket Category -->
+<div class="px-3 py-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-4">Active Engagements</div>
+<!-- Active Ticket -->
+<button class="w-full text-left p-4 rounded-xl bg-surface-container-highest/40 border-l-2 border-primary transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline text-sm font-semibold text-primary">#SR-9921</span>
+<span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">LIVE</span>
+</div>
+<p class="text-sm font-medium text-on-surface mb-1 truncate">Whale Wallet Re-keying</p>
+<p class="text-xs text-on-surface-variant line-clamp-1">Our security lead is reviewing the multisig...</p>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface" data-alt="Technical support specialist avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcZ5GxY_PB51qUXnN9ZmkEgbq7F0emuKMpEh-b8r0mclo40hGKey3B8Z6x5Xw5Zv4WTiZFiiq8Gc7gfdW7ORNT4paFm-Qo0GkcLMSYNHpts03E4TVoN51dyCZXWjBfFZQRfOy_P-xcz699UK3q9QFrlDYlffMVVc817CkUO0d07-BxESpSxVfBe2IoefOXk1IIDNCUDJajJtTEpryYReKT-HG_LinZOgglrVbg3BzOWFekcF-Xm0MwxbAXq_lmiOc_tHBHQtItaL4-"/>
+<img class="w-6 h-6 rounded-full border-2 border-surface" data-alt="Security officer avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA42cJVyJUd_PnS_-8jq0e-U4Ux3LZwqkudhb-MSMuiWsW2wwZTcpQQMPpsF6IzEggv9_4gfW6DF1XGWvCzp8A7-ZT5nl7C8htGbtB2rwogz-e0jb2z0lj64wjs-fNkyGt7OGzwcZLeMbamE72wPSKkJtXw-ViAVoOq72AJH1aU6-fRUGLgeRJLL7zyNDcIFN7hbOiWEGYYVNGtJUIxMfvpuoDR-W6XWvFVvgJFO77HNnGiZCP-kEsDWnH6ZK3OgAbzS2LPpKPQLbC4"/>
+</div>
+<span class="text-[10px] text-zinc-500 italic">Updated 2m ago</span>
+</div>
+</button>
+<!-- Pending Ticket -->
+<button class="w-full text-left p-4 rounded-xl hover:bg-surface-container-highest/20 transition-all group border-l-2 border-transparent">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline text-sm font-semibold text-on-surface">#SR-9844</span>
+<span class="text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">PENDING</span>
+</div>
+<p class="text-sm font-medium text-on-surface-variant mb-1 truncate">L2 Gas Optimization API</p>
+<p class="text-xs text-zinc-500">Waiting for client confirmation...</p>
+</button>
+<div class="px-3 py-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-6">Closed Vaults</div>
+<button class="w-full text-left p-4 rounded-xl hover:bg-surface-container-highest/20 transition-all group opacity-60">
+<div class="flex justify-between items-start mb-1">
+<span class="font-headline text-sm font-medium text-on-surface-variant">#SR-9012</span>
+<span class="material-symbols-outlined text-xs" data-icon="check_circle">check_circle</span>
+</div>
+<p class="text-xs text-zinc-500">Treasury Migration 0x...F32</p>
+</button>
+</div>
+<div class="p-4 bg-surface-container-lowest/50">
+<button class="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-outline-variant/20 text-on-surface hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span class="text-xs font-semibold">Open Priority Ticket</span>
+</button>
+</div>
+</section>
+<!-- Center Content: Chat Interface -->
+<section class="flex-1 bg-surface flex flex-col relative overflow-hidden">
+<!-- Chat Header -->
+<div class="h-20 border-b border-outline-variant/10 flex items-center justify-between px-8 bg-surface/80 backdrop-blur-md z-10">
+<div class="flex items-center gap-4">
+<div class="relative">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+</div>
+<div class="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-surface"></div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-on-surface tracking-tight">Priority Agent: Erikson V.</h3>
+<p class="text-[10px] text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                Institutional Escalation Specialist
+                            </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-lg hover:bg-surface-container-highest text-zinc-400">
+<span class="material-symbols-outlined" data-icon="videocam">videocam</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-surface-container-highest text-zinc-400">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant/20 mx-2"></div>
+<button class="p-2 rounded-lg hover:bg-surface-container-highest text-zinc-400">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Messages Canvas -->
+<div class="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
+<!-- Date Separator -->
+<div class="flex items-center justify-center gap-4">
+<div class="h-[1px] flex-1 bg-outline-variant/10"></div>
+<span class="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">Today, Oct 24</span>
+<div class="h-[1px] flex-1 bg-outline-variant/10"></div>
+</div>
+<!-- Client Message -->
+<div class="flex flex-col items-end gap-2 max-w-[80%] ml-auto">
+<div class="bg-surface-container-highest/60 border border-outline-variant/10 p-4 rounded-2xl rounded-tr-none">
+<p class="text-sm leading-relaxed text-on-surface">We are attempting to re-key the master treasury vault (ID: VAULT-772). The second signer is getting an 'Invalid Script Hash' error during the broadcast phase. This is time-sensitive for our NY close.</p>
+</div>
+<span class="text-[10px] text-zinc-500 font-medium">14:02 · Delivered</span>
+</div>
+<!-- Support Message -->
+<div class="flex flex-col items-start gap-2 max-w-[80%]">
+<div class="flex items-center gap-3 mb-1">
+<img class="w-6 h-6 rounded-md" data-alt="Agent Erikson profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnas5OTivD7TPzxs5kxZBqmOuUPxXDRDjr2uU8aZTqX0YNYKoOzI7821do1f4xGIdlFr2w1xI0-7Wkl-dXlnV3iR1YZM_mo9AWZ93OMS5ninS9qyy1EVDmiQcr4o4j7UJEaahkaIbR7szvQBb804r1yZLpQJIbOGziggXLA2hSuNQG2z_N-UEnveJOU5s_nUzYSBbtozRB2cDkQomuPG_bnWSBUY5xaGWUi3teF8Qr86wN2j4JDFC3H1VW8WehPlTQZ5vvPYJNuOKe"/>
+<span class="text-xs font-bold text-primary tracking-wide">Erikson V.</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl rounded-tl-none border-l-2 border-primary/40">
+<p class="text-sm leading-relaxed text-on-surface-variant">Understood. I've pulled your vault manifest. It seems there is a mismatch in the witness script from the last upgrade. I'm escalating this to our Lead Security Engineer now.</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl border-l-2 border-primary/40 mt-2">
+<p class="text-sm leading-relaxed text-on-surface-variant">Please do not attempt further signatures until we clear the cache on the node side. I'll provide a status update in &lt; 5 minutes.</p>
+</div>
+<span class="text-[10px] text-zinc-500 font-medium">14:05</span>
+</div>
+<!-- System Event -->
+<div class="flex items-center gap-3 px-4 py-2 bg-secondary/5 rounded-lg border border-secondary/10 w-fit mx-auto">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="lock_open">lock_open</span>
+<span class="text-[10px] font-semibold text-secondary-fixed-dim uppercase tracking-wider">Security Engineer Sarah joined the session</span>
+</div>
+<!-- New Response Typing -->
+<div class="flex items-center gap-2 text-primary/60">
+<div class="flex gap-1">
+<span class="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></span>
+<span class="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+<span class="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+</div>
+<span class="text-[10px] font-medium italic">Sarah is reviewing vault manifest...</span>
+</div>
+</div>
+<!-- Message Input Area -->
+<div class="p-6 bg-surface-container-lowest border-t border-outline-variant/10">
+<div class="max-w-4xl mx-auto flex items-end gap-4">
+<div class="flex-1 bg-surface-container p-2 rounded-xl border border-outline-variant/20 focus-within:border-primary/50 transition-all flex flex-col gap-2">
+<textarea class="bg-transparent border-none focus:ring-0 text-sm py-2 px-3 resize-none scrollbar-hide text-on-surface placeholder:text-zinc-600" placeholder="Type a message or drop files..." rows="1"></textarea>
+<div class="flex items-center justify-between px-2 pb-1">
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container-highest text-zinc-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="attach_file">attach_file</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container-highest text-zinc-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="image">image</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container-highest text-zinc-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="password">password</span>
+</button>
+</div>
+<span class="text-[10px] text-zinc-600 font-mono">Vault Connection: SECURE</span>
+</div>
+</div>
+<button class="w-12 h-12 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right Sidebar: Contextual Info -->
+<section class="w-72 bg-surface-container-low border-l border-outline-variant/5 flex flex-col overflow-y-auto scrollbar-hide">
+<div class="p-6 border-b border-outline-variant/10">
+<h4 class="font-headline text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">Case Details</h4>
+<div class="space-y-4">
+<div class="bg-surface-container-highest/30 p-4 rounded-xl">
+<p class="text-[10px] text-zinc-500 mb-1">Impact Level</p>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="text-xs font-bold text-error uppercase">Critical: Fund Access</span>
+</div>
+</div>
+<div class="bg-surface-container-highest/30 p-4 rounded-xl">
+<p class="text-[10px] text-zinc-500 mb-1">Target Asset</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="currency_bitcoin">currency_bitcoin</span>
+<span class="text-xs font-bold text-on-surface">BTC Main Treasury</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6">
+<h4 class="font-headline text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">SLA Compliance</h4>
+<div class="relative h-2 w-full bg-surface-container-highest rounded-full overflow-hidden mb-2">
+<div class="absolute inset-y-0 left-0 bg-primary w-[92%]"></div>
+</div>
+<div class="flex justify-between text-[10px] font-medium">
+<span class="text-on-surface-variant">Response Time</span>
+<span class="text-primary">04:12 / 15:00</span>
+</div>
+<h4 class="font-headline text-xs font-bold text-zinc-500 uppercase tracking-widest mt-8 mb-4">Related Assets</h4>
+<div class="space-y-3">
+<div class="flex items-center gap-3 p-2 hover:bg-surface-container rounded-lg transition-colors cursor-pointer group">
+<div class="w-8 h-8 bg-surface-container-highest rounded flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-xs text-zinc-400 group-hover:text-primary" data-icon="description">description</span>
+</div>
+<div>
+<p class="text-xs font-medium text-on-surface">vault-config-v4.json</p>
+<p class="text-[9px] text-zinc-500">JSON · 12.4 KB</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-surface-container rounded-lg transition-colors cursor-pointer group">
+<div class="w-8 h-8 bg-surface-container-highest rounded flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-xs text-zinc-400 group-hover:text-primary" data-icon="image">image</span>
+</div>
+<div>
+<p class="text-xs font-medium text-on-surface">error_log_0x22.png</p>
+<p class="text-[9px] text-zinc-500">PNG · 1.2 MB</p>
+</div>
+</div>
+</div>
+<div class="mt-10 p-4 border border-outline-variant/10 rounded-xl bg-primary/5">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="verified">verified</span>
+<span class="text-[10px] font-bold text-primary uppercase tracking-tight">Enterprise Shield Active</span>
+</div>
+<p class="text-[10px] text-on-surface-variant leading-relaxed">This session is end-to-end encrypted and recorded for institutional audit requirements.</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- FAB Suppression: No FAB on this focused detail screen as per instructions -->
+</body></html>

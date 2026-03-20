@@ -1,0 +1,325 @@
+<!DOCTYPE html><html class="dark" lang="en" __gchrome_remoteframetoken="44cba64d0a936288d1396ee8f18e8398"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aegis Treasury Guardrails - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#131313",
+                        "on-tertiary": "#472a00",
+                        "background": "#131313",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#d6e5ff",
+                        "surface-variant": "#353534",
+                        "on-surface": "#e5e2e1",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container": "#201f1f",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-primary-fixed": "#00201c",
+                        "on-secondary-fixed-variant": "#004883",
+                        "inverse-surface": "#e5e2e1",
+                        "primary": "#57f1db",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-fixed": "#62fae3",
+                        "on-secondary": "#00315d",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#0267b8",
+                        "secondary-fixed-dim": "#a4c9ff",
+                        "surface-tint": "#3cddc7",
+                        "on-primary-container": "#00574d",
+                        "tertiary-container": "#ffad3a",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary-container": "#6d4400",
+                        "inverse-primary": "#006b5f",
+                        "secondary-fixed": "#d4e3ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-fixed-dim": "#3cddc7",
+                        "surface-bright": "#393939",
+                        "outline": "#859490",
+                        "on-background": "#e5e2e1",
+                        "outline-variant": "#3c4a46",
+                        "surface": "#131313",
+                        "on-surface-variant": "#bacac5",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#2dd4bf",
+                        "on-primary": "#003731",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed": "#001c39",
+                        "on-primary-fixed-variant": "#005047",
+                        "on-error-container": "#ffdad6",
+                        "secondary": "#a4c9ff",
+                        "tertiary": "#ffd29f"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(53, 53, 52, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen selection:bg-primary/30">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-8 py-4 h-16 sticky top-0 z-50 bg-[#131313]">
+<div class="flex items-center gap-8">
+<div class="text-xl font-bold text-on-surface flex items-center gap-2 font-headline" style="">
+<span class="material-symbols-outlined text-primary" style="">shield</span>
+                Aegis Treasury Guardrails
+            </div>
+<nav class="hidden md:flex gap-6 items-center">
+<span class="text-[#2DD4BF] border-b-2 border-[#2DD4BF] pb-1 font-medium text-sm" style="">Treasury Status: Active</span>
+<span class="text-on-surface-variant font-medium text-sm" style="">Policies: 12</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-surface-container-low px-3 py-1.5 rounded-lg border border-outline-variant/20">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2" style="">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-on-surface-variant w-48" placeholder="Search guardrails..." type="text" __gchrome_uniqueid="6">
+</div>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-bold text-sm transition-all hover:scale-[0.98]" style="">
+                Request Service
+            </button>
+<div class="flex gap-2">
+<span class="material-symbols-outlined p-2 hover:bg-[#353534] rounded-lg cursor-pointer transition-colors duration-200" data-icon="notifications" style="">notifications</span>
+<span class="material-symbols-outlined p-2 hover:bg-[#353534] rounded-lg cursor-pointer transition-colors duration-200" data-icon="account_balance_wallet" style="">account_balance_wallet</span>
+</div>
+<img alt="User ENS Avatar" class="w-8 h-8 rounded-full border border-primary/20" data-alt="Geometric abstract avatar in teal and charcoal" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMnpmzsLwsepDJJwpAu-72IqP87AVqG2fomR008MvXVsPNQadC2N0UOq2hBs6vWJ4ESzhQpk9XjGCeloN-acRpkg50ZTuKjtPiNv_SIhy6IkDsO40k9sKG-BskRJ327zr59MFKSpZJ4nwbugmQQdQwFcjfXe-uoGHeXJzBvZi30kUK_MtcX5XN2_9m4nRHE0JYMAEVeY21PdCleYYwpl8nkpaNODHovUBHalj_Bxm1EGhNQ7S0qBnyZWsVATwlPdaEcsqVXhdcV3ID" style="">
+</div>
+</header>
+<div class="flex min-h-[calc(100vh-4rem)]">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-[calc(100vh-4rem)] w-64 fixed left-0 top-16 bg-[#1C1B1B] border-r border-white/5 py-6">
+<div class="px-4 mb-8">
+<div class="flex items-center gap-3 mb-1">
+<span class="text-lg font-black tracking-tight text-[#2DD4BF] font-headline" style="">Aegis Guardrails</span>
+</div>
+<div class="text-xs text-on-surface-variant/60 font-medium" style="">Sovereign Vault</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="bg-[#2DD4BF]/10 text-[#2DD4BF] border-r-4 border-[#2DD4BF] px-4 py-3 flex items-center gap-3" href="#" style="">
+<span class="material-symbols-outlined" data-icon="dashboard" style="">dashboard</span>
+<span class="font-medium" style="">Dashboard</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all" href="#" style="">
+<span class="material-symbols-outlined" data-icon="security_update_good" style="">security_update_good</span>
+<span class="font-medium" style="">P.olicy Management</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all" href="#" style="">
+<span class="material-symbols-outlined" data-icon="history" style="">history</span>
+<span class="font-medium" style="">Evaluation History</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all" href="#" style="">
+<span class="material-symbols-outlined" data-icon="settings" style="">settings</span>
+<span class="font-medium" style="">Settings</span>
+</a>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all" href="#" style="">
+<span class="material-symbols-outlined" data-icon="help" style="">help</span>
+<span class="font-medium" style="">Help</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full bg-primary/10 text-primary border border-primary/30 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-primary/20 transition-all" style="">
+<span class="material-symbols-outlined text-sm" data-icon="add" style="">add</span>
+                    New Policy
+                </button>
+<a class="text-on-surface-variant px-4 py-3 flex items-center gap-3 hover:bg-[#353534] hover:text-on-surface transition-all" href="#" style="">
+<span class="material-symbols-outlined" data-icon="contact_support" style="">contact_support</span>
+<span class="font-medium" style="">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 p-8 bg-[#131313]">
+<!-- Hero Header -->
+<div class="mb-12">
+<h1 class="font-headline text-5xl font-extrabold text-on-surface tracking-tight mb-2" style="">Treasury Intelligence</h1>
+<p class="text-on-surface-variant text-lg" style="">Continuous surveillance and policy enforcement for sovereign assets.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Main Stats (Cognition Metrics) -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl -mr-12 -mt-12 group-hover:bg-primary/10 transition-colors"></div>
+<div class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4" style="">Total Value Locked</div>
+<div class="font-headline text-4xl font-extrabold text-primary mb-1 tracking-tight" style="">$42,891,040</div>
+<div class="flex items-center gap-2 text-primary-fixed-dim text-xs" style="">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up" style="">trending_up</span>
+                            +2.4% from last epoch
+                        </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10 relative overflow-hidden">
+<div class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4" style="">Active Guardrails</div>
+<div class="font-headline text-4xl font-extrabold text-on-surface mb-1 tracking-tight" style="">12</div>
+<div class="flex items-center gap-2 text-on-surface-variant/60 text-xs" style="">
+<span class="material-symbols-outlined text-sm" data-icon="verified_user" style="">verified_user</span>
+                            100% Health Status
+                        </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10 relative overflow-hidden">
+<div class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-4" style="">Risk Exposure</div>
+<div class="font-headline text-4xl font-extrabold text-tertiary mb-1 tracking-tight" style="">Low</div>
+<div class="flex items-center gap-2 text-tertiary/60 text-xs" style="">
+<span class="material-symbols-outlined text-sm" data-icon="gpp_maybe" style="">gpp_maybe</span>
+                            No policy violations
+                        </div>
+</div>
+</div>
+<!-- Propose Action Form (High Focus Area) -->
+<div class="col-span-12 lg:col-span-4 row-span-2 glass-panel p-8 rounded-xl border border-outline-variant/20 shadow-2xl">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline text-xl font-bold text-on-surface" style="">Propose Action</h2>
+<span class="material-symbols-outlined text-primary" data-icon="bolt" style="">bolt</span>
+</div>
+<form class="space-y-6" __gchrome_uniqueid="1">
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2" style="">Amount</label>
+<input class="w-full bg-surface-container-lowest border-0 border-b border-outline-variant/30 text-on-surface focus:border-primary focus:ring-0 transition-all px-0 py-3 text-2xl font-headline font-bold" placeholder="0.00" type="text" __gchrome_uniqueid="2">
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2" style="">Asset</label>
+<select class="w-full bg-surface-container-lowest border-0 border-b border-outline-variant/30 text-on-surface focus:border-primary focus:ring-0 transition-all px-0 py-3" __gchrome_uniqueid="3">
+<option>Wrapped Ethereum (WETH)</option>
+<option>USD Coin (USDC)</option>
+<option>Rocket Pool ETH (rETH)</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2" style="">Destination Address</label>
+<input class="w-full bg-surface-container-lowest border-0 border-b border-outline-variant/30 text-on-surface focus:border-primary focus:ring-0 transition-all px-0 py-3 font-mono text-sm" placeholder="0x..." type="text" __gchrome_uniqueid="4">
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2" style="">Strategic Reason</label>
+<textarea class="w-full bg-surface-container-lowest border-0 border-b border-outline-variant/30 text-on-surface focus:border-primary focus:ring-0 transition-all px-0 py-3 resize-none text-sm" placeholder="Explain the rationale for this treasury movement..." rows="3" __gchrome_uniqueid="5"></textarea>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-extrabold uppercase tracking-widest text-sm rounded-lg hover:shadow-[0_0_20px_rgba(87,241,219,0.3)] transition-all transform active:scale-[0.98]" type="submit" style="">
+                            Submit to Guardians
+                        </button>
+</form>
+</div>
+<!-- Asset Allocation -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/10">
+<div class="px-8 py-6 flex items-center justify-between border-b border-white/5">
+<h2 class="font-headline text-lg font-bold" style="">Current Asset State</h2>
+<button class="text-secondary text-sm font-medium hover:underline" style="">View Analytics</button>
+</div>
+<div class="p-4">
+<table class="w-full text-left">
+<thead>
+<tr class="text-on-surface-variant/40 text-[10px] uppercase tracking-tighter">
+<th class="px-4 py-3" style="">Asset Name</th>
+<th class="px-4 py-3" style="">Balance</th>
+<th class="px-4 py-3" style="">Value (USD)</th>
+<th class="px-4 py-3 text-right" style="">Allocation</th>
+</tr>
+</thead>
+<tbody class="text-sm font-medium">
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-4 py-4 flex items-center gap-3" style="">
+<div class="w-8 h-8 rounded-lg bg-[#627eea] flex items-center justify-center text-white font-bold" style="">Ξ</div>
+                                        Ethereum
+                                    </td>
+<td class="px-4 py-4" style="">8,420 ETH</td>
+<td class="px-4 py-4 text-on-surface" style="">$18,242,100</td>
+<td class="px-4 py-4" style="">
+<div class="flex items-center justify-end gap-3">
+<span class="text-xs text-on-surface-variant" style="">42%</span>
+<div class="w-24 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[42%]"></div>
+</div>
+</div>
+</td>
+</tr>
+<tr class="bg-surface-container/30 hover:bg-surface-container transition-colors group">
+<td class="px-4 py-4 flex items-center gap-3" style="">
+<div class="w-8 h-8 rounded-lg bg-[#2775ca] flex items-center justify-center text-white font-bold" style="">S</div>
+                                        USDC
+                                    </td>
+<td class="px-4 py-4" style="">12,500,000 USDC</td>
+<td class="px-4 py-4 text-on-surface" style="">$12,501,040</td>
+<td class="px-4 py-4" style="">
+<div class="flex items-center justify-end gap-3">
+<span class="text-xs text-on-surface-variant" style="">29%</span>
+<div class="w-24 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[29%]"></div>
+</div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-4 py-4 flex items-center gap-3" style="">
+<div class="w-8 h-8 rounded-lg bg-[#f03b3b] flex items-center justify-center text-white font-bold" style="">R</div>
+                                        Rocket Pool ETH
+                                    </td>
+<td class="px-4 py-4" style="">4,200 rETH</td>
+<td class="px-4 py-4 text-on-surface" style="">$12,147,900</td>
+<td class="px-4 py-4" style="">
+<div class="flex items-center justify-end gap-3">
+<span class="text-xs text-on-surface-variant" style="">29%</span>
+<div class="w-24 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[29%]"></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Active Policies Section -->
+<div class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline font-bold text-on-surface" style="">Spending Limit</h3>
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded" style="">Active</span>
+</div>
+<p class="text-on-surface-variant text-xs mb-6" style="">Daily withdrawal cap restricted to 2.5% of total TVL per multisig epoch.</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="lock_clock" style="">lock_clock</span>
+<span class="text-[10px] text-on-surface-variant font-medium" style="">Expires in 184 days</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline font-bold text-on-surface" style="">Whitelist Only</h3>
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded" style="">Active</span>
+</div>
+<p class="text-on-surface-variant text-xs mb-6" style="">Funds can only be transferred to verified counterparty addresses.</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="verified" style="">verified</span>
+<span class="text-[10px] text-on-surface-variant font-medium" style="">Verified Protocols: 142</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10 border-dashed border-outline-variant/30 flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-on-surface-variant/40 mb-2" data-icon="add_moderator" style="">add_moderator</span>
+<div class="text-on-surface-variant text-xs font-bold uppercase tracking-widest cursor-pointer hover:text-primary transition-colors" style="">Add Security Policy</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
