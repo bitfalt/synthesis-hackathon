@@ -9,12 +9,66 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SupportAccessRouteImport } from './routes/support-access'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ScreensRouteImport } from './routes/screens'
+import { Route as RequestServiceRouteImport } from './routes/request-service'
+import { Route as PolicyManagementRouteImport } from './routes/policy-management'
+import { Route as HelpCenterRouteImport } from './routes/help-center'
+import { Route as EvaluationHistoryRouteImport } from './routes/evaluation-history'
+import { Route as EvaluationDashboardRouteImport } from './routes/evaluation-dashboard'
+import { Route as DecisionResultRouteImport } from './routes/decision-result'
+import { Route as AddSecurityPolicyModalRouteImport } from './routes/add-security-policy-modal'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SupportAccessRoute = SupportAccessRouteImport.update({
+  id: '/support-access',
+  path: '/support-access',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScreensRoute = ScreensRouteImport.update({
   id: '/screens',
   path: '/screens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestServiceRoute = RequestServiceRouteImport.update({
+  id: '/request-service',
+  path: '/request-service',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PolicyManagementRoute = PolicyManagementRouteImport.update({
+  id: '/policy-management',
+  path: '/policy-management',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpCenterRoute = HelpCenterRouteImport.update({
+  id: '/help-center',
+  path: '/help-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationHistoryRoute = EvaluationHistoryRouteImport.update({
+  id: '/evaluation-history',
+  path: '/evaluation-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationDashboardRoute = EvaluationDashboardRouteImport.update({
+  id: '/evaluation-dashboard',
+  path: '/evaluation-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DecisionResultRoute = DecisionResultRouteImport.update({
+  id: '/decision-result',
+  path: '/decision-result',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AddSecurityPolicyModalRoute = AddSecurityPolicyModalRouteImport.update({
+  id: '/add-security-policy-modal',
+  path: '/add-security-policy-modal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,37 +79,170 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/add-security-policy-modal': typeof AddSecurityPolicyModalRoute
+  '/decision-result': typeof DecisionResultRoute
+  '/evaluation-dashboard': typeof EvaluationDashboardRoute
+  '/evaluation-history': typeof EvaluationHistoryRoute
+  '/help-center': typeof HelpCenterRoute
+  '/policy-management': typeof PolicyManagementRoute
+  '/request-service': typeof RequestServiceRoute
   '/screens': typeof ScreensRoute
+  '/settings': typeof SettingsRoute
+  '/support-access': typeof SupportAccessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/add-security-policy-modal': typeof AddSecurityPolicyModalRoute
+  '/decision-result': typeof DecisionResultRoute
+  '/evaluation-dashboard': typeof EvaluationDashboardRoute
+  '/evaluation-history': typeof EvaluationHistoryRoute
+  '/help-center': typeof HelpCenterRoute
+  '/policy-management': typeof PolicyManagementRoute
+  '/request-service': typeof RequestServiceRoute
   '/screens': typeof ScreensRoute
+  '/settings': typeof SettingsRoute
+  '/support-access': typeof SupportAccessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/add-security-policy-modal': typeof AddSecurityPolicyModalRoute
+  '/decision-result': typeof DecisionResultRoute
+  '/evaluation-dashboard': typeof EvaluationDashboardRoute
+  '/evaluation-history': typeof EvaluationHistoryRoute
+  '/help-center': typeof HelpCenterRoute
+  '/policy-management': typeof PolicyManagementRoute
+  '/request-service': typeof RequestServiceRoute
   '/screens': typeof ScreensRoute
+  '/settings': typeof SettingsRoute
+  '/support-access': typeof SupportAccessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/screens'
+  fullPaths:
+    | '/'
+    | '/add-security-policy-modal'
+    | '/decision-result'
+    | '/evaluation-dashboard'
+    | '/evaluation-history'
+    | '/help-center'
+    | '/policy-management'
+    | '/request-service'
+    | '/screens'
+    | '/settings'
+    | '/support-access'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/screens'
-  id: '__root__' | '/' | '/screens'
+  to:
+    | '/'
+    | '/add-security-policy-modal'
+    | '/decision-result'
+    | '/evaluation-dashboard'
+    | '/evaluation-history'
+    | '/help-center'
+    | '/policy-management'
+    | '/request-service'
+    | '/screens'
+    | '/settings'
+    | '/support-access'
+  id:
+    | '__root__'
+    | '/'
+    | '/add-security-policy-modal'
+    | '/decision-result'
+    | '/evaluation-dashboard'
+    | '/evaluation-history'
+    | '/help-center'
+    | '/policy-management'
+    | '/request-service'
+    | '/screens'
+    | '/settings'
+    | '/support-access'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AddSecurityPolicyModalRoute: typeof AddSecurityPolicyModalRoute
+  DecisionResultRoute: typeof DecisionResultRoute
+  EvaluationDashboardRoute: typeof EvaluationDashboardRoute
+  EvaluationHistoryRoute: typeof EvaluationHistoryRoute
+  HelpCenterRoute: typeof HelpCenterRoute
+  PolicyManagementRoute: typeof PolicyManagementRoute
+  RequestServiceRoute: typeof RequestServiceRoute
   ScreensRoute: typeof ScreensRoute
+  SettingsRoute: typeof SettingsRoute
+  SupportAccessRoute: typeof SupportAccessRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/support-access': {
+      id: '/support-access'
+      path: '/support-access'
+      fullPath: '/support-access'
+      preLoaderRoute: typeof SupportAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/screens': {
       id: '/screens'
       path: '/screens'
       fullPath: '/screens'
       preLoaderRoute: typeof ScreensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/request-service': {
+      id: '/request-service'
+      path: '/request-service'
+      fullPath: '/request-service'
+      preLoaderRoute: typeof RequestServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/policy-management': {
+      id: '/policy-management'
+      path: '/policy-management'
+      fullPath: '/policy-management'
+      preLoaderRoute: typeof PolicyManagementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help-center': {
+      id: '/help-center'
+      path: '/help-center'
+      fullPath: '/help-center'
+      preLoaderRoute: typeof HelpCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluation-history': {
+      id: '/evaluation-history'
+      path: '/evaluation-history'
+      fullPath: '/evaluation-history'
+      preLoaderRoute: typeof EvaluationHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluation-dashboard': {
+      id: '/evaluation-dashboard'
+      path: '/evaluation-dashboard'
+      fullPath: '/evaluation-dashboard'
+      preLoaderRoute: typeof EvaluationDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/decision-result': {
+      id: '/decision-result'
+      path: '/decision-result'
+      fullPath: '/decision-result'
+      preLoaderRoute: typeof DecisionResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/add-security-policy-modal': {
+      id: '/add-security-policy-modal'
+      path: '/add-security-policy-modal'
+      fullPath: '/add-security-policy-modal'
+      preLoaderRoute: typeof AddSecurityPolicyModalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,7 +257,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AddSecurityPolicyModalRoute: AddSecurityPolicyModalRoute,
+  DecisionResultRoute: DecisionResultRoute,
+  EvaluationDashboardRoute: EvaluationDashboardRoute,
+  EvaluationHistoryRoute: EvaluationHistoryRoute,
+  HelpCenterRoute: HelpCenterRoute,
+  PolicyManagementRoute: PolicyManagementRoute,
+  RequestServiceRoute: RequestServiceRoute,
   ScreensRoute: ScreensRoute,
+  SettingsRoute: SettingsRoute,
+  SupportAccessRoute: SupportAccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
