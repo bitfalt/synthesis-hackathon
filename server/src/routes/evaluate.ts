@@ -1,26 +1,42 @@
 import { Hono } from 'hono'
-import { treasuryRequestSchema } from '../schemas/evaluation'
-import { evaluateDeterministicChecks } from '../lib/guardrails'
-import { buildVenicePayload } from '../lib/venice'
+import {
+  evaluationResponseSchema,
+  treasuryRequestSchema,
+  type EvaluationResponse,
+} from '../schemas/evaluation'
+import {
+  deriveDecision,
+  evaluateDeterministicChecks,
+  normalizeEvaluationInput,
+} from '../lib/guardrails'
+import { callVeniceReasoning } from '../lib/venice'
 
 export const evaluateRoute = new Hono()
 
 evaluateRoute.post('/evaluate/demo', async (c) => {
   const body = await c.req.json()
-  const parsed = treasuryRequestSchema.parse(body)
-  const checks = evaluateDeterministicChecks(parsed)
-  const payload = await buildVenicePayload(parsed, checks)
+  const request = treasuryRequestSchema.parse(body)
+  const normalized = normalizeEvaluationInput(request)
+  const triggeredChecks = evaluateDeterministicChecks(normalized)
+  const decision = deriveDecision(triggeredChecks)
+  const venice = await callVeniceReasoning(request, triggeredChecks)
 
-  return c.json({
-    success: true,
-    mode: 'demo',
-    checks,
-    veniceRequestPreview: payload,
-    result: {
-      decision: checks.some((c: any) => c.passed === false) ? 'WARN' : 'ALLOW',
-      confidence: 'medium',
-      privateRationale: 'Placeholder private rationale pending live Venice wiring.',
-      publicSafeSummary: 'Placeholder public-safe summary pending live Venice wiring.',
+  const response: EvaluationResponse = {
+    decision,
+    confidence: venice.confidence,
+    triggeredChecks,
+    privateRationale: venice.privateRationale,
+    publicSummary: venice.publicSummary,
+    receipt: {
+      receiptId: null,
+      hash: null,
+      urls: {
+        receiptJson: null,
+        agentJson: null,
+        agentLog: null,
+      },
     },
-  })
+  }
+
+  return c.json(evaluationResponseSchema.parse(response))
 })
