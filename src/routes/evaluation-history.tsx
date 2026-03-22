@@ -110,7 +110,7 @@ function EvaluationHistoryPage() {
                     const isSelected = selected?.id === entry.id
 
                     return (
-                      <tr key={entry.id} className={`dashboard-table-row ${isSelected ? 'bg-aegis-primary/6' : ''}`}>
+                      <tr key={entry.id} className={`dashboard-table-row group ${isSelected ? 'bg-aegis-primary/6' : ''}`}>
                         <td className="px-6 py-5">
                           <div className="text-sm font-medium text-aegis-text">{formatEvaluationTimestamp(entry.createdAt)}</div>
                           <div className="mt-1 text-xs text-aegis-text-muted/60">Browser session receipt</div>
@@ -139,13 +139,19 @@ function EvaluationHistoryPage() {
                           <span className="text-xs font-mono text-aegis-text-muted underline decoration-dotted underline-offset-4">{entry.receipt.receiptId ?? entry.id}</span>
                         </td>
                         <td className="px-6 py-5 text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-end gap-1 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
                             <Link to="/evaluation-history" search={{ selected: entry.id }} className="inline-flex">
-                              <Button variant="secondary">Inspect</Button>
+                              <button className="rounded-lg p-2 text-aegis-text-muted hover:bg-white/[0.04] hover:text-aegis-text" type="button">
+                                <Icon name="visibility" className="text-sm" />
+                              </button>
                             </Link>
-                            <Link to="/decision-result" search={{ evaluation: entry.id }} className="inline-flex">
-                              <Button variant="secondary">Open</Button>
-                            </Link>
+                            {entry.receipt.urls?.receiptJson ? (
+                              <a href={entry.receipt.urls.receiptJson} target="_blank" rel="noreferrer" className="inline-flex">
+                                <button className="rounded-lg p-2 text-aegis-text-muted hover:bg-white/[0.04] hover:text-aegis-text" type="button">
+                                  <Icon name="receipt_long" className="text-sm" />
+                                </button>
+                              </a>
+                            ) : null}
                           </div>
                         </td>
                       </tr>
@@ -189,76 +195,79 @@ function MissingSelectionPanel() {
 
 function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation }) {
   return (
-    <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-      <div className="dashboard-card p-6 lg:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Receipt preview</div>
-            <h3 className="mt-2 font-headline text-3xl font-extrabold tracking-tight text-aegis-text">{evaluation.decision} decision package</h3>
-            <p className="mt-3 text-sm leading-7 text-aegis-text-muted">Inspect the stored result, provider provenance, and the public/private split from the selected evaluation.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge tone={getDecisionTone(evaluation.decision)}>{evaluation.decision}</Badge>
-            <Badge tone={getReasoningProviderTone(evaluation.reasoningProvider)}>{getReasoningProviderLabel(evaluation.reasoningProvider)}</Badge>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl border border-white/8 bg-black/20 p-5">
-            <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Private rationale</div>
-            <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{evaluation.privateRationale}</p>
-          </div>
-          <div className="rounded-xl border border-white/8 bg-black/20 p-5">
-            <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Public summary</div>
-            <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{evaluation.publicSummary}</p>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-3">
-          {evaluation.triggeredChecks.map((check) => (
-            <div key={check.name} className="rounded-xl border border-white/8 bg-aegis-panel p-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-semibold text-aegis-text">{check.name}</p>
-                <Badge tone={getCheckTone(check.result)}>{getCheckLabel(check.result)}</Badge>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-aegis-text-muted">{check.detail}</p>
+    <section className="grid gap-8 lg:grid-cols-3">
+      <div className="dashboard-card relative overflow-hidden p-8 lg:col-span-2">
+        <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-aegis-primary/5 blur-3xl" />
+        <div className="relative z-10">
+          <h3 className="flex items-center gap-2 font-headline text-xl font-bold text-aegis-text">
+            <Icon name="verified_user" className="text-aegis-primary" />
+            Last cryptographic receipt
+          </h3>
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center justify-between gap-4 border-b border-white/6 pb-3 text-sm">
+              <span className="text-aegis-text-muted">Verification method</span>
+              <span className="font-mono text-aegis-primary">Hosted receipt artifact</span>
             </div>
-          ))}
+            <div className="flex items-center justify-between gap-4 border-b border-white/6 pb-3 text-sm">
+              <span className="text-aegis-text-muted">Reasoning provider</span>
+              <span className="font-mono text-aegis-text">{getReasoningProviderLabel(evaluation.reasoningProvider)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-4 border-b border-white/6 pb-3 text-sm">
+              <span className="text-aegis-text-muted">Policy hash</span>
+              <span className="max-w-[260px] truncate font-mono text-aegis-text-muted">{evaluation.receipt.hash ?? 'Unavailable'}</span>
+            </div>
+            <div className="grid gap-4 pt-2 md:grid-cols-2">
+              <div className="rounded-xl border border-white/8 bg-black/20 p-5">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Public summary</div>
+                <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{evaluation.publicSummary}</p>
+              </div>
+              <div className="rounded-xl border border-white/8 bg-black/20 p-5">
+                <div className="mb-3 flex flex-wrap gap-2">
+                  <Badge tone={getDecisionTone(evaluation.decision)}>{evaluation.decision}</Badge>
+                  <Badge tone={getReasoningProviderTone(evaluation.reasoningProvider)}>{getReasoningProviderLabel(evaluation.reasoningProvider)}</Badge>
+                </div>
+                <div className="space-y-3">
+                  {evaluation.triggeredChecks.slice(0, 2).map((check) => (
+                    <div key={check.name} className="flex items-start justify-between gap-3 rounded-lg border border-white/6 bg-black/15 px-3 py-3">
+                      <div>
+                        <div className="text-sm font-semibold text-aegis-text">{check.name}</div>
+                        <div className="mt-1 text-xs leading-5 text-aegis-text-muted">{check.detail}</div>
+                      </div>
+                      <Badge tone={getCheckTone(check.result)}>{getCheckLabel(check.result)}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8">
+            <Link to="/decision-result" search={{ evaluation: evaluation.id }} className="inline-flex items-center gap-2 text-sm font-bold text-aegis-primary transition-all hover:gap-3">
+              View full verification trail
+              <Icon name="arrow_forward" className="text-sm" />
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="dashboard-card p-6">
-          <div className="detail-list">
-            <div className="detail-row"><span>Decision</span><span>{evaluation.decision}</span></div>
-            <div className="detail-row"><span>Confidence</span><span>{evaluation.confidence}</span></div>
-            <div className="detail-row"><span>Reasoning provider</span><span>{getReasoningProviderLabel(evaluation.reasoningProvider)}</span></div>
-            <div className="detail-row"><span>Receipt ID</span><span>{evaluation.receipt.receiptId ?? evaluation.id}</span></div>
-            <div className="detail-row"><span>Evaluation hash</span><span>{evaluation.receipt.hash ?? 'Unavailable'}</span></div>
-          </div>
+      <div className="dashboard-card-muted flex flex-col justify-center border-l-4 border-aegis-primary p-8">
+        <div className="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-aegis-primary/10 text-aegis-primary">
+          <Icon name="gavel" className="text-2xl" />
         </div>
-
-        <div className="dashboard-card p-6">
-          <div className="space-y-3">
-            <Link to="/decision-result" search={{ evaluation: evaluation.id }} className="inline-flex w-full">
-              <Button variant="secondary" className="w-full justify-center">Open decision view</Button>
-            </Link>
-            {evaluation.receipt.urls?.receiptJson ? (
-              <a href={evaluation.receipt.urls.receiptJson} target="_blank" rel="noreferrer" className="inline-flex w-full">
-                <Button variant="secondary" className="w-full justify-center">Receipt JSON</Button>
-              </a>
-            ) : null}
-            {evaluation.receipt.urls?.agentJson ? (
-              <a href={evaluation.receipt.urls.agentJson} target="_blank" rel="noreferrer" className="inline-flex w-full">
-                <Button variant="secondary" className="w-full justify-center">Agent JSON</Button>
-              </a>
-            ) : null}
-            {evaluation.receipt.urls?.agentLog ? (
-              <a href={evaluation.receipt.urls.agentLog} target="_blank" rel="noreferrer" className="inline-flex w-full">
-                <Button variant="secondary" className="w-full justify-center">Agent log</Button>
-              </a>
-            ) : null}
-          </div>
+        <h4 className="font-headline text-lg font-bold text-aegis-text">Audit compliance</h4>
+        <p className="mt-3 text-sm leading-7 text-aegis-text-muted">
+          Treasury logs remain sealed inside the current browser session and linked to the hosted artifacts for review without changing the MVP storage model.
+        </p>
+        <div className="mt-6 space-y-3">
+          {evaluation.receipt.urls?.receiptJson ? (
+            <a href={evaluation.receipt.urls.receiptJson} target="_blank" rel="noreferrer" className="inline-flex w-full">
+              <Button variant="secondary" className="w-full justify-center">Open receipt JSON</Button>
+            </a>
+          ) : null}
+          {evaluation.receipt.urls?.agentLog ? (
+            <a href={evaluation.receipt.urls.agentLog} target="_blank" rel="noreferrer" className="inline-flex w-full">
+              <Button variant="secondary" className="w-full justify-center">Open agent log</Button>
+            </a>
+          ) : null}
         </div>
       </div>
     </section>

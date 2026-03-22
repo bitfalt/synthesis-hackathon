@@ -184,24 +184,51 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
         <section className="space-y-5">
           <div className="flex items-center justify-between gap-4">
             <h3 className="flex items-center gap-2 font-headline text-lg font-bold text-aegis-text">
-              <Icon name="public" className="text-aegis-secondary" />
-              Public summary and receipts
+              <Icon name="share" className="text-aegis-secondary" />
+              Public summary
             </h3>
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-aegis-secondary">Shareable lane</span>
           </div>
 
-          <div className="dashboard-card p-6">
-            <p className="text-sm leading-7 text-aegis-text-muted">{evaluation.publicSummary}</p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-white/8 bg-black/20 p-4">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Receipt class</div>
-                <div className="mt-2 text-sm font-semibold text-aegis-text">erc8004.guardrail.evaluation.v1</div>
+          <div className="dashboard-card relative overflow-hidden p-8">
+            <div className="absolute right-0 top-0 p-4 opacity-[0.04]">
+              <Icon name="verified_user" className="text-[88px] text-aegis-text" />
+            </div>
+            <div className="relative z-10 space-y-6">
+              <div className="border-b border-white/6 pb-6">
+                <div className="mb-2 text-sm font-bold text-aegis-text">Objective overview</div>
+                <p className="text-sm leading-7 text-aegis-text-muted">{evaluation.publicSummary}</p>
               </div>
-              <div className="rounded-lg border border-white/8 bg-black/20 p-4">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Evaluation hash</div>
-                <div className="mt-2 break-all text-sm font-semibold text-aegis-text">{evaluation.receipt.hash ?? 'Unavailable'}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Risk rating</div>
+                  <div className="mt-2 font-headline text-xl font-bold text-aegis-primary">{evaluation.decision === 'ALLOW' ? 'Negligible' : evaluation.decision === 'WARN' ? 'Controlled' : 'Elevated'}</div>
+                </div>
+                <div>
+                  <div className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Veto status</div>
+                  <div className="mt-2 font-headline text-xl font-bold text-aegis-text">{evaluation.decision === 'BLOCK' ? 'Active' : 'None'}</div>
+                </div>
+              </div>
+              {evaluation.receipt.urls?.receiptJson ? (
+                <a href={evaluation.receipt.urls.receiptJson} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-medium text-aegis-secondary transition-colors hover:text-aegis-primary">
+                  <Icon name="download" className="text-sm" />
+                  Download public audit JSON
+                </a>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="dashboard-card flex items-center justify-between gap-4 border-dashed p-6">
+            <div className="flex items-center gap-4">
+              <Icon name="receipt_long" className="text-3xl text-aegis-primary" />
+              <div>
+                <div className="text-sm font-bold text-aegis-text">Immutable trust receipt</div>
+                <div className="text-[0.6875rem] text-aegis-text-muted">Hash: {evaluation.receipt.hash ?? 'Unavailable'}</div>
               </div>
             </div>
+            <Link to="/evaluation-history" search={{ selected: evaluation.id }} className="inline-flex">
+              <Button variant="secondary">Verify record</Button>
+            </Link>
           </div>
 
           <div className="dashboard-card p-6">
@@ -216,6 +243,31 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
             </div>
           </div>
         </section>
+      </div>
+
+      <footer className="mt-auto flex flex-col items-center justify-between gap-6 border-t border-white/6 pt-10 md:flex-row">
+        <div className="flex flex-wrap gap-4">
+          <Link to="/evaluation-history" search={{ selected: evaluation.id }} className="inline-flex">
+            <Button leftIcon={<Icon name="verified" className="text-base" />}>Generate trust receipt</Button>
+          </Link>
+          <a href={evaluation.receipt.urls?.agentJson ?? evaluation.receipt.urls?.receiptJson ?? undefined} target="_blank" rel="noreferrer" className="inline-flex">
+            <Button variant="secondary" leftIcon={<Icon name="share_windows" className="text-base" />}>Share summary</Button>
+          </a>
+        </div>
+        <div className="flex items-center gap-6 text-sm text-aegis-text-muted">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-aegis-primary" />
+            Real-time guardrail monitoring
+          </div>
+          <div className="h-4 w-px bg-white/10" />
+          <div className="font-mono text-xs">v4.2.1-stable</div>
+        </div>
+      </footer>
+
+      <div className="fixed bottom-8 right-8 z-20 hidden lg:block">
+        <button className="grid h-14 w-14 place-items-center rounded-full border border-aegis-primary/20 bg-aegis-shell text-aegis-primary shadow-2xl shadow-black/30 transition-transform hover:scale-105" type="button">
+          <Icon name="gavel" className="text-xl" />
+        </button>
       </div>
     </div>
   )

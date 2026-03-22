@@ -43,7 +43,15 @@ export function SupportAccessPage() {
                 </div>
                 <p className="text-sm font-medium text-aegis-text">{ticket.title}</p>
                 <p className="mt-1 text-xs text-aegis-text-muted">{ticket.detail}</p>
-                {ticket.active ? <p className="mt-3 text-[10px] italic text-aegis-text-muted">Updated 2m ago</p> : null}
+                {ticket.active ? (
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex -space-x-2">
+                      <div className="grid h-6 w-6 place-items-center rounded-full border-2 border-aegis-shell bg-aegis-primary/20 text-[9px] font-bold text-aegis-primary">EV</div>
+                      <div className="grid h-6 w-6 place-items-center rounded-full border-2 border-aegis-shell bg-aegis-secondary/20 text-[9px] font-bold text-aegis-secondary">SE</div>
+                    </div>
+                    <p className="text-[10px] italic text-aegis-text-muted">Updated 2m ago</p>
+                  </div>
+                ) : null}
               </button>
             ))}
           </div>
@@ -118,7 +126,17 @@ export function SupportAccessPage() {
 
           <div className="border-t border-white/6 bg-aegis-shell p-4 lg:px-8">
             <div className="flex items-end gap-3 rounded-xl border border-white/8 bg-black/20 p-3">
-              <div className="min-h-12 flex-1 text-sm text-aegis-text-muted">Type a message or drop files...</div>
+              <div className="flex-1">
+                <div className="min-h-12 text-sm text-aegis-text-muted">Type a message or drop files...</div>
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-aegis-text-muted">
+                    <button className="rounded-lg p-1.5 hover:bg-white/5" type="button"><Icon name="attach_file" className="text-sm" /></button>
+                    <button className="rounded-lg p-1.5 hover:bg-white/5" type="button"><Icon name="image" className="text-sm" /></button>
+                    <button className="rounded-lg p-1.5 hover:bg-white/5" type="button"><Icon name="password" className="text-sm" /></button>
+                  </div>
+                  <span className="text-[10px] font-mono text-aegis-text-muted/65">Vault connection: SECURE</span>
+                </div>
+              </div>
               <button className="rounded-lg bg-aegis-primary p-3 text-zinc-950" type="button">
                 <Icon name="send" />
               </button>
@@ -147,8 +165,20 @@ export function SupportAccessPage() {
             <div>
               <div className="mb-2 text-[11px] uppercase tracking-[0.16em] text-aegis-text-muted">Related assets</div>
               <div className="space-y-2">
-                <div className="rounded-lg border border-white/8 bg-black/20 p-3 text-xs text-aegis-text-muted">vault-config-v3.json</div>
-                <div className="rounded-lg border border-white/8 bg-black/20 p-3 text-xs text-aegis-text-muted">error_log_0224.png</div>
+                <div className="flex items-center gap-3 rounded-lg border border-white/8 bg-black/20 p-3 text-xs text-aegis-text-muted">
+                  <Icon name="description" className="text-aegis-text-muted" />
+                  <div>
+                    <div className="text-aegis-text">vault-config-v4.json</div>
+                    <div className="text-[9px] text-aegis-text-muted/60">JSON · 12.4 KB</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-lg border border-white/8 bg-black/20 p-3 text-xs text-aegis-text-muted">
+                  <Icon name="image" className="text-aegis-text-muted" />
+                  <div>
+                    <div className="text-aegis-text">error_log_0x22.png</div>
+                    <div className="text-[9px] text-aegis-text-muted/60">PNG · 1.2 MB</div>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="rounded-xl border border-aegis-primary/12 bg-aegis-primary/6 p-4 text-sm leading-6 text-aegis-text-muted">

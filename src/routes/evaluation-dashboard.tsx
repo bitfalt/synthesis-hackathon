@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/button'
 import { FieldLabel, TextArea, UnderlinedSelectInput, UnderlinedTextArea, UnderlinedTextInput } from '~/components/ui/field'
 import { Icon } from '~/components/ui/icon'
 import { MetricCard } from '~/components/ui/metric-card'
-import { demoEvaluationDraft, guardrailCheckBlueprints, treasuryMetrics } from '~/content/aegis'
+import { demoEvaluationDraft, policies, treasuryMetrics } from '~/content/aegis'
 import { saveCompletedEvaluation, submitDemoEvaluation, type DemoEvaluationRequest } from '~/lib/api'
 
 export const Route = createFileRoute('/evaluation-dashboard')({
@@ -148,24 +148,30 @@ function EvaluationDashboardPage() {
             </div>
           </section>
 
-          <section className="dashboard-card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-headline text-lg font-bold text-aegis-text">Guardrail telemetry</h2>
-                <p className="mt-1 text-sm text-aegis-text-muted">Deterministic checks define the recommendation before the narrative layer writes any explanation.</p>
-              </div>
-              <Badge tone="primary">Deterministic first</Badge>
-            </div>
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              {guardrailCheckBlueprints.map((check, index) => (
-                <article key={check.name} className="rounded-xl border border-white/6 bg-aegis-panel px-5 py-4">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <h3 className="font-semibold text-aegis-text">{check.name}</h3>
-                    <span className={`inline-flex h-2.5 w-2.5 rounded-full ${index === 1 ? 'bg-aegis-warning' : 'bg-aegis-primary'}`} />
+          <section>
+            <div className="grid gap-6 md:grid-cols-3">
+              {policies.slice(0, 2).map((policy, index) => (
+                <article key={policy.id} className="dashboard-card p-6">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h3 className="font-headline text-lg font-bold text-aegis-text">{index === 0 ? 'Spending Limit' : 'Whitelist Only'}</h3>
+                    <span className="rounded bg-aegis-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-aegis-primary">Active</span>
                   </div>
-                  <p className="text-sm leading-6 text-aegis-text-muted">{check.detail}</p>
+                  <p className="min-h-16 text-xs leading-6 text-aegis-text-muted">
+                    {index === 0
+                      ? 'Daily withdrawal cap restricted to 2.5% of total TVL per multisig epoch.'
+                      : 'Funds can only be transferred to verified counterparty addresses.'}
+                  </p>
+                  <div className="mt-6 flex items-center gap-2 text-[10px] font-medium text-aegis-text-muted">
+                    <Icon name={index === 0 ? 'lock_clock' : 'verified'} className="text-sm text-aegis-primary" />
+                    <span>{index === 0 ? 'Expires in 184 days' : 'Verified protocols: 142'}</span>
+                  </div>
                 </article>
               ))}
+
+              <Link to="/add-security-policy-modal" className="dashboard-card flex min-h-[196px] flex-col items-center justify-center border-dashed text-center transition-colors hover:border-aegis-primary/25 hover:bg-white/[0.03]">
+                <Icon name="add_moderator" className="mb-3 text-3xl text-aegis-text-muted/45" />
+                <div className="text-xs font-bold uppercase tracking-[0.24em] text-aegis-text-muted hover:text-aegis-primary">Add security policy</div>
+              </Link>
             </div>
           </section>
         </div>

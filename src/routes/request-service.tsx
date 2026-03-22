@@ -110,17 +110,21 @@ export function RequestServicePage() {
           </div>
 
           <div className="dashboard-card p-6">
-            <h3 className="font-headline text-lg font-bold text-aegis-text">Expected response package</h3>
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-aegis-text-muted">
-              <li>ALLOW / WARN / BLOCK recommendation class</li>
-              <li>Confidence band and provider provenance</li>
-              <li>Private rationale for internal operators</li>
-              <li>Public-safe explanation for broader circulation</li>
-              <li>Structured trust artifacts and receipts</li>
-            </ul>
+            <p className="text-xs text-aegis-text-muted">Need immediate help?</p>
+            <button className="mt-2 block text-left text-sm font-bold text-aegis-secondary transition-colors hover:text-aegis-primary" type="button">
+              Chat with Sovereign Desk
+            </button>
+            <div className="mt-4 flex items-center gap-2">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Desk status: online</span>
+            </div>
           </div>
         </aside>
       </div>
+
+      <footer className="mt-24 border-t border-white/6 pt-10 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-aegis-text-muted/55">Proprietary system — Aegis Treasury Solutions v4.0.2</p>
+      </footer>
     </ConsoleLayout>
   )
 }

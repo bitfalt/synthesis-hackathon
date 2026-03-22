@@ -83,14 +83,20 @@ function LandingPage() {
               </Link>
             </div>
 
-            <div className="mt-12 grid gap-4 md:grid-cols-4" id="capabilities">
-              {featureCards.map((card) => (
-                <div key={card.title} className="rounded-xl border border-white/8 bg-black/20 p-5">
-                  <Icon name={card.icon} className="text-xl text-aegis-primary" />
-                  <h2 className="mt-4 text-sm font-bold text-aegis-text">{card.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-aegis-text-muted">{card.body}</p>
+            <div className="mt-10 flex items-center gap-6 rounded-2xl border border-white/6 bg-black/20 p-5 text-sm" id="capabilities">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl border border-aegis-primary/20 bg-aegis-primary/10 text-aegis-primary">
+                <Icon name="verified_user" className="text-3xl" />
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 sm:gap-8">
+                <div>
+                  <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Policy status</p>
+                  <p className="font-bold text-aegis-primary">Compliant</p>
                 </div>
-              ))}
+                <div>
+                  <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Receipt mode</p>
+                  <p className="font-bold text-aegis-text">Hosted demo</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -121,6 +127,73 @@ function LandingPage() {
           </div>
         </section>
 
+        <section className="border-y border-white/6 bg-aegis-shell/60 px-6 py-12 sm:px-8">
+          <div className="flex flex-col items-center justify-between gap-8 opacity-70 grayscale transition-all hover:grayscale-0 md:flex-row">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-aegis-text-muted">Secured by confidential computing</p>
+            <div className="flex flex-wrap items-center justify-center gap-10 font-headline text-2xl font-black text-aegis-text">
+              <span>ETHEREUM</span>
+              <span>LIDO</span>
+              <span>AAVE</span>
+              <span>MAKER</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-8">
+          <div className="space-y-4">
+            <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">Enterprise Guardrails</h2>
+            <p className="max-w-xl text-sm leading-7 text-aegis-text-muted">Deep structural security for high-velocity treasury management, ensuring every transaction aligns with institutional mandates.</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-12">
+            <article className="dashboard-card flex flex-col justify-between p-8 md:col-span-8">
+              <div>
+                <Icon name="visibility_off" className="mb-6 text-4xl text-aegis-primary" />
+                <h3 className="font-headline text-2xl font-bold text-aegis-text">Private Analysis</h3>
+                <p className="mt-4 max-w-md text-lg leading-8 text-aegis-text-muted">Execute policy checks inside the confidential lane so internal treasury logic never leaves your operator environment.</p>
+              </div>
+              <div className="mt-8 rounded-lg border border-white/6 bg-black/20 p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-aegis-primary" />
+                  <span className="text-[10px] font-mono uppercase text-aegis-primary">Confidential logic stream</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-1 rounded bg-white/6" />
+                  <div className="h-1 w-3/4 rounded bg-white/6" />
+                  <div className="h-1 w-5/6 rounded bg-white/6" />
+                </div>
+              </div>
+            </article>
+
+            {featureCards.slice(1, 3).map((card, index) => (
+              <article key={card.title} className={`p-8 md:col-span-4 ${index === 0 ? 'dashboard-card-muted' : 'dashboard-card'}`}>
+                <Icon name={card.icon} className={`mb-6 text-4xl ${index === 0 ? 'text-aegis-secondary' : 'text-aegis-warning'}`} />
+                <h3 className="font-headline text-2xl font-bold text-aegis-text">{card.title}</h3>
+                <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{card.body}</p>
+                {index === 0 ? (
+                  <button className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-aegis-secondary" type="button">
+                    Explore proofs
+                    <Icon name="arrow_forward" className="text-sm" />
+                  </button>
+                ) : null}
+              </article>
+            ))}
+
+            <article className="dashboard-card flex flex-col justify-between p-8 md:col-span-8">
+              <div className="flex items-start justify-between gap-6">
+                <div>
+                  <Icon name="api" className="mb-6 text-4xl text-aegis-primary" />
+                  <h3 className="font-headline text-2xl font-bold text-aegis-text">Evaluation-as-a-Service</h3>
+                  <p className="mt-4 max-w-md text-lg leading-8 text-aegis-text-muted">Integrate Aegis directly into your multisig or DAO workflow through the existing service surface and receipt layer.</p>
+                </div>
+                <div className="hidden h-48 w-48 items-center justify-center rounded-full border-4 border-dashed border-aegis-primary/10 lg:flex">
+                  <Icon name="hub" className="text-6xl text-aegis-primary/20" />
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
         <section className="grid gap-6 md:grid-cols-3">
           {stats.map(([label, value], index) => (
             <div key={label} className="rounded-2xl border border-white/8 bg-aegis-shell p-6">
@@ -131,7 +204,7 @@ function LandingPage() {
           ))}
         </section>
 
-        <section className="rounded-[28px] border border-white/8 bg-aegis-shell p-8 lg:p-10">
+        <section className="surface-glass rounded-[28px] border border-white/8 p-8 lg:p-16">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="font-headline text-3xl font-extrabold tracking-tight text-aegis-text">Secure Your Treasury&apos;s Future Today</h2>

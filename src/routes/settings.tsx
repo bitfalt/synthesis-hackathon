@@ -9,9 +9,9 @@ export const Route = createFileRoute('/settings')({
 })
 
 const notificationRows = [
-  ['Email alerts', 'Weekly performance reports'],
-  ['Real-time signals', 'Large asset movement'],
-  ['Webhook integration', 'Secure guardrail event feed'],
+  ['Email alerts', ['Weekly performance report', 'New governance proposals'], 'mail'],
+  ['Real-time signals', ['Transaction pending signing', 'Large asset movement'], 'message'],
+  ['Webhook integration', ['https://api.internal.vault/webhooks', 'Events: tx_initiated, tx_confirmed, protocol_warning'], 'terminal'],
 ] as const
 
 export function SettingsPage() {
@@ -143,6 +143,18 @@ export function SettingsPage() {
               </div>
             </div>
 
+            <div className="rounded-xl border border-white/8 bg-black/20 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-bold text-aegis-text">Hardware signer requirement</p>
+                  <p className="text-xs text-aegis-text-muted">Force hardware wallet signatures for any transaction greater than 10,000 USDC.</p>
+                </div>
+                <div className="h-6 w-11 rounded-full bg-aegis-primary p-0.5">
+                  <div className="ml-auto h-5 w-5 rounded-full bg-white" />
+                </div>
+              </div>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-3">
               <RuntimeCard title="Venice reasoning lane" badge="Optional env" tone="warning" body="Live Venice reasoning uses VENICE_API_KEY and defaults to qwen3-5-9b unless VENICE_MODEL is overridden. Without credentials, the MVP uses deterministic fallback wording." />
               <RuntimeCard title="ERC-8004 receipt mode" badge="Hosted demo" tone="info" body="The build publishes /.well-known/agent.json and hosted JSON receipt/log endpoints, but the artifacts are still unsigned demo surfaces." />
@@ -153,21 +165,28 @@ export function SettingsPage() {
 
         <section className="dashboard-card p-8 xl:col-span-12">
           <h2 className="font-headline text-xl font-bold text-aegis-text">Notification Preferences</h2>
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
-            {notificationRows.map(([title, subtitle], index) => (
-              <div key={title} className="rounded-xl border border-white/8 bg-black/20 p-5">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Icon name={index === 0 ? 'mail' : index === 1 ? 'campaign' : 'webhook'} className="text-aegis-primary" />
-                    <div>
-                      <div className="text-sm font-bold text-aegis-text">{title}</div>
-                      <div className="text-xs text-aegis-text-muted">{subtitle}</div>
-                    </div>
-                  </div>
-                  <div className="h-5 w-9 rounded-full bg-aegis-primary/90 p-0.5">
-                    <div className="ml-auto h-4 w-4 rounded-full bg-aegis-foundation" />
-                  </div>
+          <div className="mt-8 grid gap-12 lg:grid-cols-3">
+            {notificationRows.map(([title, values, icon]) => (
+              <div key={title} className="space-y-6">
+                <div className="flex items-center gap-3 text-aegis-primary">
+                  <Icon name={icon} />
+                  <span className="text-xs font-bold uppercase tracking-[0.18em] text-aegis-text">{title}</span>
                 </div>
+                {title === 'Webhook integration' ? (
+                  <div className="space-y-2">
+                    <input className="field-control-underlined py-2 text-xs" defaultValue={values[0]} />
+                    <p className="text-[10px] text-aegis-text-muted/60">{values[1]}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {values.map((value) => (
+                      <div key={value} className="flex items-center justify-between gap-4">
+                        <span className="text-sm text-aegis-text">{value}</span>
+                        <input checked className="h-4 w-4 rounded-sm accent-[#2dd4bf]" readOnly type="checkbox" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
