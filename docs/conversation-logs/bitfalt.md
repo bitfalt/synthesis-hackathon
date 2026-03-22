@@ -129,3 +129,15 @@ Session 11
 - Pivot or breakthrough: Using browser-local session data made it possible to visually QA the dense history/result states as rendered routes without widening app scope.
 - Artifacts created: `src/routes/screens.tsx`, `docs/conversation-logs/bitfalt.md`.
 - Next step: Create one atomic conventional commit for the UI reconciliation and QA pass.
+
+Session 12
+- Time: 2026-03-22 07:34 UTC
+- Participants: Human (bitfalt), OpenCode (gpt-5.4)
+- Goal: Repair the right-side `Propose Action` panel on the evaluation dashboard so it reads cleanly and professionally against the Stitch reference.
+- Human input: Reported that the right section still looked messy, specifically the destination label, strategic reason, asset label, and the endpoint disclosure in the private/public-safe receipt panel.
+- Agent work: Re-checked the Stitch dashboard form section, simplified the right panel back toward the original Stitch hierarchy, fixed field label block behavior, added a clean select affordance, removed endpoint disclosure from the explanatory copy, and re-ran build plus browser verification for `/evaluation-dashboard`.
+- Decisions made: Keep the public-facing panel focused on the Stitch-style action composer and move internal payload details behind the confidential disclosure, instead of exposing the transport layer in the primary UI.
+- Blockers: None.
+- Pivot or breakthrough: The biggest cleanup came from restoring the form to four primary fields and removing the extra preview block that was forcing awkward line wrapping in a narrow column.
+- Artifacts created: `src/routes/evaluation-dashboard.tsx`, `src/styles/app.css`, `docs/conversation-logs/bitfalt.md`.
+- Next step: Commit and push this dashboard polish if the user wants the fix published.

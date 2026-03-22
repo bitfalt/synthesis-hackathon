@@ -139,7 +139,7 @@
   }
 
   .field-label {
-    @apply text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-aegis-text-muted font-label;
+    @apply block text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-aegis-text-muted font-label;
   }
 
   .field-control {
@@ -154,7 +154,7 @@
   }
 
   .field-control-underlined {
-    @apply w-full border-0 border-b border-white/10 bg-black/0 px-0 py-3 text-sm text-aegis-text outline-none placeholder:text-aegis-text-muted/55;
+    @apply block w-full border-0 border-b border-white/10 bg-black/0 px-0 py-3 text-sm text-aegis-text outline-none placeholder:text-aegis-text-muted/55;
   }
 
   .field-control-underlined:focus {

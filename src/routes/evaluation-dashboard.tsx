@@ -1,9 +1,9 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { type FormEvent, useMemo, useState } from 'react'
+import { type FormEvent, useState } from 'react'
 import { ConsoleLayout } from '~/components/layout/console-layout'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
-import { FieldLabel, TextArea } from '~/components/ui/field'
+import { FieldLabel, TextArea, UnderlinedSelectInput, UnderlinedTextArea, UnderlinedTextInput } from '~/components/ui/field'
 import { Icon } from '~/components/ui/icon'
 import { MetricCard } from '~/components/ui/metric-card'
 import { demoEvaluationDraft, guardrailCheckBlueprints, treasuryMetrics } from '~/content/aegis'
@@ -20,30 +20,47 @@ const assetRows = [
   { name: 'Base Ecosystem', symbol: 'B', balance: 'Strategic Program', value: '$4,252,537', allocation: 10, accent: '#2dd4bf' },
 ] as const
 
+const assetOptions = ['Wrapped Ethereum (WETH)', 'USD Coin (USDC)', 'Lido stETH'] as const
+
+function deriveActionComposer(action: string) {
+  const amountMatch = action.match(/(\d+[\d,.]*)\s*(ETH|WETH|USDC|stETH)/i)
+  const destinationMatch = action.match(/to\s+([^.,\n]+)/i)
+
+  return {
+    amount: amountMatch?.[1] ?? '450',
+    asset: action.includes('stable') ? 'USD Coin (USDC)' : 'Wrapped Ethereum (WETH)',
+    destination: destinationMatch?.[1]?.trim() ?? 'Base MM Program',
+    reason: 'Deepen protocol liquidity while preserving runway and concentration thresholds.',
+  }
+}
+
 function EvaluationDashboardPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState<DemoEvaluationRequest>({ ...demoEvaluationDraft })
+  const [actionComposer, setActionComposer] = useState(() => deriveActionComposer(demoEvaluationDraft.proposedAction))
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const proposedActionPreview = useMemo(() => {
-    const amountMatch = form.proposedAction.match(/(\d+[\d,.]*)\s*ETH/i)
-    const destinationMatch = form.proposedAction.match(/to\s+([^.,\n]+)/i)
-
-    return {
-      amount: amountMatch ? `${amountMatch[1]} ETH` : '450 ETH',
-      asset: form.proposedAction.includes('stable') ? 'USD Coin (USDC)' : 'Wrapped Ethereum (WETH)',
-      destination: destinationMatch?.[1]?.trim() || 'Base ecosystem market-making program',
-    }
-  }, [form.proposedAction])
+  function updateActionField<K extends keyof typeof actionComposer>(key: K, value: (typeof actionComposer)[K]) {
+    setActionComposer((current) => {
+      const next = { ...current, [key]: value }
+      return next
+    })
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrorMessage(null)
     setIsSubmitting(true)
 
+    const composedAction = `${actionComposer.reason.trim()} Transfer ${actionComposer.amount || '0'} ${actionComposer.asset} to ${actionComposer.destination || 'the specified destination'} while keeping stablecoin runway intact.`
+    const payload: DemoEvaluationRequest = {
+      ...form,
+      proposedAction: composedAction,
+    }
+
     try {
-      const response = await submitDemoEvaluation(form)
+      const response = await submitDemoEvaluation(payload)
       const record = saveCompletedEvaluation(response)
 
       await navigate({
@@ -160,49 +177,52 @@ function EvaluationDashboardPage() {
               <Icon name="bolt" className="text-2xl text-aegis-primary" />
             </div>
 
-            <div className="mb-8 grid gap-3 rounded-xl border border-white/6 bg-black/20 p-4">
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-[11px] uppercase tracking-[0.2em] text-aegis-text-muted">Derived amount</span>
-                <span className="font-headline text-xl font-bold text-aegis-text">{proposedActionPreview.amount}</span>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-[11px] uppercase tracking-[0.2em] text-aegis-text-muted">Asset</span>
-                <span className="text-sm font-medium text-aegis-text">{proposedActionPreview.asset}</span>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-[11px] uppercase tracking-[0.2em] text-aegis-text-muted">Destination</span>
-                <span className="max-w-[180px] text-right text-sm text-aegis-text-muted">{proposedActionPreview.destination}</span>
-              </div>
-            </div>
-
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
-                <FieldLabel>Treasury policy</FieldLabel>
-                <TextArea
-                  value={form.treasuryPolicy}
-                  onChange={(event) => setForm((current) => ({ ...current, treasuryPolicy: event.target.value }))}
-                  className="mt-2 min-h-36 rounded-none border-0 border-b border-white/10 bg-transparent px-0"
-                  placeholder="Paste the confidential treasury policy or guardrail excerpts here."
+                <FieldLabel>Amount</FieldLabel>
+                <UnderlinedTextInput
+                  value={actionComposer.amount}
+                  onChange={(event) => updateActionField('amount', event.target.value)}
+                  className="mt-2 text-3xl font-headline font-extrabold tracking-tight"
+                  placeholder="0.00"
                 />
               </div>
 
               <div>
-                <FieldLabel>Treasury state</FieldLabel>
-                <TextArea
-                  value={form.treasuryState}
-                  onChange={(event) => setForm((current) => ({ ...current, treasuryState: event.target.value }))}
-                  className="mt-2 min-h-28 rounded-none border-0 border-b border-white/10 bg-transparent px-0"
-                  placeholder="Describe reserves, runway, concentration, and operator context."
+                <FieldLabel>Asset</FieldLabel>
+                <div className="relative mt-2">
+                  <UnderlinedSelectInput
+                    value={actionComposer.asset}
+                    onChange={(event) => updateActionField('asset', event.target.value as (typeof assetOptions)[number])}
+                    className="appearance-none pr-8"
+                  >
+                    {assetOptions.map((asset) => (
+                      <option key={asset} value={asset}>
+                        {asset}
+                      </option>
+                    ))}
+                  </UnderlinedSelectInput>
+                  <Icon name="expand_more" className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-base text-aegis-text-muted" />
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Destination address</FieldLabel>
+                <UnderlinedTextInput
+                  value={actionComposer.destination}
+                  onChange={(event) => updateActionField('destination', event.target.value)}
+                  className="mt-2 font-mono text-sm"
+                  placeholder="0x... or approved destination"
                 />
               </div>
 
               <div>
-                <FieldLabel>Strategic reason and proposed action</FieldLabel>
-                <TextArea
-                  value={form.proposedAction}
-                  onChange={(event) => setForm((current) => ({ ...current, proposedAction: event.target.value }))}
-                  className="mt-2 min-h-32 rounded-none border-0 border-b border-white/10 bg-transparent px-0"
-                  placeholder="Describe the treasury action you want Aegis to evaluate."
+                <FieldLabel>Strategic reason</FieldLabel>
+                <UnderlinedTextArea
+                  value={actionComposer.reason}
+                  onChange={(event) => updateActionField('reason', event.target.value)}
+                  className="mt-2 min-h-24"
+                  placeholder="Explain the rationale for this treasury movement..."
                 />
               </div>
 
@@ -212,7 +232,7 @@ function EvaluationDashboardPage() {
                   <Badge tone="info">Public-safe lane</Badge>
                   <Badge tone="neutral">Receipt attached</Badge>
                 </div>
-                <p className="mt-4">Submits to <code>/api/evaluate/demo</code>, stores only the completed result in session history, and routes to the live decision screen.</p>
+                <p className="mt-4">Private reasoning stays confidential, a bounded public-safe summary is generated for review, and the completed evaluation is retained in local session history for the decision flow.</p>
               </div>
 
               {errorMessage ? (
@@ -235,11 +255,42 @@ function EvaluationDashboardPage() {
                   variant="secondary"
                   disabled={isSubmitting}
                   className="w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={() => setForm({ ...demoEvaluationDraft })}
+                  onClick={() => {
+                    setForm({ ...demoEvaluationDraft })
+                    setActionComposer(deriveActionComposer(demoEvaluationDraft.proposedAction))
+                  }}
                 >
                   Reset demo inputs
                 </Button>
               </div>
+
+              <details className="rounded-xl border border-white/6 bg-black/20 p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-aegis-text">
+                  Private evaluation context
+                  <span className="text-xs uppercase tracking-[0.18em] text-aegis-text-muted">Confidential</span>
+                </summary>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <FieldLabel>Treasury policy</FieldLabel>
+                    <TextArea
+                      value={form.treasuryPolicy}
+                      onChange={(event) => setForm((current) => ({ ...current, treasuryPolicy: event.target.value }))}
+                      className="mt-2 min-h-24 rounded-lg border-white/6 bg-black/25 text-sm"
+                      placeholder="Paste the confidential treasury policy or guardrail excerpts here."
+                    />
+                  </div>
+
+                  <div>
+                    <FieldLabel>Treasury state</FieldLabel>
+                    <TextArea
+                      value={form.treasuryState}
+                      onChange={(event) => setForm((current) => ({ ...current, treasuryState: event.target.value }))}
+                      className="mt-2 min-h-20 rounded-lg border-white/6 bg-black/25 text-sm"
+                      placeholder="Describe reserves, runway, concentration, and operator context."
+                    />
+                  </div>
+                </div>
+              </details>
             </form>
           </section>
         </div>
