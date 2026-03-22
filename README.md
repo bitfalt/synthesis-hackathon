@@ -74,8 +74,17 @@ Venice powers confidential reasoning over treasury policy and internal state.
 ### Trusted identity and receipts
 ERC-8004 gives Aegis an agent identity, a manifest, and verifiable receipt/log primitives that make decisions auditable.
 
+Current MVP trust surfaces:
+- `/.well-known/agent.json` — published agent manifest
+- `/api/receipts/:receiptId` — hosted receipt JSON for completed evaluations
+- `/api/agent-logs/:receiptId` — hosted public-safe agent log JSON
+
 ### Service layer
 Base gives the product its service and distribution framing.
+
+Current MVP service surfaces:
+- `/api/evaluate/service` — callable evaluation endpoint for service-style access
+- `/api/x402/discovery` — Base/x402 discovery document for the evaluation service
 
 ## Frontend setup
 
@@ -115,7 +124,41 @@ The requested Design System asset from Stitch was exposed as a `DESIGN_SYSTEM_IN
 
 ## Current implementation surfaces
 - `/` — product overview and hackathon framing
+- `/evaluation-dashboard` — canonical MVP entry point for submitting one treasury evaluation
+- `/decision-result` — live decision output with private and public-safe explanation lanes
+- `/evaluation-history` — session-backed review log for completed evaluations
 - `/screens` — Stitch reference gallery
+
+## Demo API
+
+- `POST /api/evaluate/demo`
+- request fields:
+  - `treasuryPolicy`
+  - `treasuryState`
+  - `proposedAction`
+- response fields:
+  - `decision`
+  - `confidence`
+  - `triggeredChecks`
+  - `privateRationale`
+  - `publicSummary`
+  - `receipt`
+
+When `VENICE_API_KEY` and `VENICE_MODEL` are configured, the backend uses Venice for rationale and public-safe explanation wording. Without them, the MVP falls back to deterministic template output so the local demo loop still works.
+
+Current Venice default:
+- model fallback: `qwen3-5-9b`
+- base URL: `https://api.venice.ai/api/v1`
+
+## Trust and service surfaces
+
+- `/.well-known/agent.json` publishes the current demo agent manifest.
+- `/.well-known/x402` publishes the x402 discovery pointer for agent-service clients.
+- `/api/evaluate/service` exposes the evaluation flow as a callable service endpoint.
+- `/api/x402/discovery` advertises the Base/x402 service surface and current payment mode.
+- `/api/receipts/:receiptId` and `/api/agent-logs/:receiptId` host public-safe JSON artifacts for completed evaluations.
+
+Important: the current ERC-8004 and x402 layers are still demo-grade. Receipt artifacts are hosted JSON, but not signed. The x402 service surface can return a payment challenge when configured, but live settlement still requires additional payment configuration.
 
 ## Operating principle
 We only have a few days left, so this repo optimizes for:

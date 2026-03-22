@@ -20,6 +20,11 @@ import { Route as EvaluationDashboardRouteImport } from './routes/evaluation-das
 import { Route as DecisionResultRouteImport } from './routes/decision-result'
 import { Route as AddSecurityPolicyModalRouteImport } from './routes/add-security-policy-modal'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiX402DiscoveryRouteImport } from './routes/api/x402/discovery'
+import { Route as ApiReceiptsReceiptIdRouteImport } from './routes/api/receipts/$receiptId'
+import { Route as ApiEvaluateServiceRouteImport } from './routes/api/evaluate/service'
+import { Route as ApiEvaluateDemoRouteImport } from './routes/api/evaluate/demo'
+import { Route as ApiAgentLogsReceiptIdRouteImport } from './routes/api/agent-logs/$receiptId'
 
 const SupportAccessRoute = SupportAccessRouteImport.update({
   id: '/support-access',
@@ -76,6 +81,31 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiX402DiscoveryRoute = ApiX402DiscoveryRouteImport.update({
+  id: '/api/x402/discovery',
+  path: '/api/x402/discovery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReceiptsReceiptIdRoute = ApiReceiptsReceiptIdRouteImport.update({
+  id: '/api/receipts/$receiptId',
+  path: '/api/receipts/$receiptId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEvaluateServiceRoute = ApiEvaluateServiceRouteImport.update({
+  id: '/api/evaluate/service',
+  path: '/api/evaluate/service',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEvaluateDemoRoute = ApiEvaluateDemoRouteImport.update({
+  id: '/api/evaluate/demo',
+  path: '/api/evaluate/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentLogsReceiptIdRoute = ApiAgentLogsReceiptIdRouteImport.update({
+  id: '/api/agent-logs/$receiptId',
+  path: '/api/agent-logs/$receiptId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +119,11 @@ export interface FileRoutesByFullPath {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/support-access': typeof SupportAccessRoute
+  '/api/agent-logs/$receiptId': typeof ApiAgentLogsReceiptIdRoute
+  '/api/evaluate/demo': typeof ApiEvaluateDemoRoute
+  '/api/evaluate/service': typeof ApiEvaluateServiceRoute
+  '/api/receipts/$receiptId': typeof ApiReceiptsReceiptIdRoute
+  '/api/x402/discovery': typeof ApiX402DiscoveryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +137,11 @@ export interface FileRoutesByTo {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/support-access': typeof SupportAccessRoute
+  '/api/agent-logs/$receiptId': typeof ApiAgentLogsReceiptIdRoute
+  '/api/evaluate/demo': typeof ApiEvaluateDemoRoute
+  '/api/evaluate/service': typeof ApiEvaluateServiceRoute
+  '/api/receipts/$receiptId': typeof ApiReceiptsReceiptIdRoute
+  '/api/x402/discovery': typeof ApiX402DiscoveryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +156,11 @@ export interface FileRoutesById {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/support-access': typeof SupportAccessRoute
+  '/api/agent-logs/$receiptId': typeof ApiAgentLogsReceiptIdRoute
+  '/api/evaluate/demo': typeof ApiEvaluateDemoRoute
+  '/api/evaluate/service': typeof ApiEvaluateServiceRoute
+  '/api/receipts/$receiptId': typeof ApiReceiptsReceiptIdRoute
+  '/api/x402/discovery': typeof ApiX402DiscoveryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +176,11 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/support-access'
+    | '/api/agent-logs/$receiptId'
+    | '/api/evaluate/demo'
+    | '/api/evaluate/service'
+    | '/api/receipts/$receiptId'
+    | '/api/x402/discovery'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +194,11 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/support-access'
+    | '/api/agent-logs/$receiptId'
+    | '/api/evaluate/demo'
+    | '/api/evaluate/service'
+    | '/api/receipts/$receiptId'
+    | '/api/x402/discovery'
   id:
     | '__root__'
     | '/'
@@ -157,6 +212,11 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/support-access'
+    | '/api/agent-logs/$receiptId'
+    | '/api/evaluate/demo'
+    | '/api/evaluate/service'
+    | '/api/receipts/$receiptId'
+    | '/api/x402/discovery'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +231,11 @@ export interface RootRouteChildren {
   ScreensRoute: typeof ScreensRoute
   SettingsRoute: typeof SettingsRoute
   SupportAccessRoute: typeof SupportAccessRoute
+  ApiAgentLogsReceiptIdRoute: typeof ApiAgentLogsReceiptIdRoute
+  ApiEvaluateDemoRoute: typeof ApiEvaluateDemoRoute
+  ApiEvaluateServiceRoute: typeof ApiEvaluateServiceRoute
+  ApiReceiptsReceiptIdRoute: typeof ApiReceiptsReceiptIdRoute
+  ApiX402DiscoveryRoute: typeof ApiX402DiscoveryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +317,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/x402/discovery': {
+      id: '/api/x402/discovery'
+      path: '/api/x402/discovery'
+      fullPath: '/api/x402/discovery'
+      preLoaderRoute: typeof ApiX402DiscoveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/receipts/$receiptId': {
+      id: '/api/receipts/$receiptId'
+      path: '/api/receipts/$receiptId'
+      fullPath: '/api/receipts/$receiptId'
+      preLoaderRoute: typeof ApiReceiptsReceiptIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/evaluate/service': {
+      id: '/api/evaluate/service'
+      path: '/api/evaluate/service'
+      fullPath: '/api/evaluate/service'
+      preLoaderRoute: typeof ApiEvaluateServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/evaluate/demo': {
+      id: '/api/evaluate/demo'
+      path: '/api/evaluate/demo'
+      fullPath: '/api/evaluate/demo'
+      preLoaderRoute: typeof ApiEvaluateDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent-logs/$receiptId': {
+      id: '/api/agent-logs/$receiptId'
+      path: '/api/agent-logs/$receiptId'
+      fullPath: '/api/agent-logs/$receiptId'
+      preLoaderRoute: typeof ApiAgentLogsReceiptIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +367,11 @@ const rootRouteChildren: RootRouteChildren = {
   ScreensRoute: ScreensRoute,
   SettingsRoute: SettingsRoute,
   SupportAccessRoute: SupportAccessRoute,
+  ApiAgentLogsReceiptIdRoute: ApiAgentLogsReceiptIdRoute,
+  ApiEvaluateDemoRoute: ApiEvaluateDemoRoute,
+  ApiEvaluateServiceRoute: ApiEvaluateServiceRoute,
+  ApiReceiptsReceiptIdRoute: ApiReceiptsReceiptIdRoute,
+  ApiX402DiscoveryRoute: ApiX402DiscoveryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

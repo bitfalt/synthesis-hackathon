@@ -38,20 +38,29 @@ function SettingsPage() {
             <div className="rounded-3xl bg-black/15 p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="font-semibold text-aegis-text">Venice reasoning lane</p>
-                <Badge tone="primary">Healthy</Badge>
+                <Badge tone="warning">Optional env</Badge>
               </div>
+              <p className="mt-3 text-sm leading-6 text-aegis-text-muted">
+                Live Venice reasoning uses `VENICE_API_KEY` and defaults to `qwen3-5-9b` unless `VENICE_MODEL` is overridden. Without credentials, the MVP uses deterministic fallback wording.
+              </p>
             </div>
             <div className="rounded-3xl bg-black/15 p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="font-semibold text-aegis-text">ERC-8004 receipt mode</p>
-                <Badge tone="info">Configured</Badge>
+                <Badge tone="info">Hosted demo</Badge>
               </div>
+              <p className="mt-3 text-sm leading-6 text-aegis-text-muted">
+                The current build publishes `/.well-known/agent.json` and hosted JSON receipt/log endpoints, but the artifacts are still unsigned demo surfaces.
+              </p>
             </div>
             <div className="rounded-3xl bg-black/15 p-5">
               <div className="flex items-center justify-between gap-3">
                 <p className="font-semibold text-aegis-text">Base service layer</p>
-                <Badge tone="warning">Demo-mode</Badge>
+                <Badge tone="info">Discovery live</Badge>
               </div>
+              <p className="mt-3 text-sm leading-6 text-aegis-text-muted">
+                The service exposes Base-aware discovery at `/api/x402/discovery`, `/.well-known/x402`, and a callable `/api/evaluate/service` endpoint. Live x402 settlement still needs facilitator verification beyond the current challenge surface.
+              </p>
             </div>
           </div>
         </Panel>

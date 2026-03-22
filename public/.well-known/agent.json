@@ -1,0 +1,46 @@
+{
+  "schema": "erc8004.agent.manifest.v1",
+  "name": "Aegis Treasury Guardrails",
+  "version": "demo-mvp",
+  "description": "Private treasury decision service for evaluating one proposed treasury action against confidential internal policy.",
+  "operator": "Aegis Treasury Guardrails",
+  "service": {
+    "type": "treasury-guardrail-evaluation",
+    "entrypoints": {
+      "demo": "/api/evaluate/demo",
+      "service": "/api/evaluate/service",
+      "x402Discovery": "/api/x402/discovery"
+    },
+    "artifacts": {
+      "receiptTemplate": "/api/receipts/:receiptId",
+      "agentLogTemplate": "/api/agent-logs/:receiptId"
+    }
+  },
+  "networks": [
+    {
+      "network": "eip155:8453",
+      "chainId": 8453,
+      "name": "Base"
+    }
+  ],
+  "integrations": {
+    "venice": {
+      "mode": "optional-env",
+      "baseUrl": "https://api.venice.ai/api/v1"
+    },
+    "erc8004": {
+      "receiptClass": "erc8004.guardrail.evaluation.v1",
+      "mode": "hosted-json-artifacts"
+    },
+    "x402": {
+      "mode": "discovery-and-service-surface",
+      "network": "eip155:8453",
+      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    }
+  },
+  "caveats": [
+    "Hosted receipt and log endpoints are demo-grade and not signed.",
+    "Venice requires VENICE_API_KEY and VENICE_MODEL to be configured.",
+    "x402 settlement is not fully verified on the server runtime yet."
+  ]
+}
