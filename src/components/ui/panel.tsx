@@ -17,5 +17,5 @@ export function Panel({
   className?: string
   children: React.ReactNode
 }) {
-  return <section className={cn('rounded-[28px] p-6', toneClasses[tone], className)}>{children}</section>
+  return <section className={cn('rounded-2xl p-6', toneClasses[tone], className)}>{children}</section>
 }

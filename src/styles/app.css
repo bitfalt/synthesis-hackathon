@@ -10,6 +10,7 @@
   --aegis-primary-bright: #57f1db;
   --aegis-secondary: #60a5fa;
   --aegis-warning: #f59e0b;
+  --aegis-danger: #ff8f87;
   --aegis-text: #e5e2e1;
   --aegis-text-muted: #bacac5;
   --aegis-outline: #3c4a46;
@@ -25,6 +26,7 @@
   --color-aegis-primary-bright: var(--aegis-primary-bright);
   --color-aegis-secondary: var(--aegis-secondary);
   --color-aegis-warning: var(--aegis-warning);
+  --color-aegis-danger: var(--aegis-danger);
   --color-aegis-text: var(--aegis-text);
   --color-aegis-text-muted: var(--aegis-text-muted);
   --color-aegis-outline: var(--aegis-outline);
@@ -41,6 +43,10 @@
 
   body {
     @apply bg-aegis-foundation text-aegis-text font-body;
+    background-image:
+      radial-gradient(circle at top left, rgba(45, 212, 191, 0.06), transparent 24%),
+      radial-gradient(circle at top right, rgba(96, 165, 250, 0.05), transparent 18%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0));
   }
 
   a,
@@ -62,7 +68,7 @@
   }
 
   .surface-shell {
-    background: rgba(28, 27, 27, 0.96);
+    background: rgba(28, 27, 27, 0.98);
   }
 
   .surface-panel {
@@ -74,9 +80,9 @@
   }
 
   .surface-glass {
-    background: rgba(53, 53, 52, 0.38);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: rgba(53, 53, 52, 0.42);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .eyebrow {
@@ -92,7 +98,7 @@
   }
 
   .console-nav-item {
-    @apply flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text;
+    @apply flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text;
   }
 
   .console-nav-item-active {
@@ -101,35 +107,35 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-full bg-aegis-primary px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-aegis-primary-bright;
+    @apply inline-flex items-center gap-2 rounded-lg bg-aegis-primary px-5 py-3 text-sm font-bold uppercase tracking-[0.12em] text-zinc-950 hover:bg-aegis-primary-bright;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 rounded-full border border-white/12 px-5 py-3 text-sm font-semibold text-aegis-text hover:bg-white/5;
+    @apply inline-flex items-center gap-2 rounded-lg border border-white/12 px-5 py-3 text-sm font-semibold text-aegis-text hover:bg-white/5;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text;
+    @apply inline-flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text;
   }
 
   .badge {
-    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] font-label;
+    @apply inline-flex items-center rounded-md border px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] font-label;
   }
 
   .badge-primary {
-    @apply bg-aegis-primary/12 text-aegis-primary;
+    @apply border-aegis-primary/20 bg-aegis-primary/12 text-aegis-primary;
   }
 
   .badge-warning {
-    @apply bg-aegis-warning/12 text-aegis-warning;
+    @apply border-aegis-warning/20 bg-aegis-warning/12 text-aegis-warning;
   }
 
   .badge-info {
-    @apply bg-aegis-secondary/12 text-aegis-secondary;
+    @apply border-aegis-secondary/20 bg-aegis-secondary/12 text-aegis-secondary;
   }
 
   .badge-neutral {
-    @apply bg-white/6 text-aegis-text-muted;
+    @apply border-white/8 bg-white/6 text-aegis-text-muted;
   }
 
   .field-label {
@@ -137,14 +143,22 @@
   }
 
   .field-control {
-    @apply w-full rounded-3xl bg-black/15 px-4 py-3 text-sm text-aegis-text outline-none placeholder:text-aegis-text-muted/70;
-    box-shadow: inset 0 0 0 1px rgba(60, 74, 70, 0.24);
+    @apply w-full rounded-lg border border-white/8 bg-black/20 px-4 py-3 text-sm text-aegis-text outline-none placeholder:text-aegis-text-muted/70;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.03);
   }
 
   .field-control:focus {
     box-shadow:
       inset 0 0 0 1px rgba(45, 212, 191, 0.65),
       0 0 0 4px rgba(45, 212, 191, 0.08);
+  }
+
+  .field-control-underlined {
+    @apply w-full border-0 border-b border-white/10 bg-black/0 px-0 py-3 text-sm text-aegis-text outline-none placeholder:text-aegis-text-muted/55;
+  }
+
+  .field-control-underlined:focus {
+    box-shadow: inset 0 -1px 0 rgba(45, 212, 191, 0.75);
   }
 
   .metric-grid {
@@ -156,11 +170,47 @@
   }
 
   .detail-row {
-    @apply flex items-start justify-between gap-4 rounded-2xl bg-black/10 px-4 py-3 text-sm text-aegis-text-muted;
+    @apply flex items-start justify-between gap-4 rounded-xl bg-black/10 px-4 py-3 text-sm text-aegis-text-muted;
   }
 
   .stitch-preview-frame {
     @apply overflow-hidden rounded-[28px] bg-aegis-panel;
     box-shadow: inset 0 0 0 1px rgba(60, 74, 70, 0.22);
+  }
+
+  .dashboard-shell {
+    @apply min-h-screen bg-aegis-foundation;
+  }
+
+  .dashboard-sidebar {
+    @apply fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col bg-aegis-shell md:flex;
+  }
+
+  .dashboard-main {
+    @apply min-h-screen md:ml-64;
+  }
+
+  .dashboard-topbar {
+    @apply sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-aegis-foundation/95 px-6 backdrop-blur-md lg:px-8;
+  }
+
+  .dashboard-canvas {
+    @apply px-6 py-10 lg:px-10 lg:py-12;
+  }
+
+  .dashboard-page-header {
+    @apply mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between;
+  }
+
+  .dashboard-card {
+    @apply rounded-xl border border-white/6 bg-aegis-shell;
+  }
+
+  .dashboard-card-muted {
+    @apply rounded-xl border border-white/6 bg-aegis-panel;
+  }
+
+  .dashboard-table-row {
+    @apply border-t border-white/6 transition-colors hover:bg-white/[0.03];
   }
 }

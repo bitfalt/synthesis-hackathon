@@ -9,75 +9,101 @@ export function ConsoleLayout({
   description,
   eyebrow,
   actions,
+  topbarActions,
+  contentClassName,
+  hidePageHeader,
   children,
 }: {
   title: string
   description?: string
   eyebrow?: string
   actions?: React.ReactNode
+  topbarActions?: React.ReactNode
+  contentClassName?: string
+  hidePageHeader?: boolean
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-[calc(100vh-7rem)] gap-6 lg:gap-8">
-      <aside className="hidden w-72 shrink-0 lg:flex lg:flex-col">
-        <div className="surface-shell ghost-outline sticky top-24 flex h-[calc(100vh-8rem)] flex-col rounded-[32px] p-6">
-          <div className="mb-8">
-            <p className="text-lg font-bold tracking-tight text-aegis-primary font-headline">
-              Aegis Guardrails
-            </p>
-            <p className="mt-1 text-xs uppercase tracking-[0.22em] text-aegis-text-muted/70">
-              The Sovereign Vault
-            </p>
-          </div>
+    <div className="dashboard-shell">
+      <aside className="dashboard-sidebar">
+        <div className="px-6 pb-8 pt-8">
+          <p className="font-headline text-xl font-bold tracking-tight text-aegis-primary">The Sovereign Vault</p>
+          <p className="mt-1 text-[0.65rem] uppercase tracking-[0.28em] text-aegis-text-muted/50">Enterprise grade</p>
+        </div>
 
-          <nav className="space-y-1">
-            {consoleNav.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                activeProps={{ className: 'console-nav-item console-nav-item-active' }}
-                className="console-nav-item"
-              >
-                <Icon name={item.icon} className="text-xl" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          <div className="mt-auto space-y-4 pt-6">
-            <div className="rounded-2xl bg-aegis-highest p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-aegis-text-muted">Vault health</p>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/25">
-                <div className="h-full w-4/5 rounded-full bg-aegis-primary" />
-              </div>
-              <p className="mt-3 text-sm text-aegis-text-muted">80% operational readiness, all critical guardrails synced.</p>
-            </div>
-            <Link to="/request-service" className="block">
-              <Button className="w-full justify-center" leftIcon={<Icon name="bolt" className="text-lg" />}>
-                Request Service
-              </Button>
+        <nav className="flex-1 px-4">
+          {consoleNav.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              activeProps={{ className: 'console-nav-item console-nav-item-active' }}
+              className="console-nav-item"
+            >
+              <Icon name={item.icon} className="text-[20px]" />
+              <span>{item.label}</span>
             </Link>
+          ))}
+        </nav>
+
+        <div className="mt-auto px-4 pb-6">
+          <Link to="/add-security-policy-modal" className="block">
+            <Button className="w-full justify-center">New Policy</Button>
+          </Link>
+          <div className="mt-6 flex items-center gap-3 border-t border-white/5 px-4 py-4 text-xs text-aegis-text-muted">
+            <Icon name="verified_user" className="text-base" />
+            <span>Security Status</span>
           </div>
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1 space-y-6">
-        <header className="surface-glass ghost-outline flex flex-col gap-4 rounded-[32px] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-3">
-            {eyebrow ? <p className="eyebrow text-aegis-primary/80">{eyebrow}</p> : null}
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-aegis-text font-headline sm:text-4xl">
-                {title}
-              </h1>
-              {description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-aegis-text-muted sm:text-base">{description}</p> : null}
+      <div className="dashboard-main">
+        <header className="dashboard-topbar">
+          <div className="flex items-center gap-4 lg:gap-6">
+            <p className="font-headline text-xl font-bold tracking-tight text-aegis-primary">Aegis Treasury</p>
+            <div className="hidden h-4 w-px bg-white/10 lg:block" />
+            <div className="hidden items-center gap-2 rounded-lg border border-white/6 bg-black/20 px-3 py-2 lg:flex">
+              <Icon name="search" className="text-sm text-aegis-text-muted/70" />
+              <input
+                className="w-52 bg-transparent text-xs text-aegis-text outline-none placeholder:text-aegis-text-muted/40"
+                name="shell-search"
+                placeholder="Search treasury records..."
+                type="text"
+              />
             </div>
           </div>
-          <div className={cn('flex flex-wrap items-center gap-3', actions ? '' : 'sm:self-start')}>
-            {actions}
+
+          <div className="flex items-center gap-3 lg:gap-6">
+            <div className="hidden items-center gap-2 text-aegis-text-muted lg:flex">
+              <button className="rounded-lg p-2 hover:bg-white/5" type="button">
+                <Icon name="notifications" className="text-[18px]" />
+              </button>
+              <button className="rounded-lg p-2 hover:bg-white/5" type="button">
+                <Icon name="security" className="text-[18px]" />
+              </button>
+              <button className="rounded-lg p-2 hover:bg-white/5" type="button">
+                <Icon name="account_balance_wallet" className="text-[18px]" />
+              </button>
+            </div>
+            {topbarActions}
           </div>
         </header>
 
-        {children}
+        <main className={cn('dashboard-canvas', contentClassName)}>
+          {hidePageHeader ? null : (
+            <div className="dashboard-page-header">
+              <div className="max-w-3xl">
+                {eyebrow ? <p className="eyebrow mb-3 text-aegis-primary/80">{eyebrow}</p> : null}
+                <h1 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text lg:text-5xl">{title}</h1>
+                {description ? <p className="mt-3 max-w-2xl text-sm leading-7 text-aegis-text-muted">{description}</p> : null}
+              </div>
+              <div className={cn('flex flex-wrap items-center gap-3', actions ? '' : 'hidden')}>
+                {actions}
+              </div>
+            </div>
+          )}
+
+          {children}
+        </main>
       </div>
     </div>
   )

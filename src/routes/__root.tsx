@@ -58,7 +58,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="min-h-screen bg-aegis-foundation text-aegis-text antialiased">
-        <div className="mx-auto min-h-screen max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="min-h-screen">
           {children}
         </div>
         <TanStackRouterDevtools position="bottom-right" />

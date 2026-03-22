@@ -105,3 +105,27 @@ Session 9
 - Pivot or breakthrough: The UI and hosted artifacts now carry the same provenance contract, which makes Venice usage inspectable both in-product and outside it.
 - Artifacts created: `docs/conversation-logs/bitfalt.md`.
 - Next step: Commit the coherent MVP integration work and push the branch to the tracked remote.
+
+Session 10
+- Time: 2026-03-22 06:42 UTC
+- Participants: Human (bitfalt), OpenCode (gpt-5.4)
+- Goal: Do a full UI-only reconciliation pass between the Stitch exports and the routed app pages, prioritizing visual fidelity and demo polish without touching backend or integration logic.
+- Human input: Reconcile every Stitch HTML screen against the actual routed pages, update the routed React pages to visually match the Stitch designs as closely as possible, preserve existing functionality, and verify the routes in the browser.
+- Agent work: Audited the local Stitch HTML exports and screenshots, mapped them to the routed pages, reworked the global app shell and UI tokens for a closer Stitch feel, rebuilt the landing page plus every mapped route's presentation layer, upgraded the policy modal/policy management shared content, ran `bun run build`, and visually checked key routes locally on `http://127.0.0.1:3004/`.
+- Decisions made: Use one sharper shared console shell to bring most routes closer to Stitch faster; preserve the existing live evaluation/history/decision data wiring while changing only presentation; use presentational/static content where the Stitch screens need richer supporting UI than the MVP data model provides.
+- Blockers: The requested external Stitch export path did not exist in this environment, so the pass used the repo-local exports under `public/stitch/html`; the dashboard submit flow was still waiting on the live evaluation call during one browser check, so the visual verification focused on route rendering plus successful build/typecheck.
+- Pivot or breakthrough: The biggest fidelity win came from removing the old rounded interior shell, switching to a fixed sidebar/topbar canvas, and then rebuilding each route to match the Stitch density and hierarchy instead of only tweaking cards.
+- Artifacts created: `src/routes/index.tsx`, `src/routes/evaluation-dashboard.tsx`, `src/routes/evaluation-history.tsx`, `src/routes/decision-result.tsx`, `src/routes/policy-management.tsx`, `src/routes/request-service.tsx`, `src/routes/settings.tsx`, `src/routes/support-access.tsx`, `src/routes/help-center.tsx`, `src/routes/add-security-policy-modal.tsx`, `src/components/layout/console-layout.tsx`, `src/components/pages/policy-management-content.tsx`, `src/components/ui/field.tsx`, `src/components/ui/panel.tsx`, `src/routes/__root.tsx`, `src/styles/app.css`, `docs/conversation-logs/bitfalt.md`.
+- Next step: If needed, do one tighter polish pass on edge-case responsive behavior and the remaining exact-parity details after a broader full-route browser walkthrough.
+
+Session 11
+- Time: 2026-03-22 07:08 UTC
+- Participants: Human (bitfalt), OpenCode (gpt-5.4)
+- Goal: Double-check the reconciliation work, do a final micro-polish pass, and run route-by-route screenshot QA before preparing a conventional commit.
+- Human input: Requested a double-check, final micro-polish pass, conventional commit, and route-by-route screenshot QA pass.
+- Agent work: Re-audited the updated routes against the Stitch references, polished the `/screens` registry route to match the new shell, re-ran `bun run build`, generated browser screenshots for `/`, `/evaluation-dashboard`, `/evaluation-history`, `/decision-result`, `/policy-management`, `/request-service`, `/settings`, `/support-access`, and `/help-center`, and used session-scoped mock history entries locally to inspect the populated history and decision-result states without changing backend code.
+- Decisions made: Keep the screenshot QA route pass UI-only by seeding `sessionStorage` in the browser for populated receipt/history states rather than altering API or persistence behavior; keep the `.claude/` local files uncommitted.
+- Blockers: Session-backed history is tab-scoped, so populated QA for `/evaluation-history` and `/decision-result` required per-tab mock session seeding during browser verification.
+- Pivot or breakthrough: Using browser-local session data made it possible to visually QA the dense history/result states as rendered routes without widening app scope.
+- Artifacts created: `src/routes/screens.tsx`, `docs/conversation-logs/bitfalt.md`.
+- Next step: Create one atomic conventional commit for the UI reconciliation and QA pass.
