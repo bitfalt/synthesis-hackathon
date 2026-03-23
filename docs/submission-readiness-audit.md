@@ -10,16 +10,16 @@ This audit is optimized for final Synthesis submission readiness under severe ti
 | --- | --- | --- | --- | --- | --- | --- |
 | `/` | Strong landing page and live route entry point | Explains the product and sends reviewers into the MVP | Partially real | Decorative stats and mislabeled CTAs can undermine trust | Keep it, but use only honest demo metrics and route labels | `~30m` |
 | `/evaluation-dashboard` | Main evaluation form posts to the backend and navigates to result | Highest-value operator flow | Fully working for demo scope | Surrounding mock data can confuse judges about what is actually wired | Keep as the canonical live MVP route and label surrounding panels as illustrative | `~20m` |
-| `/decision-result` | Reads real result data from the durable local store and shows hosted artifact links | Shows the privacy split and receipt story | Fully working for demo scope | Trust copy can overstate signatures or immutability | Keep, but explicitly label hosted artifacts as demo-grade and unsigned | `~30m` |
-| `/evaluation-history` | Reads real completed runs from the durable local store | Makes the flow reviewable and repeatable | Fully working for persisted demo scope | Dead filter/export controls and over-strong audit language reduce credibility | Keep, show it as durable history, and disable non-functional controls | `~20m` |
-| `/policy-management` | Structured policy registry plus modal route | Useful supporting proof beyond the core loop | Supporting surface with live CRUD | Could distract judges from the faster canonical flow if presented as equally important | Keep it honest as a supporting surface and make the dashboard/result/history loop the first thing judges test | `~10m` |
+| `/decision-result` | Reads real result data from the durable local store and shows hosted artifact links | Shows the privacy split and receipt story | Fully working for demo scope | Direct entry without an explicit ID or public/private data confusion can undermine the privacy story | Keep, require explicit IDs, and make the private lane session-bound instead of public by default | `~30m` |
+| `/evaluation-history` | Reads real completed runs from the durable local store | Makes the flow reviewable and repeatable | Fully working for persisted demo scope | Public history can overexpose raw state/action text if it reuses the private record shape | Keep, but serve only public-safe history data and disable non-functional controls | `~20m` |
+| `/policy-management` | Structured policy registry plus modal route | Useful supporting proof beyond the core loop | Live supporting surface with real CRUD | Inconsistent labeling can make a real feature look fake or vice versa | Keep it honest as a live supporting surface and make the dashboard/result/history loop the first thing judges test | `~10m` |
 | `/request-service` | Enterprise intake layout | Low immediate MVP value | Demo / preview | Fake concierge promises and live-looking submit CTA mislead reviewers | Keep only as preview, disable submit, and remove unsupported guarantees | `~20m` |
 | `/settings` | Mixed runtime disclosures and static controls | Medium value if used for honest disclosures | Partially real | Fake save/update controls distract from the useful runtime truth cards | Keep the page, but frame it as runtime disclosures plus non-persistent settings preview | `~20m` |
 | `/support-access` | High-fidelity concierge workspace mock | Very low MVP value today | Demo / preview | Live chat affordances imply functionality that does not exist | Keep as labeled preview or demo theater only; disable obvious controls | `~25m` |
 | `/help-center` | Static docs/help shell | Can become useful quickly for judges | Partially real | Looks like a docs portal even though most content is not linked to real assets | Convert into a truthful review hub with links to live routes and trust surfaces | `~30m` |
 | `/screens` | Stitch-to-route registry | High reviewer value | Fully working for reference scope | Minor risk of overstating route fidelity | Keep and describe it as a reference index, not a product feature | `~10m` |
 | `/api/evaluate/demo` | Validated POST endpoint, deterministic guardrails, optional Venice reasoning | Core backend proof | Fully working for demo scope | Could be mistaken for production-grade policy infrastructure | Keep and describe as the demo evaluator contract | `~0m` |
-| `/api/evaluate/service` | Service-shaped endpoint with x402 challenge behavior | Good service framing for Base | Partially real | Readers may assume paid settlement is complete | Keep, but label as x402 discovery/challenge scaffold | `~0m` |
+| `/api/evaluate/service` | Service-shaped endpoint with x402 challenge behavior | Good service framing for Base | Partially real | Readers may assume paid settlement is complete or enabled by default | Keep, but default to open-demo mode and label payment-required mode as explicit scaffold | `~0m` |
 | `/api/receipts/:receiptId` | Hosted receipt JSON | Helpful trust artifact | Partially real | Artifacts are now durable locally but still unsigned | Keep, but frame as hosted demo artifacts | `~0m` |
 | `/api/agent-logs/:receiptId` | Hosted public-safe log JSON | Helpful trust artifact | Partially real | Artifacts are now durable locally but still unsigned | Keep, but frame as hosted demo artifacts | `~0m` |
 | `/.well-known/agent.json` | Published manifest | Strong reviewer surface | Partially real but honest | Low risk; already caveated | Keep as-is and reference it from UI/docs | `~0m` |
@@ -30,8 +30,10 @@ This audit is optimized for final Synthesis submission readiness under severe ti
 ### P0: must-fix for submission
 
 - Make the canonical loop unmistakable: `/evaluation-dashboard` -> `/decision-result` -> `/evaluation-history`.
+- Keep `/api/evaluations` and `/api/evaluations/:id` public-safe only; do not expose private rationale, raw treasury state, or full policy snapshots there.
+- Require an explicit evaluation ID for `/decision-result` instead of silently loading the latest stored run.
+- Hash exactly the same receipt JSON body that `/api/receipts/:receiptId` publishes.
 - Remove or disable dead-end controls that imply live wallet, analytics, filter/export, chat, or save flows.
-- Add explicit `Demo preview`, `Submission preview`, or `Coming soon` treatment to non-MVP routes.
 - Soften any copy that implies signed receipts, immutable proofs, live concierge staffing, or complete x402 settlement.
 - Give judges one truthful review surface that links to the real manifest, x402 discovery, and screen registry.
 
@@ -55,7 +57,7 @@ This audit is optimized for final Synthesis submission readiness under severe ti
 - `/evaluation-history`
 - `/api/evaluate/demo`
 
-### Supporting surface
+### Live supporting surface
 
 - `/`
 - `/policy-management`
@@ -75,6 +77,11 @@ This audit is optimized for final Synthesis submission readiness under severe ti
 - `/.well-known/x402`
 - `/api/x402/discovery`
 
+### Public-safe API surface
+
+- `/api/evaluations`
+- `/api/evaluations/:id`
+
 ### Coming soon / not yet available
 
 - CSV export from history
@@ -85,3 +92,4 @@ This audit is optimized for final Synthesis submission readiness under severe ti
 - Persistent settings save flows
 - Full x402 payment verification and settlement
 - Signed ERC-8004-grade receipts
+- Public API access to private rationale or raw treasury state

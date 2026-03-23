@@ -41,6 +41,6 @@
   "caveats": [
     "Hosted receipt and log endpoints are demo-grade and not signed.",
     "Venice requires VENICE_API_KEY and VENICE_MODEL to be configured.",
-    "x402 settlement is not fully verified on the server runtime yet."
+    "x402 defaults to open-demo mode unless explicitly enabled via env, and settlement is not fully verified on the server runtime yet."
   ]
 }

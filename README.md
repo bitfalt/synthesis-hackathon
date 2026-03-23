@@ -34,14 +34,15 @@ Important local notes:
 | Status | Routes | What to do |
 | --- | --- | --- |
 | Live MVP | `/evaluation-dashboard`, `/decision-result`, `/evaluation-history` | Test these first |
-| Supporting surface | `/`, `/policy-management`, `/settings`, `/help-center`, `/screens`, `/add-security-policy-modal` | Use for framing, policy inspection, route inventory, and runtime disclosures |
+| Live supporting surface | `/`, `/policy-management`, `/settings`, `/help-center`, `/screens`, `/add-security-policy-modal` | Use for framing, policy inspection, route inventory, and runtime disclosures |
 | Demo-grade artifact surface | `/request-service`, `/support-access` | Treat as labeled UI artifacts, not core product proof |
 
 ### Honesty notes
 
 - `/.well-known/agent.json` is published, but ERC-8004-grade signed identity and signed receipts are not complete yet
-- `/api/evaluate/service`, `/.well-known/x402`, and `/api/x402/discovery` are real discovery/service surfaces, but full x402 settlement verification is not complete yet
+- `/api/evaluate/service`, `/.well-known/x402`, and `/api/x402/discovery` are real discovery/service surfaces; they default to open-demo mode unless x402 is explicitly enabled via env, and full settlement verification is not complete yet
 - receipt JSON and agent log JSON are hosted public-safe demo artifacts, not signed immutable proofs
+- `/api/evaluations` and `/api/evaluations/:id` are public-safe history endpoints; raw treasury state, full policy snapshots, and private rationale are not exposed there
 
 ## Problem
 
@@ -123,6 +124,8 @@ Current MVP reality:
 
 Current MVP trust surfaces:
 - `/.well-known/agent.json` — published agent manifest
+- `/api/auth/challenge` + `/api/auth/verify` — signed operator session handshake
+- `/api/auth/session` + `/api/auth/logout` — cookie-backed operator session lifecycle
 - `/api/receipts/:receiptId` — hosted receipt JSON for completed evaluations
 - `/api/agent-logs/:receiptId` — hosted public-safe agent log JSON
 
@@ -131,7 +134,7 @@ Base gives the product its service and distribution framing.
 
 Current MVP reality:
 - the app publishes a service-style evaluation endpoint plus x402 discovery documents
-- full x402 payment verification and settlement are not complete yet
+- x402 defaults to open-demo mode unless explicitly enabled, and full payment verification and settlement are not complete yet
 
 Current MVP service surfaces:
 - `/api/evaluate/service` — callable evaluation endpoint for service-style access
@@ -169,9 +172,9 @@ The requested Design System asset from Stitch was exposed as a `DESIGN_SYSTEM_IN
 ## Current implementation surfaces
 - `/` — supporting surface for product framing and judge orientation
 - `/evaluation-dashboard` — Live MVP entry point for submitting one treasury evaluation against a structured policy set
-- `/decision-result` — Live MVP decision output with private/public-safe explanation lanes plus receipt/log links
+- `/decision-result` — Live MVP decision output with public-safe durable data plus a session-bound private lane for the submitting browser
 - `/evaluation-history` — Live MVP review log for completed evaluations
-- `/policy-management` — supporting surface with real structured policy CRUD for judges who want to inspect or mutate policy sets
+- `/policy-management` — live supporting surface with real structured policy CRUD for judges who want to inspect or mutate policy sets
 - `/settings` — supporting surface for runtime disclosures; many form controls remain non-persistent preview UI
 - `/help-center` — supporting surface that links judges to the real trust and route inventory surfaces
 - `/request-service` — demo-grade artifact surface only
@@ -181,6 +184,7 @@ The requested Design System asset from Stitch was exposed as a `DESIGN_SYSTEM_IN
 Submission status notes:
 - the single canonical judge flow is `/evaluation-dashboard` -> `/decision-result` -> `/evaluation-history`
 - receipt JSON and agent log JSON are part of that canonical review flow
+- wallet connection is only required for policy mutation and operator attribution, not for the main evaluation demo
 - several additional routes are intentionally kept as labeled supporting or demo-grade surfaces rather than pretending to be complete features
 - see `docs/submission-readiness-audit.md` for the route-by-route readiness table and current truth labels
 
@@ -196,13 +200,25 @@ Submission status notes:
   - `decision`
   - `confidence`
   - `policySet`
-  - `policySnapshot`
   - `triggeredChecks`
-  - `privateRationale`
   - `publicSummary`
   - `receipt`
+  - `privateAccessToken` (session-bound browser token for the private lane on freshly submitted runs)
 
-When `VENICE_API_KEY` and `VENICE_MODEL` are configured, the backend uses Venice for rationale and public-safe explanation wording. Without them, the MVP falls back to deterministic template output so the local demo loop still works. Completed evaluations persist the resolved policy snapshot plus the request state/action snapshots in the local server store.
+When `VENICE_API_KEY` and `VENICE_MODEL` are configured, the backend uses Venice for rationale and public-safe explanation wording. Without them, the MVP falls back to deterministic template output so the local demo loop still works. Completed evaluations persist the resolved policy snapshot plus the request state/action snapshots in the local server store, attach operator wallet metadata when a signed session exists, and expose only public-safe history data through the public evaluation APIs.
+
+## Operator identity flow
+
+- Wallet connectors: injected wallets and Coinbase Wallet
+- Required operator chain: Base mainnet (`8453`)
+- Signed session flow:
+  - connect wallet
+  - switch to Base if needed
+  - sign the challenge from `/api/auth/challenge`
+  - server verifies the signature in `/api/auth/verify`
+  - a secure cookie-backed session is restored through `/api/auth/session`
+- Policy create/edit/archive/activate actions require the signed operator session
+- Evaluation runs remain available for demo accessibility, but attach operator wallet metadata when a signed session exists
 
 Current Venice default:
 - model fallback: `qwen3-5-9b`
@@ -212,14 +228,14 @@ Current Venice default:
 
 - `/.well-known/agent.json` publishes the current demo agent manifest.
 - `/.well-known/x402` publishes the x402 discovery pointer for agent-service clients.
-- `/api/evaluate/service` exposes the evaluation flow as a callable service endpoint.
-- `/api/x402/discovery` advertises the Base/x402 service surface and current payment mode.
-- `/api/evaluations` and `/api/evaluations/:id` expose the persisted evaluation log for the MVP loop.
+- `/api/evaluate/service` exposes the evaluation flow as a callable service endpoint and defaults to open-demo mode unless x402 is explicitly enabled.
+- `/api/x402/discovery` advertises the Base/x402 service surface and current runtime payment mode.
+- `/api/evaluations` and `/api/evaluations/:id` expose the persisted evaluation log in a public-safe shape.
 - `/api/receipts/:receiptId` and `/api/agent-logs/:receiptId` host public-safe JSON artifacts for completed evaluations.
 
 The current MVP stores evaluations in a single-instance local JSON file under `.data/`, which keeps the dashboard -> result -> history loop durable across refreshes, tabs, and local restarts without adding deployment-heavy infrastructure.
 
-Important: the current ERC-8004 and x402 layers are still demo-grade. Receipt artifacts are hosted JSON, but not signed. The x402 service surface can return a payment challenge when configured, but live settlement still requires additional payment configuration.
+Important: the current ERC-8004 and x402 layers are still demo-grade. Receipt artifacts are hosted JSON, but not signed. The x402 service surface can return a payment challenge only when explicitly configured to do so, and live settlement still requires additional payment configuration.
 
 ## Operating principle
 We only have a few days left, so this repo optimizes for:

@@ -12,12 +12,12 @@ function PolicyManagementPage() {
     <ConsoleLayout
       eyebrow="Rule registry"
       title="Policy management"
-      description="Supporting surface for the MVP. Structured policy CRUD is live here, but judges can understand the core product without using this route in the first pass."
+      description="Live supporting capability for the MVP. Structured policy CRUD is real and drives the evaluator, but judges can still understand the core product by following the dashboard -> result -> history loop first."
       contentClassName="max-w-[1380px]"
       topbarActions={
         <>
-          <Badge tone="info">Supporting surface</Badge>
-          <Badge tone="primary">Real policy CRUD</Badge>
+          <Badge tone="info">Live supporting surface</Badge>
+          <Badge tone="primary">Evaluator-backed policy CRUD</Badge>
         </>
       }
     >

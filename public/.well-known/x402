@@ -4,6 +4,5 @@
   "discovery": "/api/x402/discovery",
   "entrypoint": "/api/evaluate/service",
   "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-  "payTo": "0x0977De4FbF977Db858A1dC27d588f9F661263d86",
-  "note": "Runtime payment mode and exact accepts payload are served by /api/x402/discovery."
+  "note": "Runtime payment mode, pay-to address, and exact accepts payload are served by /api/x402/discovery and default to open-demo unless explicitly enabled via env."
 }

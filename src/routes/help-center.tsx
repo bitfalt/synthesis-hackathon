@@ -136,14 +136,18 @@ export function HelpCenterPage() {
             </div>
 
             <div>
-              <h5 className="mb-6 font-headline text-sm font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Network Health</h5>
+              <h5 className="mb-6 font-headline text-sm font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Reviewer checks</h5>
               <div className="space-y-4">
-                {['Dashboard evaluation loop', 'Receipt publication lane', 'Discovery endpoints'].map((item) => (
+                {[
+                  ['Dashboard evaluation loop', 'Live MVP route'],
+                  ['Receipt publication lane', 'Published JSON'],
+                  ['Discovery endpoints', 'Inspect live'],
+                ].map(([item, status]) => (
                   <div key={item} className="flex items-center justify-between text-xs">
                     <span className="text-aegis-text-muted">{item}</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-aegis-primary">Available</span>
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-aegis-primary" />
+                      <span className="font-bold text-aegis-primary">{status}</span>
+                      <span className="h-2 w-2 rounded-full bg-aegis-primary" />
                     </div>
                   </div>
                 ))}
@@ -155,9 +159,9 @@ export function HelpCenterPage() {
         <section className="dashboard-card p-10">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <span className="mb-4 block text-xs font-bold uppercase tracking-[0.2em] text-aegis-primary">Cryptographic foundation</span>
-              <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">Zero-knowledge governance and trust-layer enforcement</h2>
-              <p className="mt-4 text-sm leading-7 text-aegis-text-muted">Aegis uses a bounded trust model so policy validation can stay private while receipts and manifests remain inspectable for reviewers.</p>
+              <span className="mb-4 block text-xs font-bold uppercase tracking-[0.2em] text-aegis-primary">Trust direction</span>
+              <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">Privacy boundary and trust-layer direction</h2>
+              <p className="mt-4 text-sm leading-7 text-aegis-text-muted">Aegis keeps the canonical reviewer story bounded: private reasoning stays inside the originating browser session, while public receipts, logs, and discovery docs remain inspectable.</p>
             </div>
             <div className="hidden gap-2 lg:flex">
               <div className="h-1 w-12 bg-aegis-primary" />
@@ -169,21 +173,21 @@ export function HelpCenterPage() {
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
             {[
               {
-                title: 'Recursive receipts',
-                body: 'Hosted receipt artifacts and decision packages keep each evaluation auditable without widening the current MVP scope.',
+                title: 'Hosted receipts',
+                body: 'Hosted receipt artifacts and decision packages keep each evaluation reviewable without claiming signed or immutable proofs.',
                 cta: 'OPEN MANIFEST',
                 active: true,
                 href: '/.well-known/agent.json',
               },
               {
-                title: 'TEE hardening',
-                body: 'Sensitive treasury policy interpretation stays in the internal lane instead of being serialized into public summaries.',
+                title: 'Private lane discipline',
+                body: 'Sensitive treasury policy interpretation stays out of the public evaluation APIs and remains confined to the originating browser session.',
                 cta: 'SUBMISSION PREVIEW',
                 active: false,
               },
               {
-                title: 'Threshold approvals',
-                body: 'Signer-review and quorum logic remain visible as operator-facing controls across the product surface.',
+                title: 'Threshold approvals preview',
+                body: 'Signer-review and quorum concepts remain visible as labeled operator-facing preview controls rather than pretending to be fully live.',
                 cta: 'SUBMISSION PREVIEW',
                 active: false,
               },
