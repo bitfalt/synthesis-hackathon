@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import type { DemoConfidence, DemoDecision, PublicArtifactCheck, ReasoningProvider, StoredEvaluation } from '~/lib/api'
 import { getRuntimeEnv } from '~/lib/runtime-env'
 
@@ -19,6 +20,8 @@ type PublicReceiptArtifact = {
     id: string
     name: string
   }
+  policySnapshotHash: string
+  operatorAttribution: 'wallet-attributed' | 'anonymous-demo'
   publicSummary: string
   triggeredChecks: PublicArtifactCheck[]
   hash: string | null
@@ -35,9 +38,19 @@ type AgentLogArtifact = {
       id: string
       name: string
     }
+    policySnapshotHash: string
+    operatorAttribution: 'wallet-attributed' | 'anonymous-demo'
     publicSummary: string
     triggeredChecks: PublicArtifactCheck[]
   }>
+}
+
+function buildPolicySnapshotHash(evaluation: StoredEvaluation) {
+  return `0x${createHash('sha256').update(JSON.stringify(evaluation.policySnapshot)).digest('hex')}`
+}
+
+function getOperatorAttribution(evaluation: StoredEvaluation) {
+  return evaluation.submittedByAddress ? 'wallet-attributed' as const : 'anonymous-demo' as const
 }
 
 export function getX402ServiceConfig() {
@@ -86,6 +99,8 @@ export function buildReceiptArtifact(evaluation: StoredEvaluation): PublicReceip
       id: evaluation.policySet.id,
       name: evaluation.policySet.name,
     },
+    policySnapshotHash: buildPolicySnapshotHash(evaluation),
+    operatorAttribution: getOperatorAttribution(evaluation),
     publicSummary: evaluation.publicSummary,
     triggeredChecks: buildPublicArtifactChecks(evaluation),
     hash: evaluation.receiptHash ?? evaluation.receipt.hash ?? null,
@@ -105,6 +120,8 @@ export function buildAgentLogArtifact(evaluation: StoredEvaluation): AgentLogArt
           id: evaluation.policySet.id,
           name: evaluation.policySet.name,
         },
+        policySnapshotHash: buildPolicySnapshotHash(evaluation),
+        operatorAttribution: getOperatorAttribution(evaluation),
         publicSummary: evaluation.publicSummary,
         triggeredChecks: buildPublicArtifactChecks(evaluation),
       },

@@ -24,6 +24,14 @@ export const Route = createFileRoute('/evaluation-history')({
   component: EvaluationHistoryPage,
 })
 
+function previewText(value: string, length = 88) {
+  if (value.length <= length) {
+    return value
+  }
+
+  return `${value.slice(0, length).trimEnd()}...`
+}
+
 function EvaluationHistoryPage() {
   const search = Route.useSearch()
   const [history, setHistory] = useState<StoredEvaluation[]>([])
@@ -162,6 +170,7 @@ function EvaluationHistoryPage() {
                                 {entry.submittedByAddress ? `Operator ${shortenAddress(entry.submittedByAddress)}` : 'Anonymous demo submission'}
                               </div>
                               <div className="mt-1 text-[11px] text-aegis-text-muted">Policy: {entry.policySet.name}</div>
+                              <div className="mt-1 text-[11px] text-aegis-text-muted/80">Action: {previewText(entry.proposedAction, 72)}</div>
                             </div>
                           </div>
                         </td>
@@ -300,6 +309,16 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
                 </div>
               </div>
             </div>
+            <div className="grid gap-4 pt-2 md:grid-cols-2">
+              <div className="rounded-xl border border-white/8 bg-black/20 p-5">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Persisted proposed action</div>
+                <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{evaluation.proposedAction}</p>
+              </div>
+              <div className="rounded-xl border border-white/8 bg-black/20 p-5">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Persisted treasury state</div>
+                <p className="mt-4 whitespace-pre-line text-sm leading-7 text-aegis-text-muted">{previewText(evaluation.treasuryStateSnapshot, 220)}</p>
+              </div>
+            </div>
           </div>
           <div className="mt-8">
             <Link to="/decision-result" search={{ evaluation: evaluation.id }} className="inline-flex items-center gap-2 text-sm font-bold text-aegis-primary transition-all hover:gap-3">
@@ -335,6 +354,15 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
                 ? evaluation.policySnapshot.blockedCounterpartyCategories.join(', ')
                 : 'None configured'}
             </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-white/8 bg-black/20 p-5 text-sm text-aegis-text-muted">
+          <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted/70">Persisted metadata</div>
+          <div className="mt-3 space-y-2">
+            <div>Policy set ID: <span className="font-mono text-aegis-text">{evaluation.policySet.id}</span></div>
+            <div>Stored state length: <span className="font-mono text-aegis-text">{evaluation.treasuryStateSnapshot.length}</span></div>
+            <div>Stored action length: <span className="font-mono text-aegis-text">{evaluation.proposedAction.length}</span></div>
           </div>
         </div>
 

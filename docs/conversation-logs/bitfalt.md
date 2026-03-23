@@ -189,3 +189,15 @@ Session 15
 - Pivot or breakthrough: Reusing the shared evaluator and storing receipt-linked evaluation records in one local durable store made it possible to satisfy refresh/restart durability without widening scope into auth, multi-user sync, or database setup.
 - Artifacts created: `.gitignore`, `README.md`, `docs/aegis-track-build-plan.md`, `docs/submission-readiness-audit.md`, `src/lib/agent-service.ts`, `src/lib/api.ts`, `src/lib/evaluation-store.server.ts`, `src/lib/evaluator.ts`, `src/routes/api/evaluations.ts`, `src/routes/api/evaluations/$id.ts`, `src/routes/api/evaluate/demo.ts`, `src/routes/api/evaluate/service.ts`, `src/routes/api/receipts/$receiptId.ts`, `src/routes/api/agent-logs/$receiptId.ts`, `src/routes/evaluation-dashboard.tsx`, `src/routes/decision-result.tsx`, `src/routes/evaluation-history.tsx`, `src/routes/help-center.tsx`, `src/routes/index.tsx`, `docs/conversation-logs/bitfalt.md`.
 - Next step: If needed, do a small follow-up pass to expose persisted policy-set/operator metadata in the history UI once the broader policy administration surfaces are finalized.
+
+Session 16
+- Time: 2026-03-23 00:23 UTC
+- Participants: Human (bitfalt), OpenCode (gpt-5.4)
+- Goal: Do a second pass that exposes richer persisted metadata from evaluation records without widening scope into new auth or multi-user infrastructure.
+- Human input: After committing the durability pass, do a second pass for more persisted metadata, then commit and push again.
+- Agent work: Enriched hosted receipt and agent-log artifacts with `policySnapshotHash` and operator attribution derived from persisted evaluations, expanded the history table and selected-evaluation panel to show stored action/state metadata, expanded the decision-result view with persisted action/state context and policy ID visibility, re-ran `bun run typecheck` and `bun run build`, and verified the new artifact metadata by submitting a policy-set evaluation and reading `/api/receipts/:receiptId` plus `/api/agent-logs/:receiptId`.
+- Decisions made: Keep the second pass focused on metadata already present in persisted records; expose richer public-safe artifact metadata only when it does not leak confidential policy/state text; show full proposed action in-app but keep treasury state previews bounded in the UI.
+- Blockers: None.
+- Pivot or breakthrough: The highest-value follow-up was not adding more storage fields, but making the already-persisted record meaningfully inspectable in both the UI and hosted artifacts.
+- Artifacts created: `src/lib/agent-service.ts`, `src/routes/evaluation-history.tsx`, `src/routes/decision-result.tsx`, `docs/conversation-logs/bitfalt.md`.
+- Next step: If desired later, add operator-submitted labels or exact signer attribution once the wallet/session work is ready to ship in its own atomic pass.

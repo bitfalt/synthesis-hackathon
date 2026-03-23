@@ -15,6 +15,14 @@ export const Route = createFileRoute('/decision-result')({
   component: DecisionResultPage,
 })
 
+function previewText(value: string, length = 180) {
+  if (value.length <= length) {
+    return value
+  }
+
+  return `${value.slice(0, length).trimEnd()}...`
+}
+
 function DecisionResultPage() {
   const search = Route.useSearch()
   const [evaluation, setEvaluation] = useState<StoredEvaluation | null>(null)
@@ -104,6 +112,7 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
             <span className="text-xs text-aegis-text-muted">
               Operator: {evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous demo flow'}
             </span>
+            <span className="text-xs text-aegis-text-muted">Policy ID: {evaluation.policySet.id}</span>
           </div>
           <h2 className="font-headline text-5xl font-extrabold tracking-tight text-aegis-text">
             Decision <span className="text-aegis-primary">Result</span>
@@ -299,6 +308,23 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
                   <div className="mt-2 text-sm font-semibold text-aegis-text">{item.value}</div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="dashboard-card p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h4 className="font-headline text-lg font-bold text-aegis-text">Persisted evaluation context</h4>
+              <Badge tone="neutral">Server stored</Badge>
+            </div>
+            <div className="grid gap-4">
+              <div className="rounded-lg border border-white/8 bg-black/20 p-4">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Proposed action</div>
+                <p className="mt-3 text-sm leading-7 text-aegis-text-muted">{evaluation.proposedAction}</p>
+              </div>
+              <div className="rounded-lg border border-white/8 bg-black/20 p-4">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Treasury state snapshot</div>
+                <p className="mt-3 whitespace-pre-line text-sm leading-7 text-aegis-text-muted">{previewText(evaluation.treasuryStateSnapshot, 260)}</p>
+              </div>
             </div>
           </div>
         </section>
