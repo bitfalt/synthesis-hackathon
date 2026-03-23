@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Button } from '~/components/ui/button'
+import { Badge } from '~/components/ui/badge'
 import { ConsoleLayout } from '~/components/layout/console-layout'
 import { PolicyManagementContent } from '~/components/pages/policy-management-content'
 
@@ -11,10 +11,10 @@ function AddSecurityPolicyModalPage() {
   return (
     <ConsoleLayout
       eyebrow="Modal state"
-      title="Add security policy"
-      description="The Stitch modal has been promoted into a real route so it can be reviewed, tested, and refined inside the TanStack app."
+      title="Create policy set"
+      description="Open the structured policy set form directly in modal mode, then return to the main policy workspace once the draft is saved."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Button className="px-5 py-2 text-[0.65rem]">Connect Wallet</Button>}
+      topbarActions={<Badge tone="info">Supporting surface</Badge>}
     >
       <PolicyManagementContent showModal />
     </ConsoleLayout>

@@ -151,7 +151,12 @@ function EvaluationDashboardPage() {
       title="Treasury Intelligence"
       description="The evaluator now resolves a real structured policy set on the server, persists the policy snapshot used for each decision, and reloads completed runs from durable local history."
       contentClassName="max-w-[1400px]"
-      topbarActions={<Badge tone="primary">Live MVP flow</Badge>}
+      topbarActions={
+        <>
+          <Badge tone="primary">Live MVP</Badge>
+          <Badge tone="info">Judge start here</Badge>
+        </>
+      }
       actions={
         <>
           <Link to="/evaluation-history" className="inline-flex">
@@ -391,7 +396,7 @@ function EvaluationDashboardPage() {
                   className="w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
                   leftIcon={<Icon name={isSubmitting ? 'hourglass_top' : 'play_circle'} className="text-lg" />}
                 >
-                  {isSubmitting ? 'Evaluating guardrails' : 'Submit to guardians'}
+                  {isSubmitting ? 'Evaluating guardrails' : 'Submit evaluation'}
                 </Button>
                 <Button
                   type="button"

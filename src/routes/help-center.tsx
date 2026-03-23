@@ -37,7 +37,7 @@ export function HelpCenterPage() {
       title="Knowledge & Guidance"
       description="Use this page as an honest guide to the shipped MVP, its trust surfaces, and the routes that remain demo previews. It is not a full documentation portal yet."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Badge tone="info">Useful review surface</Badge>}
+      topbarActions={<Badge tone="info">Supporting surface</Badge>}
     >
       <div className="space-y-12">
         <section className="rounded-2xl border border-aegis-secondary/18 bg-aegis-secondary/8 p-5 text-sm leading-7 text-aegis-text-muted">

@@ -1,8 +1,16 @@
 import { Button } from '~/components/ui/button'
+import { Badge } from '~/components/ui/badge'
 import { Panel } from '~/components/ui/panel'
 import { stitchScreens, type StitchScreen } from '~/lib/stitch-screens'
 
 export function StitchReferenceCard({ screen }: { screen: StitchScreen }) {
+  const tone =
+    screen.status === 'Live MVP'
+      ? 'primary'
+      : screen.status === 'Supporting surface'
+        ? 'info'
+        : 'warning'
+
   return (
     <Panel className="overflow-hidden p-0">
       {screen.kind === 'design-system' ? (
@@ -18,8 +26,10 @@ export function StitchReferenceCard({ screen }: { screen: StitchScreen }) {
       )}
       <div className="space-y-4 p-5">
         <div>
+          {screen.status ? <Badge tone={tone}>{screen.status}</Badge> : null}
           <h3 className="text-lg font-bold text-aegis-text font-headline">{screen.title}</h3>
           <p className="mt-1 text-sm text-aegis-text-muted">{screen.id}</p>
+          {screen.judgeNote ? <p className="mt-3 text-sm leading-6 text-aegis-text-muted">{screen.judgeNote}</p> : null}
         </div>
         <div className="flex flex-wrap gap-3">
           {screen.route ? (

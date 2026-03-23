@@ -85,7 +85,7 @@ function EvaluationHistoryPage() {
         { label: 'Total evaluations', value: '0', helper: 'Awaiting first run', tone: 'primary' as const, icon: 'history' },
         { label: 'Blocks prevented', value: '0', helper: 'No incidents yet', tone: 'warning' as const, icon: 'gpp_bad' },
         { label: 'Mean confidence', value: '0%', helper: 'No persisted history', tone: 'neutral' as const, icon: 'verified' },
-        { label: 'Operator signed runs', value: '0', helper: 'Anonymous demo only', tone: 'neutral' as const, icon: 'verified_user' },
+        { label: 'Attributed runs', value: '0', helper: 'Anonymous demo only', tone: 'neutral' as const, icon: 'verified_user' },
       ]
     }
 
@@ -100,7 +100,7 @@ function EvaluationHistoryPage() {
       { label: 'Total evaluations', value: String(history.length).padStart(2, '0'), helper: 'Persisted server records', tone: 'primary' as const, icon: 'trending_up' },
       { label: 'Blocks prevented', value: String(blocked), helper: 'Risk mitigated', tone: 'warning' as const, icon: 'gpp_bad' },
       { label: 'Mean confidence', value: `${average}%`, helper: 'Across durable history', tone: 'neutral' as const, icon: 'verified' },
-      { label: 'Operator signed runs', value: String(signedRuns), helper: 'Wallet-attributed submissions', tone: 'neutral' as const, icon: 'verified_user' },
+      { label: 'Attributed runs', value: String(signedRuns), helper: 'Submitter metadata if present', tone: 'neutral' as const, icon: 'verified_user' },
     ]
   }, [history])
 
@@ -108,9 +108,14 @@ function EvaluationHistoryPage() {
     <ConsoleLayout
       eyebrow="Audit log of completed evaluations"
       title="Evaluation History"
-      description="Review persisted server-backed evaluations, inspect the active policy snapshot that was used for each run, and confirm when a signed Base operator was attached to the record."
+      description="Review persisted server-backed evaluations, inspect the active policy snapshot that was used for each run, and compare old decisions against newer policy revisions."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Badge tone="info">Durable server history</Badge>}
+      topbarActions={
+        <>
+          <Badge tone="primary">Live MVP</Badge>
+          <Badge tone="info">Durable server history</Badge>
+        </>
+      }
       actions={
         <>
           <Button variant="secondary" disabled type="button">Filtering coming soon</Button>

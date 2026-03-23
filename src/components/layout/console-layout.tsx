@@ -23,6 +23,18 @@ export function ConsoleLayout({
   hidePageHeader?: boolean
   children: React.ReactNode
 }) {
+  const navStatusClassName: Record<(typeof consoleNav)[number]['status'], string> = {
+    live: 'bg-aegis-primary/10 text-aegis-primary',
+    support: 'bg-aegis-secondary/10 text-aegis-secondary',
+    preview: 'bg-aegis-warning/10 text-aegis-warning',
+  }
+
+  const navStatusLabel: Record<(typeof consoleNav)[number]['status'], string> = {
+    live: 'Live',
+    support: 'Support',
+    preview: 'Preview',
+  }
+
   return (
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
@@ -41,6 +53,14 @@ export function ConsoleLayout({
             >
               <Icon name={item.icon} className="text-[20px]" />
               <span>{item.label}</span>
+              <span
+                className={cn(
+                  'ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em]',
+                  navStatusClassName[item.status],
+                )}
+              >
+                {navStatusLabel[item.status]}
+              </span>
             </Link>
           ))}
         </nav>

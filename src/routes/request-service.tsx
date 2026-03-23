@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Badge } from '~/components/ui/badge'
 import { ConsoleLayout } from '~/components/layout/console-layout'
 import { Button } from '~/components/ui/button'
 import { Icon } from '~/components/ui/icon'
@@ -11,14 +12,24 @@ export const Route = createFileRoute('/request-service')({
 export function RequestServicePage() {
   return (
     <ConsoleLayout
-      eyebrow="Premium concierge"
-      title="Request Enterprise Strategic Services"
-      description="Secure high-touch support from our sovereign desk. Select from advanced risk evaluations, custom treasury policy architecture, or white-glove institutional onboarding."
+      eyebrow="Demo-grade concierge artifact"
+      title="Service Intake Preview"
+      description="This route is a polished intake preview, not a live service request pipeline. Keep it presentational and explicit so judges do not mistake it for a wired sales or support workflow."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Button className="px-5 py-2 text-[0.65rem]">Connect Wallet</Button>}
+      topbarActions={<Badge tone="warning">Demo-grade artifact surface</Badge>}
     >
       <div className="grid gap-12 lg:grid-cols-12">
         <section className="space-y-10 lg:col-span-8">
+          <div className="rounded-2xl border border-aegis-warning/20 bg-aegis-warning/8 p-5 text-sm leading-7 text-aegis-text-muted">
+            <div className="flex flex-wrap gap-2">
+              <Badge tone="warning">Not part of today's MVP</Badge>
+              <Badge tone="neutral">No submit handler wired</Badge>
+            </div>
+            <p className="mt-4">
+              Treat this as a submission preview of a future concierge intake. The live product story today remains the single evaluation loop and published trust surfaces.
+            </p>
+          </div>
+
           <div className="space-y-6">
             <h2 className="flex items-center gap-2 font-headline text-lg font-bold text-aegis-text">
               <span className="h-2 w-2 bg-aegis-primary" />
@@ -79,8 +90,8 @@ export function RequestServicePage() {
             </div>
 
             <div className="mt-8">
-              <Button className="w-full justify-center" leftIcon={<Icon name="arrow_forward" className="text-lg" />}>
-                Initiate engagement request
+              <Button disabled className="w-full justify-center" leftIcon={<Icon name="schedule" className="text-lg" />}>
+                Intake workflow coming soon
               </Button>
             </div>
           </div>
@@ -88,18 +99,18 @@ export function RequestServicePage() {
 
         <aside className="space-y-6 lg:col-span-4">
           <div className="dashboard-card-muted p-8">
-            <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-aegis-primary">Current desk load</p>
+            <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-aegis-primary">Preview density panel</p>
             <div className="font-headline text-5xl font-bold tracking-tight text-aegis-text">72%</div>
-            <p className="mt-3 text-sm leading-6 text-aegis-text-muted">High demand. Priority requests are prioritized for Enterprise Tier members.</p>
+            <p className="mt-3 text-sm leading-6 text-aegis-text-muted">Illustrative queue load only. There is no live staffing, SLA engine, or prioritization workflow behind this surface yet.</p>
           </div>
 
           <div className="dashboard-card p-6">
             <h3 className="border-b border-white/8 pb-3 font-headline text-lg font-bold text-aegis-text">The Aegis Guarantee</h3>
             <div className="mt-4 space-y-4">
               {[
-                ['shield', 'All consultants are multi-layer background checked and bonded.'],
-                ['lock', 'Communication is strictly conducted over PGP-encrypted channels.'],
-                ['history_edu', 'All evaluations result in a cryptographic PDF proof of audit.'],
+                ['shield', "Today's shipped proof point is the evaluator plus hosted demo artifacts, not a staffed concierge operation."],
+                ['lock', 'Sensitive policy text stays in the private input lane during the MVP demo flow.'],
+                ['history_edu', 'Receipts are public-safe hosted JSON artifacts today, not signed PDFs or legal audit packages.'],
               ].map(([icon, text]) => (
                 <div key={text} className="flex items-start gap-3 text-sm leading-6 text-aegis-text-muted">
                   <Icon name={icon} className="mt-0.5 text-aegis-secondary" />
@@ -111,19 +122,19 @@ export function RequestServicePage() {
 
           <div className="dashboard-card p-6">
             <p className="text-xs text-aegis-text-muted">Need immediate help?</p>
-            <button className="mt-2 block text-left text-sm font-bold text-aegis-secondary transition-colors hover:text-aegis-primary" type="button">
-              Chat with Sovereign Desk
+            <button className="mt-2 block text-left text-sm font-bold text-aegis-secondary/70" disabled type="button">
+              Live concierge chat coming soon
             </button>
             <div className="mt-4 flex items-center gap-2">
-              <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Desk status: online</span>
+              <div className="h-2 w-2 rounded-full bg-aegis-warning" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Desk status: preview only</span>
             </div>
           </div>
         </aside>
       </div>
 
       <footer className="mt-24 border-t border-white/6 pt-10 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-aegis-text-muted/55">Proprietary system — Aegis Treasury Solutions v4.0.2</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-aegis-text-muted/55">Demo-grade Stitch-derived intake artifact</p>
       </footer>
     </ConsoleLayout>
   )

@@ -17,14 +17,14 @@ export const primaryTracks = [
 ] as const
 
 export const consoleNav = [
-  { label: 'Dashboard', to: '/evaluation-dashboard', icon: 'dashboard' },
-  { label: 'Policy Management', to: '/policy-management', icon: 'gavel' },
-  { label: 'Evaluation History', to: '/evaluation-history', icon: 'history' },
-  { label: 'Decision Result', to: '/decision-result', icon: 'fact_check' },
-  { label: 'Request Service', to: '/request-service', icon: 'bolt' },
-  { label: 'Support Access', to: '/support-access', icon: 'support_agent' },
-  { label: 'Settings', to: '/settings', icon: 'settings' },
-  { label: 'Help Center', to: '/help-center', icon: 'help' },
+  { label: 'Dashboard', to: '/evaluation-dashboard', icon: 'dashboard', status: 'live' as const },
+  { label: 'Policy Management', to: '/policy-management', icon: 'gavel', status: 'support' as const },
+  { label: 'Evaluation History', to: '/evaluation-history', icon: 'history', status: 'live' as const },
+  { label: 'Decision Result', to: '/decision-result', icon: 'fact_check', status: 'live' as const },
+  { label: 'Request Service', to: '/request-service', icon: 'bolt', status: 'preview' as const },
+  { label: 'Support Access', to: '/support-access', icon: 'support_agent', status: 'preview' as const },
+  { label: 'Settings', to: '/settings', icon: 'settings', status: 'support' as const },
+  { label: 'Help Center', to: '/help-center', icon: 'help', status: 'support' as const },
 ] as const
 
 export const treasuryMetrics = [

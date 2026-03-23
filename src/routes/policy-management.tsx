@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Button } from '~/components/ui/button'
+import { Badge } from '~/components/ui/badge'
 import { ConsoleLayout } from '~/components/layout/console-layout'
 import { PolicyManagementContent } from '~/components/pages/policy-management-content'
 
@@ -12,9 +12,14 @@ function PolicyManagementPage() {
     <ConsoleLayout
       eyebrow="Rule registry"
       title="Policy management"
-      description="Curate the bounded treasury guardrails that shape every evaluation. The goal is a compact, reviewable policy stack rather than an overbuilt rule engine."
+      description="Supporting surface for the MVP. Structured policy CRUD is live here, but judges can understand the core product without using this route in the first pass."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Button className="px-5 py-2 text-[0.65rem]">Connect Wallet</Button>}
+      topbarActions={
+        <>
+          <Badge tone="info">Supporting surface</Badge>
+          <Badge tone="primary">Real policy CRUD</Badge>
+        </>
+      }
     >
       <PolicyManagementContent />
     </ConsoleLayout>

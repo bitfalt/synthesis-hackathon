@@ -64,7 +64,12 @@ function DecisionResultPage() {
       title="Decision Result"
       description="A live guardrail outcome with a visible privacy split, provider provenance, and public-safe hosted artifacts. The result is reloaded from the server-backed store so the same evaluation survives refreshes, new tabs, and local restarts."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Badge tone="primary">Live result view</Badge>}
+      topbarActions={
+        <>
+          <Badge tone="primary">Live MVP</Badge>
+          <Badge tone="warning">Unsigned demo artifacts</Badge>
+        </>
+      }
       actions={
         <>
           <Link to="/evaluation-history" search={evaluation ? { selected: evaluation.id } : undefined} className="inline-flex">

@@ -10,9 +10,9 @@ export const Route = createFileRoute('/')({
 })
 
 const stats = [
-  ['Primary live flow', '3 routed steps'],
-  ['History retention', 'Durable local store'],
-  ['Artifact mode', 'Hosted demo JSON'],
+  ['Judge-first path', 'Dashboard -> Result -> History'],
+  ['Policy source', 'Structured server policy set'],
+  ['Artifact mode', 'Hosted unsigned JSON'],
 ] as const
 
 const featureCards = [
@@ -28,13 +28,36 @@ const featureCards = [
   },
   {
     title: 'Trust receipts',
-    body: 'Receipts, manifests, and hosted artifacts keep the decision inspectable.',
+    body: 'Receipt JSON, agent log JSON, and the manifest are published today as honest demo-grade trust artifacts.',
     icon: 'history_edu',
   },
   {
     title: 'Base-native service',
-    body: 'Callable treasury evaluation framed as an institutional service, not just a dashboard.',
+    body: 'A callable service surface and x402 discovery document are published, while live settlement remains incomplete.',
     icon: 'hub',
+  },
+] as const
+
+const judgeQuickstart = [
+  {
+    step: '01',
+    title: '/evaluation-dashboard',
+    body: 'Use the seeded policy set, submit one treasury action, and let the app route into the decision view.',
+  },
+  {
+    step: '02',
+    title: '/decision-result',
+    body: 'Confirm the ALLOW/WARN/BLOCK outcome, private/public split, provider badge, and hosted artifact links.',
+  },
+  {
+    step: '03',
+    title: '/evaluation-history',
+    body: 'Verify that the completed run is persisted with the receipt ID, policy snapshot, and result metadata.',
+  },
+  {
+    step: '04',
+    title: 'Receipt + log JSON',
+    body: 'Open the receipt JSON and agent log JSON from the result page to inspect the public-safe artifact layer directly.',
   },
 ] as const
 
@@ -58,7 +81,7 @@ function LandingPage() {
       ],
     },
     {
-      title: 'Preview routes',
+      title: 'Supporting routes',
       items: [
         { label: 'Policy Management', href: '/policy-management' },
         { label: 'Settings', href: '/settings' },
@@ -77,10 +100,10 @@ function LandingPage() {
         <nav className="hidden items-center gap-8 text-sm text-aegis-text-muted md:flex">
           <a href="#capabilities">Capabilities</a>
           <a href="#tracks">Track fit</a>
-          <a href="#screens">Screens</a>
+          <a href="#screens">Route map</a>
         </nav>
         <Link to="/evaluation-dashboard" className="inline-flex">
-          <Button className="px-4 py-2 text-[0.65rem]">Launch Demo</Button>
+          <Button className="px-4 py-2 text-[0.65rem]">Run judge flow</Button>
         </Link>
       </header>
 
@@ -89,8 +112,9 @@ function LandingPage() {
           <div className="relative overflow-hidden rounded-[28px] border border-white/8 bg-aegis-shell px-8 py-10 lg:px-12 lg:py-14">
             <div className="absolute -left-16 top-8 h-40 w-40 rounded-full bg-aegis-primary/10 blur-3xl" />
             <div className="mb-5 flex flex-wrap gap-2">
-              <Badge tone="primary">Private cognition</Badge>
-              <Badge tone="info">Receipts with provenance</Badge>
+              <Badge tone="primary">Live MVP loop</Badge>
+              <Badge tone="info">Hosted receipt artifacts</Badge>
+              <Badge tone="warning">Unsigned demo trust layer</Badge>
             </div>
             <h1 className="max-w-4xl font-headline text-5xl font-extrabold leading-[0.98] tracking-tight text-aegis-text lg:text-7xl">
               Private Treasury
@@ -98,17 +122,17 @@ function LandingPage() {
               <span className="text-aegis-primary">Policy Copilot</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-aegis-text-muted">
-              Aegis evaluates proposed treasury movements against private institutional guardrails and returns a bounded recommendation with public-safe receipts.
+              Aegis evaluates one proposed treasury action against private guardrails and returns a bounded recommendation, a private rationale, a public-safe summary, and hosted JSON artifacts.
             </p>
             <div className="mt-6 rounded-2xl border border-aegis-secondary/12 bg-aegis-secondary/5 p-4 text-sm leading-6 text-aegis-text-muted">
-              The submission-critical path is live today: `/evaluation-dashboard` -&gt; backend evaluation -&gt; `/decision-result` -&gt; `/evaluation-history`. Other routed surfaces are kept as clearly labeled previews instead of pretending to be finished product modules.
+              Judge path: `/evaluation-dashboard` -&gt; submit evaluation -&gt; `/decision-result` -&gt; `/evaluation-history` -&gt; open receipt JSON and agent log JSON. Other routed surfaces stay labeled as supporting or demo-grade instead of pretending to be core product.
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/evaluation-dashboard" className="inline-flex">
                 <Button>Open live MVP</Button>
               </Link>
-              <Link to="/screens" className="inline-flex">
-                <Button variant="secondary">Review route registry</Button>
+              <Link to="/help-center" className="inline-flex">
+                <Button variant="secondary">Open judge review hub</Button>
               </Link>
             </div>
 
@@ -118,12 +142,12 @@ function LandingPage() {
               </div>
               <div className="grid gap-2 sm:grid-cols-2 sm:gap-8">
                 <div>
-                  <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Policy status</p>
-                  <p className="font-bold text-aegis-primary">Compliant</p>
+                  <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Primary test route</p>
+                  <p className="font-bold text-aegis-primary">/evaluation-dashboard</p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Receipt mode</p>
-                  <p className="font-bold text-aegis-text">Hosted demo</p>
+                  <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Run mode</p>
+                  <p className="font-bold text-aegis-text">No secret required</p>
                 </div>
               </div>
             </div>
@@ -137,7 +161,7 @@ function LandingPage() {
                     <Icon name="lock" className="text-4xl text-aegis-primary" />
                   </div>
                   <div className="text-sm font-semibold text-aegis-text">Bounded trust layer</div>
-                  <div className="mt-1 text-xs uppercase tracking-[0.18em] text-aegis-text-muted">Receipts and policy isolation</div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.18em] text-aegis-text-muted">Receipt JSON, agent log JSON, manifest</div>
                 </div>
               </div>
             </div>
@@ -165,6 +189,29 @@ function LandingPage() {
               <span>BASE</span>
               <span>x402</span>
             </div>
+          </div>
+        </section>
+
+        <section className="space-y-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="font-headline text-3xl font-extrabold tracking-tight text-aegis-text">Judge quickstart</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-aegis-text-muted">
+                If you only test one path, use the four steps below. They cover the real product wedge without requiring Venice credentials, wallet auth, or x402 payment setup.
+              </p>
+            </div>
+            <Link to="/screens" className="text-sm font-semibold text-aegis-primary hover:text-aegis-primary-bright">
+              Open full route registry -&gt;
+            </Link>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-4">
+            {judgeQuickstart.map((item) => (
+              <article key={item.step} className="dashboard-card p-6">
+                <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-aegis-primary">Step {item.step}</div>
+                <h3 className="mt-4 font-headline text-xl font-bold text-aegis-text">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-aegis-text-muted">{item.body}</p>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -213,7 +260,7 @@ function LandingPage() {
                 <div>
                   <Icon name="api" className="mb-6 text-4xl text-aegis-primary" />
                   <h3 className="font-headline text-2xl font-bold text-aegis-text">Evaluation-as-a-Service</h3>
-                  <p className="mt-4 max-w-md text-lg leading-8 text-aegis-text-muted">Integrate Aegis directly into your multisig or DAO workflow through the existing service surface and receipt layer.</p>
+                  <p className="mt-4 max-w-md text-lg leading-8 text-aegis-text-muted">Inspect the published service surface and discovery document, but treat payment settlement as an unfinished supporting layer rather than the main demo path.</p>
                 </div>
                 <div className="hidden h-48 w-48 items-center justify-center rounded-full border-4 border-dashed border-aegis-primary/10 lg:flex">
                   <Icon name="hub" className="text-6xl text-aegis-primary/20" />
@@ -236,15 +283,15 @@ function LandingPage() {
         <section className="surface-glass rounded-[28px] border border-white/8 p-8 lg:p-16">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="font-headline text-3xl font-extrabold tracking-tight text-aegis-text">Secure Your Treasury&apos;s Future Today</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-aegis-text-muted">A bounded evaluation service for modern crypto treasuries that need privacy, trust, and rapid operator clarity.</p>
+              <h2 className="font-headline text-3xl font-extrabold tracking-tight text-aegis-text">What to test after the main loop</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-aegis-text-muted">Once the dashboard, result, and history flow makes sense, use these supporting routes to inspect the route map and runtime disclosures.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to="/evaluation-dashboard" className="inline-flex">
-                <Button>Run an evaluation</Button>
-              </Link>
               <Link to="/screens" className="inline-flex">
-                <Button variant="secondary">Review supporting routes</Button>
+                <Button variant="secondary">Review route statuses</Button>
+              </Link>
+              <Link to="/settings" className="inline-flex">
+                <Button>Open runtime disclosures</Button>
               </Link>
             </div>
           </div>
@@ -254,7 +301,7 @@ function LandingPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="font-headline text-2xl font-bold tracking-tight text-aegis-text">Featured implementation references</h2>
-              <p className="mt-2 text-sm text-aegis-text-muted">The routed app screens below are the live equivalents of the preserved Stitch exports.</p>
+              <p className="mt-2 text-sm text-aegis-text-muted">Each preserved Stitch export now shows whether the routed screen is Live MVP, Supporting surface, or Demo-grade artifact surface.</p>
             </div>
             <Link to="/screens" className="text-sm font-semibold text-aegis-primary hover:text-aegis-primary-bright">
               View all screen routes -&gt;
