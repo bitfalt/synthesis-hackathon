@@ -201,3 +201,15 @@ Session 16
 - Pivot or breakthrough: The highest-value follow-up was not adding more storage fields, but making the already-persisted record meaningfully inspectable in both the UI and hosted artifacts.
 - Artifacts created: `src/lib/agent-service.ts`, `src/routes/evaluation-history.tsx`, `src/routes/decision-result.tsx`, `docs/conversation-logs/bitfalt.md`.
 - Next step: If desired later, add operator-submitted labels or exact signer attribution once the wallet/session work is ready to ship in its own atomic pass.
+
+Session 17
+- Time: 2026-03-23 01:06 UTC
+- Participants: Human (bitfalt), OpenCode (gpt-5.4)
+- Goal: Restore the broken public Vercel demo URL so `/`, `/evaluation-dashboard`, `/decision-result`, and `/evaluation-history` resolve externally for judges.
+- Human input: Debug the raw Vercel `404: NOT_FOUND` on `https://synthesis-hackathon-eta.vercel.app/`, determine whether the failure is alias/project/config related, apply only the minimum deployment fix, redeploy safely, and verify the external routes.
+- Agent work: Inspected the repo deployment config, Vercel project/deployment state, and live alias behavior; identified project-level Vercel authentication plus a missing TanStack Start Nitro adapter as the reasons the deployment alias resolved to a raw 404; disabled Vercel SSO protection on the project, added the Nitro Vite plugin and `nitro` dependency, moved policy/evaluation runtime storage to a writable temp directory on Vercel, built a clean temporary worktree from the last shipped commit, deployed the fixed prebuilt output to production, executed a live demo evaluation against the public deployment, and re-verified the root/dashboard/result/history routes plus policy/evaluation APIs.
+- Decisions made: Treat this as a deployment/config incident rather than a product redesign; keep the fix minimal by changing only Vercel accessibility, TanStack Start hosting output, and writable runtime paths required for the live policy/history loop; deploy from a clean temporary worktree so unrelated local in-flight changes do not leak into production.
+- Blockers: Vercel's local build initially emitted a `.vercel/output/config.json` with only a 404 fallback because the app was missing the Nitro hosting adapter; once Nitro was added, the production dashboard still could not load policies until the runtime file stores were moved off the read-only deployment filesystem.
+- Pivot or breakthrough: Inspecting the generated `.vercel/output/config.json` exposed the real issue immediately: the deployment had no server function at all until Nitro generated `__server`, and then the remaining live MVP blocker was the read-only filesystem rather than routing.
+- Artifacts created: `package.json`, `vite.config.ts`, `src/lib/evaluation-store.server.ts`, `src/lib/server/policy-store.ts`, `docs/conversation-logs/bitfalt.md`.
+- Next step: Commit the deployment fix cleanly from the repo once the current unrelated in-flight local changes are sorted or intentionally included.

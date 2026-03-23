@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import {
   buildPolicyRules,
@@ -16,7 +17,10 @@ type PolicyStoreFile = {
   policyRules: PolicyRule[]
 }
 
-const STORE_FILE_PATH = path.join(process.cwd(), '.aegis-runtime', 'policy-sets.json')
+const RUNTIME_ROOT = process.env.VERCEL ? path.join(tmpdir(), 'aegis-runtime') : process.cwd()
+const STORE_FILE_PATH = process.env.VERCEL
+  ? path.join(RUNTIME_ROOT, 'policy-sets.json')
+  : path.join(RUNTIME_ROOT, '.aegis-runtime', 'policy-sets.json')
 
 export async function listPolicySets() {
   const store = await loadPolicyStore()

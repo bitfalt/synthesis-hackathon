@@ -1,11 +1,13 @@
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { buildHostedArtifactUrls } from '~/lib/agent-service'
 import type { DemoEvaluationRequest, DemoEvaluationResponse, EvaluationCheckRecord, StoredEvaluation } from '~/lib/api'
 
 const STORE_VERSION = 2
-const STORE_DIRECTORY = join(process.cwd(), '.data')
+const RUNTIME_ROOT = process.env.VERCEL ? join(tmpdir(), 'aegis-runtime') : process.cwd()
+const STORE_DIRECTORY = process.env.VERCEL ? join(RUNTIME_ROOT, 'data') : join(RUNTIME_ROOT, '.data')
 const STORE_FILE = join(STORE_DIRECTORY, 'aegis-evaluations.json')
 
 type EvaluationStoreFile = {
