@@ -12,7 +12,7 @@ This audit is optimized for final Synthesis submission readiness under severe ti
 | `/evaluation-dashboard` | Main evaluation form posts to the backend and navigates to result | Highest-value operator flow | Fully working for demo scope | Surrounding mock data can confuse judges about what is actually wired | Keep as the canonical live MVP route and label surrounding panels as illustrative | `~20m` |
 | `/decision-result` | Reads real result data from the durable local store and shows hosted artifact links | Shows the privacy split and receipt story | Fully working for demo scope | Trust copy can overstate signatures or immutability | Keep, but explicitly label hosted artifacts as demo-grade and unsigned | `~30m` |
 | `/evaluation-history` | Reads real completed runs from the durable local store | Makes the flow reviewable and repeatable | Fully working for persisted demo scope | Dead filter/export controls and over-strong audit language reduce credibility | Keep, show it as durable history, and disable non-functional controls | `~20m` |
-| `/policy-management` | Polished policy registry plus modal route | Shows future authoring direction | Demo / preview | Looks like a working policy editor even though the evaluator ignores it | Keep as preview, add a banner saying dashboard policy text is the live source today | `~25m` |
+| `/policy-management` | Structured policy registry plus modal route | Useful supporting proof beyond the core loop | Supporting surface with live CRUD | Could distract judges from the faster canonical flow if presented as equally important | Keep it honest as a supporting surface and make the dashboard/result/history loop the first thing judges test | `~10m` |
 | `/request-service` | Enterprise intake layout | Low immediate MVP value | Demo / preview | Fake concierge promises and live-looking submit CTA mislead reviewers | Keep only as preview, disable submit, and remove unsupported guarantees | `~20m` |
 | `/settings` | Mixed runtime disclosures and static controls | Medium value if used for honest disclosures | Partially real | Fake save/update controls distract from the useful runtime truth cards | Keep the page, but frame it as runtime disclosures plus non-persistent settings preview | `~20m` |
 | `/support-access` | High-fidelity concierge workspace mock | Very low MVP value today | Demo / preview | Live chat affordances imply functionality that does not exist | Keep as labeled preview or demo theater only; disable obvious controls | `~25m` |
@@ -53,18 +53,21 @@ This audit is optimized for final Synthesis submission readiness under severe ti
 - `/evaluation-dashboard`
 - `/decision-result`
 - `/evaluation-history`
-- `/screens`
 - `/api/evaluate/demo`
 
-### Demo / preview
+### Supporting surface
 
 - `/`
 - `/policy-management`
 - `/add-security-policy-modal`
-- `/request-service`
 - `/settings`
-- `/support-access`
 - `/help-center`
+- `/screens`
+
+### Demo / preview
+
+- `/request-service`
+- `/support-access`
 - `/api/evaluate/service`
 - `/api/receipts/:receiptId`
 - `/api/agent-logs/:receiptId`
