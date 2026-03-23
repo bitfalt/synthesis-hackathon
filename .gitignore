@@ -12,6 +12,7 @@ dist
 .output
 .nitro
 .data
+.aegis-runtime
 /build/
 /api/
 /server/build

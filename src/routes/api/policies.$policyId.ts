@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
+import { getOperatorSessionFromRequest } from '~/lib/operator-store'
 import { policySetWriteSchema } from '~/lib/policies'
 import { getPolicySet, updatePolicySet } from '~/lib/server/policy-store'
 
@@ -20,11 +21,17 @@ export const Route = createFileRoute('/api/policies/$policyId')({
         })
       },
       PATCH: async ({ params, request }) => {
+        const session = getOperatorSessionFromRequest(request)
+
+        if (!session) {
+          return Response.json({ error: 'Sign in as an operator to edit policy sets.' }, { status: 401 })
+        }
+
         try {
           const body = policySetWriteSchema.parse(await request.json())
           const policy = await updatePolicySet(params.policyId, {
             ...body,
-            updatedByAddress: body.updatedByAddress ?? null,
+            updatedByAddress: session.address,
           })
 
           if (!policy) {

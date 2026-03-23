@@ -11,10 +11,10 @@ import {
   getCheckLabel,
   getCheckTone,
   getDecisionTone,
+  getOperatorAttributionLabel,
   getReasoningProviderLabel,
   getReasoningProviderTone,
-  shortenAddress,
-  type StoredEvaluation,
+  type PublicStoredEvaluation,
 } from '~/lib/api'
 
 export const Route = createFileRoute('/evaluation-history')({
@@ -34,7 +34,7 @@ function previewText(value: string, length = 88) {
 
 function EvaluationHistoryPage() {
   const search = Route.useSearch()
-  const [history, setHistory] = useState<StoredEvaluation[]>([])
+  const [history, setHistory] = useState<PublicStoredEvaluation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -94,7 +94,7 @@ function EvaluationHistoryPage() {
       history.reduce((sum, entry) => sum + (entry.confidence === 'high' ? 98 : entry.confidence === 'medium' ? 76 : 42), 0) /
         history.length,
     )
-    const signedRuns = history.filter((entry) => Boolean(entry.submittedByAddress)).length
+    const signedRuns = history.filter((entry) => entry.operatorAttribution === 'wallet-attributed').length
 
     return [
       { label: 'Total evaluations', value: String(history.length).padStart(2, '0'), helper: 'Persisted server records', tone: 'primary' as const, icon: 'trending_up' },
@@ -108,7 +108,7 @@ function EvaluationHistoryPage() {
     <ConsoleLayout
       eyebrow="Audit log of completed evaluations"
       title="Evaluation History"
-      description="Review persisted server-backed evaluations, inspect the active policy snapshot that was used for each run, and compare old decisions against newer policy revisions."
+      description="Review persisted server-backed evaluations through a public-safe history lens, compare policy set attribution across runs, and open the hosted receipt/log artifacts for each decision."
       contentClassName="max-w-[1380px]"
       topbarActions={
         <>
@@ -172,10 +172,10 @@ function EvaluationHistoryPage() {
                             <div>
                               <div className="text-sm font-semibold text-aegis-text">{entry.publicSummary.split('. ')[0] || 'Treasury evaluation'}</div>
                               <div className="text-[11px] text-aegis-text-muted/70">
-                                {entry.submittedByAddress ? `Operator ${shortenAddress(entry.submittedByAddress)}` : 'Anonymous demo submission'}
+                                {getOperatorAttributionLabel(entry.operatorAttribution)}
                               </div>
                               <div className="mt-1 text-[11px] text-aegis-text-muted">Policy: {entry.policySet.name}</div>
-                              <div className="mt-1 text-[11px] text-aegis-text-muted/80">Action: {previewText(entry.proposedAction, 72)}</div>
+                              <div className="mt-1 text-[11px] text-aegis-text-muted/80">Receipt: {entry.receipt.receiptId ?? entry.id}</div>
                             </div>
                           </div>
                         </td>
@@ -261,12 +261,12 @@ function MissingSelectionPanel() {
   )
 }
 
-function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation }) {
+function SelectedEvaluationPanel({ evaluation }: { evaluation: PublicStoredEvaluation }) {
   const policyItems = [
-    ['Runway minimum', `${evaluation.policySnapshot.runwayMonthsMin} months`],
-    ['ETH review threshold', `${evaluation.policySnapshot.ethReviewThreshold} ETH`],
-    ['Stable review threshold', `${evaluation.policySnapshot.stableReviewThreshold.toLocaleString()} units`],
-    ['Concentration max', `${evaluation.policySnapshot.assetConcentrationMaxPercent}%`],
+    ['Policy set', evaluation.policySet.name],
+    ['Policy set ID', evaluation.policySet.id],
+    ['Snapshot hash', evaluation.policySnapshotHash ?? 'Unavailable'],
+    ['Operator attribution', getOperatorAttributionLabel(evaluation.operatorAttribution)],
   ] as const
 
   return (
@@ -289,7 +289,7 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
             </div>
             <div className="flex items-center justify-between gap-4 border-b border-white/6 pb-3 text-sm">
               <span className="text-aegis-text-muted">Submitted by</span>
-              <span className="font-mono text-aegis-text">{evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous demo flow'}</span>
+              <span className="font-mono text-aegis-text">{getOperatorAttributionLabel(evaluation.operatorAttribution)}</span>
             </div>
             <div className="grid gap-4 pt-2 md:grid-cols-2">
               <div className="rounded-xl border border-white/8 bg-black/20 p-5">
@@ -302,11 +302,11 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
                   <Badge tone={getReasoningProviderTone(evaluation.reasoningProvider)}>{getReasoningProviderLabel(evaluation.reasoningProvider)}</Badge>
                 </div>
                 <div className="space-y-3">
-                  {evaluation.triggeredChecks.slice(0, 2).map((check) => (
+                  {evaluation.triggeredChecks.slice(0, 3).map((check) => (
                     <div key={check.name} className="flex items-start justify-between gap-3 rounded-lg border border-white/6 bg-black/15 px-3 py-3">
                       <div>
                         <div className="text-sm font-semibold text-aegis-text">{check.name}</div>
-                        <div className="mt-1 text-xs leading-5 text-aegis-text-muted">{check.detail}</div>
+                        <div className="mt-1 text-xs leading-5 text-aegis-text-muted">Public-safe history exposes the guardrail outcome without serializing the private threshold text.</div>
                       </div>
                       <Badge tone={getCheckTone(check.result)}>{getCheckLabel(check.result)}</Badge>
                     </div>
@@ -314,15 +314,8 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
                 </div>
               </div>
             </div>
-            <div className="grid gap-4 pt-2 md:grid-cols-2">
-              <div className="rounded-xl border border-white/8 bg-black/20 p-5">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Persisted proposed action</div>
-                <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{evaluation.proposedAction}</p>
-              </div>
-              <div className="rounded-xl border border-white/8 bg-black/20 p-5">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Persisted treasury state</div>
-                <p className="mt-4 whitespace-pre-line text-sm leading-7 text-aegis-text-muted">{previewText(evaluation.treasuryStateSnapshot, 220)}</p>
-              </div>
+            <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-5 text-sm leading-7 text-aegis-text-muted">
+              Raw treasury state, proposed action text, and detailed private rationale are intentionally omitted from the public history APIs. Open the decision result from the browser session that created the run if you need the private lane.
             </div>
           </div>
           <div className="mt-8">
@@ -341,7 +334,7 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
           </div>
           <h4 className="font-headline text-lg font-bold text-aegis-text">Policy snapshot used</h4>
           <p className="mt-3 text-sm leading-7 text-aegis-text-muted">
-            This evaluation resolves against <span className="font-semibold text-aegis-text">{evaluation.policySet.name}</span> and keeps the policy snapshot alongside the result so history stays reproducible.
+            This evaluation resolves against <span className="font-semibold text-aegis-text">{evaluation.policySet.name}</span>. History keeps the policy set identity plus a snapshot hash public-safe so reviewers can compare runs without exposing the full private policy body.
           </p>
         </div>
 
@@ -352,22 +345,17 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
               <span className="font-mono text-aegis-text">{value}</span>
             </div>
           ))}
-          <div className="border-t border-white/6 pt-3 text-sm">
-            <div className="mb-2 text-aegis-text-muted">Blocked categories</div>
-            <div className="text-aegis-text">
-              {evaluation.policySnapshot.blockedCounterpartyCategories.length
-                ? evaluation.policySnapshot.blockedCounterpartyCategories.join(', ')
-                : 'None configured'}
-            </div>
+          <div className="border-t border-white/6 pt-3 text-sm leading-6 text-aegis-text-muted">
+            The full resolved policy snapshot stays private. Public history retains the policy set identity, hosted receipt links, and snapshot hash so older runs remain attributable without leaking the underlying rule text.
           </div>
         </div>
 
         <div className="rounded-xl border border-white/8 bg-black/20 p-5 text-sm text-aegis-text-muted">
           <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted/70">Persisted metadata</div>
           <div className="mt-3 space-y-2">
-            <div>Policy set ID: <span className="font-mono text-aegis-text">{evaluation.policySet.id}</span></div>
-            <div>Stored state length: <span className="font-mono text-aegis-text">{evaluation.treasuryStateSnapshot.length}</span></div>
-            <div>Stored action length: <span className="font-mono text-aegis-text">{evaluation.proposedAction.length}</span></div>
+            <div>Receipt ID: <span className="font-mono text-aegis-text">{evaluation.receipt.receiptId ?? evaluation.id}</span></div>
+            <div>Receipt hash: <span className="font-mono text-aegis-text">{evaluation.receipt.hash ?? 'Unavailable'}</span></div>
+            <div>Policy status at run time: <span className="font-mono text-aegis-text">{evaluation.policySet.status}</span></div>
           </div>
         </div>
 

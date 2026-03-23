@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { listPersistedEvaluations } from '~/lib/evaluation-store.server'
+import { listPersistedEvaluations, toPublicStoredEvaluation } from '~/lib/evaluation-store.server'
 
 export const Route = createFileRoute('/api/evaluations')({
   server: {
@@ -7,7 +7,7 @@ export const Route = createFileRoute('/api/evaluations')({
       GET: async () => {
         const evaluations = await listPersistedEvaluations()
 
-        return Response.json({ evaluations }, {
+        return Response.json({ evaluations: evaluations.map(toPublicStoredEvaluation) }, {
           headers: {
             'Cache-Control': 'no-store',
           },

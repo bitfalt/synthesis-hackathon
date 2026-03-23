@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
+import { AppProviders } from '~/components/providers/app-providers'
 import appCss from '~/styles/app.css?url'
 
 export const Route = createRootRoute({
@@ -58,11 +59,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="min-h-screen bg-aegis-foundation text-aegis-text antialiased">
-        <div className="min-h-screen">
-          {children}
-        </div>
-        <TanStackRouterDevtools position="bottom-right" />
-        <Scripts />
+        <AppProviders>
+          <div className="min-h-screen">
+            {children}
+            <TanStackRouterDevtools position="bottom-right" />
+            <Scripts />
+          </div>
+        </AppProviders>
       </body>
     </html>
   )

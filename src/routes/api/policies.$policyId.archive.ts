@@ -1,12 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { getOperatorSessionFromRequest } from '~/lib/operator-store'
 import { archivePolicySet } from '~/lib/server/policy-store'
 
 export const Route = createFileRoute('/api/policies/$policyId/archive')({
   server: {
     handlers: {
-      POST: async ({ params }) => {
+      POST: async ({ params, request }) => {
+        const session = getOperatorSessionFromRequest(request)
+
+        if (!session) {
+          return Response.json({ error: 'Sign in as an operator to archive policy sets.' }, { status: 401 })
+        }
+
         try {
-          const policy = await archivePolicySet(params.policyId, null)
+          const policy = await archivePolicySet(params.policyId, session.address)
 
           if (!policy) {
             return Response.json({ error: 'Policy set not found.' }, { status: 404 })

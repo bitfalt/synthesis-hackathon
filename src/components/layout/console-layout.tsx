@@ -1,8 +1,10 @@
 import { Link } from '@tanstack/react-router'
+import { Badge } from '~/components/ui/badge'
 import { consoleNav } from '~/content/aegis'
 import { cn } from '~/lib/cn'
 import { Icon } from '~/components/ui/icon'
 import { Button } from '~/components/ui/button'
+import { OperatorIdentityBadge } from '~/components/operator/operator-identity-badge'
 
 export function ConsoleLayout({
   title,
@@ -66,12 +68,12 @@ export function ConsoleLayout({
         </nav>
 
         <div className="mt-auto px-4 pb-6">
-          <Link to="/add-security-policy-modal" className="block">
-            <Button className="w-full justify-center">New Policy</Button>
+          <Link to="/policy-management" className="block">
+            <Button className="w-full justify-center">Policy workspace</Button>
           </Link>
           <div className="mt-6 flex items-center gap-3 border-t border-white/5 px-4 py-4 text-xs text-aegis-text-muted">
             <Icon name="verified_user" className="text-base" />
-            <span>Security Status</span>
+            <span>Base operator flow</span>
           </div>
         </div>
       </aside>
@@ -83,28 +85,17 @@ export function ConsoleLayout({
             <div className="hidden h-4 w-px bg-white/10 lg:block" />
             <div className="hidden items-center gap-2 rounded-lg border border-white/6 bg-black/20 px-3 py-2 lg:flex">
               <Icon name="search" className="text-sm text-aegis-text-muted/70" />
-              <input
-                className="w-52 bg-transparent text-xs text-aegis-text outline-none placeholder:text-aegis-text-muted/40"
-                name="shell-search"
-                placeholder="Search treasury records..."
-                type="text"
-              />
+              <span className="text-xs text-aegis-text-muted">Search is not part of today's MVP</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3 lg:gap-6">
-            <div className="hidden items-center gap-2 text-aegis-text-muted lg:flex">
-              <button className="rounded-lg p-2 hover:bg-white/5" type="button">
-                <Icon name="notifications" className="text-[18px]" />
-              </button>
-              <button className="rounded-lg p-2 hover:bg-white/5" type="button">
-                <Icon name="security" className="text-[18px]" />
-              </button>
-              <button className="rounded-lg p-2 hover:bg-white/5" type="button">
-                <Icon name="account_balance_wallet" className="text-[18px]" />
-              </button>
+            <div className="hidden items-center gap-2 lg:flex">
+              <Badge tone="neutral">Operator identity</Badge>
+              <Badge tone="info">Base 8453</Badge>
             </div>
             {topbarActions}
+            <OperatorIdentityBadge />
           </div>
         </header>
 

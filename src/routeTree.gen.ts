@@ -20,11 +20,22 @@ import { Route as EvaluationDashboardRouteImport } from './routes/evaluation-das
 import { Route as DecisionResultRouteImport } from './routes/decision-result'
 import { Route as AddSecurityPolicyModalRouteImport } from './routes/add-security-policy-modal'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPoliciesRouteImport } from './routes/api/policies'
+import { Route as ApiEvaluationsRouteImport } from './routes/api/evaluations'
 import { Route as ApiX402DiscoveryRouteImport } from './routes/api/x402/discovery'
 import { Route as ApiReceiptsReceiptIdRouteImport } from './routes/api/receipts/$receiptId'
+import { Route as ApiPoliciesPolicyIdRouteImport } from './routes/api/policies.$policyId'
+import { Route as ApiEvaluationsIdRouteImport } from './routes/api/evaluations/$id'
 import { Route as ApiEvaluateServiceRouteImport } from './routes/api/evaluate/service'
 import { Route as ApiEvaluateDemoRouteImport } from './routes/api/evaluate/demo'
+import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth/verify'
+import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as ApiAuthChallengeRouteImport } from './routes/api/auth/challenge'
 import { Route as ApiAgentLogsReceiptIdRouteImport } from './routes/api/agent-logs/$receiptId'
+import { Route as ApiPoliciesPolicyIdArchiveRouteImport } from './routes/api/policies.$policyId.archive'
+import { Route as ApiPoliciesPolicyIdActivateRouteImport } from './routes/api/policies.$policyId.activate'
+import { Route as ApiEvaluationsIdPrivateRouteImport } from './routes/api/evaluations/$id.private'
 
 const SupportAccessRoute = SupportAccessRouteImport.update({
   id: '/support-access',
@@ -81,6 +92,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPoliciesRoute = ApiPoliciesRouteImport.update({
+  id: '/api/policies',
+  path: '/api/policies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEvaluationsRoute = ApiEvaluationsRouteImport.update({
+  id: '/api/evaluations',
+  path: '/api/evaluations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiX402DiscoveryRoute = ApiX402DiscoveryRouteImport.update({
   id: '/api/x402/discovery',
   path: '/api/x402/discovery',
@@ -90,6 +111,16 @@ const ApiReceiptsReceiptIdRoute = ApiReceiptsReceiptIdRouteImport.update({
   id: '/api/receipts/$receiptId',
   path: '/api/receipts/$receiptId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPoliciesPolicyIdRoute = ApiPoliciesPolicyIdRouteImport.update({
+  id: '/$policyId',
+  path: '/$policyId',
+  getParentRoute: () => ApiPoliciesRoute,
+} as any)
+const ApiEvaluationsIdRoute = ApiEvaluationsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiEvaluationsRoute,
 } as any)
 const ApiEvaluateServiceRoute = ApiEvaluateServiceRouteImport.update({
   id: '/api/evaluate/service',
@@ -101,10 +132,47 @@ const ApiEvaluateDemoRoute = ApiEvaluateDemoRouteImport.update({
   path: '/api/evaluate/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthVerifyRoute = ApiAuthVerifyRouteImport.update({
+  id: '/api/auth/verify',
+  path: '/api/auth/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
+  id: '/api/auth/session',
+  path: '/api/auth/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
+  id: '/api/auth/logout',
+  path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthChallengeRoute = ApiAuthChallengeRouteImport.update({
+  id: '/api/auth/challenge',
+  path: '/api/auth/challenge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgentLogsReceiptIdRoute = ApiAgentLogsReceiptIdRouteImport.update({
   id: '/api/agent-logs/$receiptId',
   path: '/api/agent-logs/$receiptId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPoliciesPolicyIdArchiveRoute =
+  ApiPoliciesPolicyIdArchiveRouteImport.update({
+    id: '/archive',
+    path: '/archive',
+    getParentRoute: () => ApiPoliciesPolicyIdRoute,
+  } as any)
+const ApiPoliciesPolicyIdActivateRoute =
+  ApiPoliciesPolicyIdActivateRouteImport.update({
+    id: '/activate',
+    path: '/activate',
+    getParentRoute: () => ApiPoliciesPolicyIdRoute,
+  } as any)
+const ApiEvaluationsIdPrivateRoute = ApiEvaluationsIdPrivateRouteImport.update({
+  id: '/private',
+  path: '/private',
+  getParentRoute: () => ApiEvaluationsIdRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -119,11 +187,22 @@ export interface FileRoutesByFullPath {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/support-access': typeof SupportAccessRoute
+  '/api/evaluations': typeof ApiEvaluationsRouteWithChildren
+  '/api/policies': typeof ApiPoliciesRouteWithChildren
   '/api/agent-logs/$receiptId': typeof ApiAgentLogsReceiptIdRoute
+  '/api/auth/challenge': typeof ApiAuthChallengeRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/evaluate/demo': typeof ApiEvaluateDemoRoute
   '/api/evaluate/service': typeof ApiEvaluateServiceRoute
+  '/api/evaluations/$id': typeof ApiEvaluationsIdRouteWithChildren
+  '/api/policies/$policyId': typeof ApiPoliciesPolicyIdRouteWithChildren
   '/api/receipts/$receiptId': typeof ApiReceiptsReceiptIdRoute
   '/api/x402/discovery': typeof ApiX402DiscoveryRoute
+  '/api/evaluations/$id/private': typeof ApiEvaluationsIdPrivateRoute
+  '/api/policies/$policyId/activate': typeof ApiPoliciesPolicyIdActivateRoute
+  '/api/policies/$policyId/archive': typeof ApiPoliciesPolicyIdArchiveRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -137,11 +216,22 @@ export interface FileRoutesByTo {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/support-access': typeof SupportAccessRoute
+  '/api/evaluations': typeof ApiEvaluationsRouteWithChildren
+  '/api/policies': typeof ApiPoliciesRouteWithChildren
   '/api/agent-logs/$receiptId': typeof ApiAgentLogsReceiptIdRoute
+  '/api/auth/challenge': typeof ApiAuthChallengeRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/evaluate/demo': typeof ApiEvaluateDemoRoute
   '/api/evaluate/service': typeof ApiEvaluateServiceRoute
+  '/api/evaluations/$id': typeof ApiEvaluationsIdRouteWithChildren
+  '/api/policies/$policyId': typeof ApiPoliciesPolicyIdRouteWithChildren
   '/api/receipts/$receiptId': typeof ApiReceiptsReceiptIdRoute
   '/api/x402/discovery': typeof ApiX402DiscoveryRoute
+  '/api/evaluations/$id/private': typeof ApiEvaluationsIdPrivateRoute
+  '/api/policies/$policyId/activate': typeof ApiPoliciesPolicyIdActivateRoute
+  '/api/policies/$policyId/archive': typeof ApiPoliciesPolicyIdArchiveRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -156,11 +246,22 @@ export interface FileRoutesById {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/support-access': typeof SupportAccessRoute
+  '/api/evaluations': typeof ApiEvaluationsRouteWithChildren
+  '/api/policies': typeof ApiPoliciesRouteWithChildren
   '/api/agent-logs/$receiptId': typeof ApiAgentLogsReceiptIdRoute
+  '/api/auth/challenge': typeof ApiAuthChallengeRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/evaluate/demo': typeof ApiEvaluateDemoRoute
   '/api/evaluate/service': typeof ApiEvaluateServiceRoute
+  '/api/evaluations/$id': typeof ApiEvaluationsIdRouteWithChildren
+  '/api/policies/$policyId': typeof ApiPoliciesPolicyIdRouteWithChildren
   '/api/receipts/$receiptId': typeof ApiReceiptsReceiptIdRoute
   '/api/x402/discovery': typeof ApiX402DiscoveryRoute
+  '/api/evaluations/$id/private': typeof ApiEvaluationsIdPrivateRoute
+  '/api/policies/$policyId/activate': typeof ApiPoliciesPolicyIdActivateRoute
+  '/api/policies/$policyId/archive': typeof ApiPoliciesPolicyIdArchiveRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -176,11 +277,22 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/support-access'
+    | '/api/evaluations'
+    | '/api/policies'
     | '/api/agent-logs/$receiptId'
+    | '/api/auth/challenge'
+    | '/api/auth/logout'
+    | '/api/auth/session'
+    | '/api/auth/verify'
     | '/api/evaluate/demo'
     | '/api/evaluate/service'
+    | '/api/evaluations/$id'
+    | '/api/policies/$policyId'
     | '/api/receipts/$receiptId'
     | '/api/x402/discovery'
+    | '/api/evaluations/$id/private'
+    | '/api/policies/$policyId/activate'
+    | '/api/policies/$policyId/archive'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -194,11 +306,22 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/support-access'
+    | '/api/evaluations'
+    | '/api/policies'
     | '/api/agent-logs/$receiptId'
+    | '/api/auth/challenge'
+    | '/api/auth/logout'
+    | '/api/auth/session'
+    | '/api/auth/verify'
     | '/api/evaluate/demo'
     | '/api/evaluate/service'
+    | '/api/evaluations/$id'
+    | '/api/policies/$policyId'
     | '/api/receipts/$receiptId'
     | '/api/x402/discovery'
+    | '/api/evaluations/$id/private'
+    | '/api/policies/$policyId/activate'
+    | '/api/policies/$policyId/archive'
   id:
     | '__root__'
     | '/'
@@ -212,11 +335,22 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/support-access'
+    | '/api/evaluations'
+    | '/api/policies'
     | '/api/agent-logs/$receiptId'
+    | '/api/auth/challenge'
+    | '/api/auth/logout'
+    | '/api/auth/session'
+    | '/api/auth/verify'
     | '/api/evaluate/demo'
     | '/api/evaluate/service'
+    | '/api/evaluations/$id'
+    | '/api/policies/$policyId'
     | '/api/receipts/$receiptId'
     | '/api/x402/discovery'
+    | '/api/evaluations/$id/private'
+    | '/api/policies/$policyId/activate'
+    | '/api/policies/$policyId/archive'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -231,7 +365,13 @@ export interface RootRouteChildren {
   ScreensRoute: typeof ScreensRoute
   SettingsRoute: typeof SettingsRoute
   SupportAccessRoute: typeof SupportAccessRoute
+  ApiEvaluationsRoute: typeof ApiEvaluationsRouteWithChildren
+  ApiPoliciesRoute: typeof ApiPoliciesRouteWithChildren
   ApiAgentLogsReceiptIdRoute: typeof ApiAgentLogsReceiptIdRoute
+  ApiAuthChallengeRoute: typeof ApiAuthChallengeRoute
+  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiAuthSessionRoute: typeof ApiAuthSessionRoute
+  ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
   ApiEvaluateDemoRoute: typeof ApiEvaluateDemoRoute
   ApiEvaluateServiceRoute: typeof ApiEvaluateServiceRoute
   ApiReceiptsReceiptIdRoute: typeof ApiReceiptsReceiptIdRoute
@@ -317,6 +457,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/policies': {
+      id: '/api/policies'
+      path: '/api/policies'
+      fullPath: '/api/policies'
+      preLoaderRoute: typeof ApiPoliciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/evaluations': {
+      id: '/api/evaluations'
+      path: '/api/evaluations'
+      fullPath: '/api/evaluations'
+      preLoaderRoute: typeof ApiEvaluationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/x402/discovery': {
       id: '/api/x402/discovery'
       path: '/api/x402/discovery'
@@ -330,6 +484,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/receipts/$receiptId'
       preLoaderRoute: typeof ApiReceiptsReceiptIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/policies/$policyId': {
+      id: '/api/policies/$policyId'
+      path: '/$policyId'
+      fullPath: '/api/policies/$policyId'
+      preLoaderRoute: typeof ApiPoliciesPolicyIdRouteImport
+      parentRoute: typeof ApiPoliciesRoute
+    }
+    '/api/evaluations/$id': {
+      id: '/api/evaluations/$id'
+      path: '/$id'
+      fullPath: '/api/evaluations/$id'
+      preLoaderRoute: typeof ApiEvaluationsIdRouteImport
+      parentRoute: typeof ApiEvaluationsRoute
     }
     '/api/evaluate/service': {
       id: '/api/evaluate/service'
@@ -345,6 +513,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEvaluateDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/verify': {
+      id: '/api/auth/verify'
+      path: '/api/auth/verify'
+      fullPath: '/api/auth/verify'
+      preLoaderRoute: typeof ApiAuthVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/session': {
+      id: '/api/auth/session'
+      path: '/api/auth/session'
+      fullPath: '/api/auth/session'
+      preLoaderRoute: typeof ApiAuthSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/logout': {
+      id: '/api/auth/logout'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/challenge': {
+      id: '/api/auth/challenge'
+      path: '/api/auth/challenge'
+      fullPath: '/api/auth/challenge'
+      preLoaderRoute: typeof ApiAuthChallengeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agent-logs/$receiptId': {
       id: '/api/agent-logs/$receiptId'
       path: '/api/agent-logs/$receiptId'
@@ -352,8 +548,77 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentLogsReceiptIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/policies/$policyId/archive': {
+      id: '/api/policies/$policyId/archive'
+      path: '/archive'
+      fullPath: '/api/policies/$policyId/archive'
+      preLoaderRoute: typeof ApiPoliciesPolicyIdArchiveRouteImport
+      parentRoute: typeof ApiPoliciesPolicyIdRoute
+    }
+    '/api/policies/$policyId/activate': {
+      id: '/api/policies/$policyId/activate'
+      path: '/activate'
+      fullPath: '/api/policies/$policyId/activate'
+      preLoaderRoute: typeof ApiPoliciesPolicyIdActivateRouteImport
+      parentRoute: typeof ApiPoliciesPolicyIdRoute
+    }
+    '/api/evaluations/$id/private': {
+      id: '/api/evaluations/$id/private'
+      path: '/private'
+      fullPath: '/api/evaluations/$id/private'
+      preLoaderRoute: typeof ApiEvaluationsIdPrivateRouteImport
+      parentRoute: typeof ApiEvaluationsIdRoute
+    }
   }
 }
+
+interface ApiEvaluationsIdRouteChildren {
+  ApiEvaluationsIdPrivateRoute: typeof ApiEvaluationsIdPrivateRoute
+}
+
+const ApiEvaluationsIdRouteChildren: ApiEvaluationsIdRouteChildren = {
+  ApiEvaluationsIdPrivateRoute: ApiEvaluationsIdPrivateRoute,
+}
+
+const ApiEvaluationsIdRouteWithChildren =
+  ApiEvaluationsIdRoute._addFileChildren(ApiEvaluationsIdRouteChildren)
+
+interface ApiEvaluationsRouteChildren {
+  ApiEvaluationsIdRoute: typeof ApiEvaluationsIdRouteWithChildren
+}
+
+const ApiEvaluationsRouteChildren: ApiEvaluationsRouteChildren = {
+  ApiEvaluationsIdRoute: ApiEvaluationsIdRouteWithChildren,
+}
+
+const ApiEvaluationsRouteWithChildren = ApiEvaluationsRoute._addFileChildren(
+  ApiEvaluationsRouteChildren,
+)
+
+interface ApiPoliciesPolicyIdRouteChildren {
+  ApiPoliciesPolicyIdActivateRoute: typeof ApiPoliciesPolicyIdActivateRoute
+  ApiPoliciesPolicyIdArchiveRoute: typeof ApiPoliciesPolicyIdArchiveRoute
+}
+
+const ApiPoliciesPolicyIdRouteChildren: ApiPoliciesPolicyIdRouteChildren = {
+  ApiPoliciesPolicyIdActivateRoute: ApiPoliciesPolicyIdActivateRoute,
+  ApiPoliciesPolicyIdArchiveRoute: ApiPoliciesPolicyIdArchiveRoute,
+}
+
+const ApiPoliciesPolicyIdRouteWithChildren =
+  ApiPoliciesPolicyIdRoute._addFileChildren(ApiPoliciesPolicyIdRouteChildren)
+
+interface ApiPoliciesRouteChildren {
+  ApiPoliciesPolicyIdRoute: typeof ApiPoliciesPolicyIdRouteWithChildren
+}
+
+const ApiPoliciesRouteChildren: ApiPoliciesRouteChildren = {
+  ApiPoliciesPolicyIdRoute: ApiPoliciesPolicyIdRouteWithChildren,
+}
+
+const ApiPoliciesRouteWithChildren = ApiPoliciesRoute._addFileChildren(
+  ApiPoliciesRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -367,7 +632,13 @@ const rootRouteChildren: RootRouteChildren = {
   ScreensRoute: ScreensRoute,
   SettingsRoute: SettingsRoute,
   SupportAccessRoute: SupportAccessRoute,
+  ApiEvaluationsRoute: ApiEvaluationsRouteWithChildren,
+  ApiPoliciesRoute: ApiPoliciesRouteWithChildren,
   ApiAgentLogsReceiptIdRoute: ApiAgentLogsReceiptIdRoute,
+  ApiAuthChallengeRoute: ApiAuthChallengeRoute,
+  ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiAuthSessionRoute: ApiAuthSessionRoute,
+  ApiAuthVerifyRoute: ApiAuthVerifyRoute,
   ApiEvaluateDemoRoute: ApiEvaluateDemoRoute,
   ApiEvaluateServiceRoute: ApiEvaluateServiceRoute,
   ApiReceiptsReceiptIdRoute: ApiReceiptsReceiptIdRoute,

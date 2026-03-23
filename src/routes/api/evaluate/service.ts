@@ -3,6 +3,7 @@ import { buildX402PaymentRequiredResponse, getX402ServiceConfig } from '~/lib/ag
 import type { DemoEvaluationRequest } from '~/lib/api'
 import { evaluateDemoRequest, parseDemoEvaluationRequest } from '~/lib/evaluator'
 import { savePersistedEvaluation } from '~/lib/evaluation-store.server'
+import { getOperatorSessionFromRequest } from '~/lib/operator-store'
 
 export const Route = createFileRoute('/api/evaluate/service')({
   server: {
@@ -26,7 +27,7 @@ export const Route = createFileRoute('/api/evaluate/service')({
           if (x402.enabled && paymentHeader && !x402.demoBypass) {
             return Response.json(
               {
-                error: 'x402 payment verification is not fully configured yet. Set AEGIS_X402_DEMO_BYPASS=true for local demo-only service calls.',
+                error: 'x402 payment verification is not fully configured yet. Use AEGIS_X402_MODE=demo-bypass for demo-only paid service calls.',
               },
               {
                 status: 501,
@@ -38,21 +39,24 @@ export const Route = createFileRoute('/api/evaluate/service')({
           }
 
           const evaluation = await evaluateDemoRequest(body)
-          await savePersistedEvaluation({
+          const session = getOperatorSessionFromRequest(request)
+          const storedEvaluation = await savePersistedEvaluation({
             createdAt: evaluation.createdAt,
             request: rawBody as DemoEvaluationRequest,
             response: evaluation.response,
+            submittedByAddress: session?.address ?? null,
+            submittedByLabel: session?.display ?? null,
           })
 
-          return Response.json(evaluation.response, {
+          return Response.json({
+            ...evaluation.response,
+            receipt: storedEvaluation.receipt,
+            privateAccessToken: storedEvaluation.privateAccessToken,
+          }, {
             headers: {
               'Cache-Control': 'no-store',
               'X-Aegis-Service-Network': x402.network,
-              'X-Aegis-Service-Mode': x402.enabled
-                ? x402.demoBypass
-                  ? 'x402-demo-bypass'
-                  : 'x402-payment-required'
-                : 'open-demo',
+              'X-Aegis-Service-Mode': x402.mode,
             },
           })
         } catch (error) {

@@ -1,5 +1,13 @@
 import { createHash } from 'node:crypto'
-import type { DemoConfidence, DemoDecision, PublicArtifactCheck, ReasoningProvider, StoredEvaluation } from '~/lib/api'
+import type {
+  DemoConfidence,
+  DemoDecision,
+  PublicArtifactCheck,
+  ReasoningProvider,
+  StoredEvaluation,
+  TriggeredCheck,
+} from '~/lib/api'
+import type { ResolvedPolicySnapshot } from '~/lib/policies'
 import { getRuntimeEnv } from '~/lib/runtime-env'
 
 export const AEGIS_BASE_NETWORK = 'eip155:8453'
@@ -45,22 +53,47 @@ type AgentLogArtifact = {
   }>
 }
 
-function buildPolicySnapshotHash(evaluation: StoredEvaluation) {
-  return `0x${createHash('sha256').update(JSON.stringify(evaluation.policySnapshot)).digest('hex')}`
+type ReceiptArtifactHashless = Omit<PublicReceiptArtifact, 'hash'>
+
+type ReceiptArtifactPayloadInput = {
+  receiptId: string
+  createdAt: string
+  decision: DemoDecision
+  confidence: DemoConfidence
+  reasoningProvider: ReasoningProvider
+  policySet: {
+    id: string
+    name: string
+  }
+  policySnapshot: ResolvedPolicySnapshot
+  submittedByAddress: string | null
+  publicSummary: string
+  triggeredChecks: Array<Pick<TriggeredCheck, 'name' | 'result'>>
 }
 
-function getOperatorAttribution(evaluation: StoredEvaluation) {
+export function buildPolicySnapshotHash(policySnapshot: ResolvedPolicySnapshot) {
+  return `0x${createHash('sha256').update(JSON.stringify(policySnapshot)).digest('hex')}`
+}
+
+export function getOperatorAttribution(evaluation: Pick<StoredEvaluation, 'submittedByAddress'>) {
   return evaluation.submittedByAddress ? 'wallet-attributed' as const : 'anonymous-demo' as const
 }
 
 export function getX402ServiceConfig() {
+  const mode = getRuntimeEnv('AEGIS_X402_MODE') ?? 'open-demo'
   const payTo = getRuntimeEnv('AEGIS_X402_PAY_TO_ADDRESS') ?? getRuntimeEnv('X402_PAY_TO_ADDRESS') ?? AEGIS_DEFAULT_X402_PAY_TO_ADDRESS
   const price = getRuntimeEnv('AEGIS_X402_PRICE_USD') ?? '$0.05'
-  const demoBypass = getRuntimeEnv('AEGIS_X402_DEMO_BYPASS') === 'true'
+  const demoBypass = mode === 'demo-bypass' || (mode !== 'open-demo' && getRuntimeEnv('AEGIS_X402_DEMO_BYPASS') === 'true')
   const amount = usdPriceToUsdcAtomicUnits(price)
+  const enabled = mode === 'payment-required' || demoBypass
 
   return {
-    enabled: Boolean(payTo),
+    enabled,
+    mode: enabled
+      ? demoBypass
+        ? 'demo-bypass'
+        : 'payment-required'
+      : 'open-demo',
     payTo,
     price,
     amount,
@@ -79,31 +112,74 @@ export function buildHostedArtifactUrls(receiptId: string) {
   }
 }
 
-function buildPublicArtifactChecks(evaluation: StoredEvaluation) {
-  return evaluation.triggeredChecks.map<PublicArtifactCheck>((check) => ({
+export function buildPublicArtifactChecks(checks: Array<Pick<TriggeredCheck, 'name' | 'result'>>) {
+  return checks.map<PublicArtifactCheck>((check) => ({
     name: check.name,
     result: check.result,
   }))
 }
 
-export function buildReceiptArtifact(evaluation: StoredEvaluation): PublicReceiptArtifact {
+export function buildReceiptArtifactPayload(input: ReceiptArtifactPayloadInput): ReceiptArtifactHashless {
   return {
     schema: 'erc8004.guardrail.evaluation.v1',
+    receiptId: input.receiptId,
+    createdAt: input.createdAt,
+    agent: 'Aegis Treasury Guardrails',
+    decision: input.decision,
+    confidence: input.confidence,
+    reasoningProvider: input.reasoningProvider,
+    policySet: {
+      id: input.policySet.id,
+      name: input.policySet.name,
+    },
+    policySnapshotHash: buildPolicySnapshotHash(input.policySnapshot),
+    operatorAttribution: input.submittedByAddress ? 'wallet-attributed' : 'anonymous-demo',
+    publicSummary: input.publicSummary,
+    triggeredChecks: buildPublicArtifactChecks(input.triggeredChecks),
+  }
+}
+
+export function hashReceiptArtifactPayload(payload: ReceiptArtifactHashless) {
+  return `0x${createHash('sha256').update(JSON.stringify(payload)).digest('hex')}`
+}
+
+export function buildCanonicalReceiptHash(evaluation: Pick<
+  StoredEvaluation,
+  'receiptId' | 'createdAt' | 'decision' | 'confidence' | 'reasoningProvider' | 'policySet' | 'policySnapshot' | 'submittedByAddress' | 'publicSummary' | 'triggeredChecks'
+>) {
+  return hashReceiptArtifactPayload(
+    buildReceiptArtifactPayload({
+      receiptId: evaluation.receiptId,
+      createdAt: evaluation.createdAt,
+      decision: evaluation.decision,
+      confidence: evaluation.confidence,
+      reasoningProvider: evaluation.reasoningProvider,
+      policySet: evaluation.policySet,
+      policySnapshot: evaluation.policySnapshot,
+      submittedByAddress: evaluation.submittedByAddress,
+      publicSummary: evaluation.publicSummary,
+      triggeredChecks: evaluation.triggeredChecks,
+    }),
+  )
+}
+
+export function buildReceiptArtifact(evaluation: StoredEvaluation): PublicReceiptArtifact {
+  const payload = buildReceiptArtifactPayload({
     receiptId: evaluation.receiptId,
     createdAt: evaluation.createdAt,
-    agent: 'Aegis Treasury Guardrails',
     decision: evaluation.decision,
     confidence: evaluation.confidence,
     reasoningProvider: evaluation.reasoningProvider,
-    policySet: {
-      id: evaluation.policySet.id,
-      name: evaluation.policySet.name,
-    },
-    policySnapshotHash: buildPolicySnapshotHash(evaluation),
-    operatorAttribution: getOperatorAttribution(evaluation),
+    policySet: evaluation.policySet,
+    policySnapshot: evaluation.policySnapshot,
+    submittedByAddress: evaluation.submittedByAddress,
     publicSummary: evaluation.publicSummary,
-    triggeredChecks: buildPublicArtifactChecks(evaluation),
-    hash: evaluation.receiptHash ?? evaluation.receipt.hash ?? null,
+    triggeredChecks: evaluation.triggeredChecks,
+  })
+
+  return {
+    ...payload,
+    hash: hashReceiptArtifactPayload(payload),
   }
 }
 
@@ -120,10 +196,10 @@ export function buildAgentLogArtifact(evaluation: StoredEvaluation): AgentLogArt
           id: evaluation.policySet.id,
           name: evaluation.policySet.name,
         },
-        policySnapshotHash: buildPolicySnapshotHash(evaluation),
+        policySnapshotHash: buildPolicySnapshotHash(evaluation.policySnapshot),
         operatorAttribution: getOperatorAttribution(evaluation),
         publicSummary: evaluation.publicSummary,
-        triggeredChecks: buildPublicArtifactChecks(evaluation),
+        triggeredChecks: buildPublicArtifactChecks(evaluation.triggeredChecks),
       },
     ],
   }
@@ -135,12 +211,9 @@ export function getX402DiscoveryDocument() {
   return {
     version: 1,
     service: 'Aegis Treasury Guardrails',
-    mode: x402.enabled
-      ? x402.demoBypass
-        ? 'x402-demo-bypass'
-        : 'x402-payment-required'
-      : 'open-demo',
+    mode: x402.mode,
     network: x402.network,
+    settlementStatus: x402.mode === 'payment-required' ? 'challenge-only' : 'demo-open',
     facilitator: {
       url: AEGIS_X402_FACILITATOR_URL,
       integrationStatus: 'not yet verified on the server runtime',
@@ -165,7 +238,7 @@ export function getX402DiscoveryDocument() {
             description: 'Open demo evaluation service',
             network: x402.network,
             price: '$0.00',
-            note: 'Set AEGIS_X402_PAY_TO_ADDRESS to require x402 payment negotiation on Base.',
+            note: 'Set AEGIS_X402_MODE=payment-required or AEGIS_X402_MODE=demo-bypass to enable x402 negotiation on Base.',
           },
     ],
   }

@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { z } from 'zod'
-import { buildHostedArtifactUrls } from '~/lib/agent-service'
+import { buildHostedArtifactUrls, buildReceiptArtifactPayload, hashReceiptArtifactPayload } from '~/lib/agent-service'
 import type {
   DemoConfidence,
   DemoDecision,
@@ -183,12 +183,6 @@ function buildDeterministicChecks(snapshot: ResolvedPolicySnapshot, treasuryStat
       name: 'Asset Concentration',
       result: 'fail',
       detail: `Treasury state reports ${concentration}% concentration, which exceeds the ${snapshot.assetConcentrationMaxPercent}% policy maximum.`,
-    })
-  } else if (concentration !== null && concentration >= snapshot.assetConcentrationMaxPercent - 5) {
-    checks.push({
-      name: 'Asset Concentration',
-      result: 'warn',
-      detail: `Treasury state reports ${concentration}% concentration, which is close to the ${snapshot.assetConcentrationMaxPercent}% policy maximum.`,
     })
   } else {
     checks.push({
@@ -422,11 +416,9 @@ function buildReceipt(
     name: check.name,
     result: check.result,
   }))
-  const receiptBody = {
-    schema: 'erc8004.guardrail.evaluation.v1',
+  const receiptBody = buildReceiptArtifactPayload({
     receiptId,
     createdAt,
-    agent: 'Aegis Treasury Guardrails',
     decision,
     confidence,
     reasoningProvider,
@@ -434,11 +426,12 @@ function buildReceipt(
       id: policy.record.id,
       name: policy.record.name,
     },
-    policySnapshotHash: createHash('sha256').update(JSON.stringify(policy.snapshot)).digest('hex'),
+    policySnapshot: policy.snapshot,
+    submittedByAddress: null,
     publicSummary,
     triggeredChecks: publicChecks,
-  }
-  const hash = `0x${createHash('sha256').update(JSON.stringify(receiptBody)).digest('hex')}`
+  })
+  const hash = hashReceiptArtifactPayload(receiptBody)
 
   return {
     createdAt,

@@ -2,10 +2,23 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { buildHostedArtifactUrls } from '~/lib/agent-service'
-import type { DemoEvaluationRequest, DemoEvaluationResponse, EvaluationCheckRecord, StoredEvaluation } from '~/lib/api'
+import {
+  buildCanonicalReceiptHash,
+  buildHostedArtifactUrls,
+  buildPolicySnapshotHash,
+  buildPublicArtifactChecks,
+  getOperatorAttribution,
+} from '~/lib/agent-service'
+import type {
+  DemoEvaluationRequest,
+  DemoEvaluationResponse,
+  EvaluationCheckRecord,
+  PrivateEvaluationDetails,
+  PublicStoredEvaluation,
+  StoredEvaluation,
+} from '~/lib/api'
 
-const STORE_VERSION = 2
+const STORE_VERSION = 3
 const RUNTIME_ROOT = process.env.VERCEL ? join(tmpdir(), 'aegis-runtime') : process.cwd()
 const STORE_DIRECTORY = process.env.VERCEL ? join(RUNTIME_ROOT, 'data') : join(RUNTIME_ROOT, '.data')
 const STORE_FILE = join(STORE_DIRECTORY, 'aegis-evaluations.json')
@@ -119,7 +132,9 @@ function normalizeEvaluation(candidate: unknown): StoredEvaluation | null {
       ? receipt.hash
       : null
 
-  return {
+  const privateAccessToken = typeof entry.privateAccessToken === 'string' ? entry.privateAccessToken : null
+
+  const record: StoredEvaluation = {
     id,
     receiptId,
     createdAt,
@@ -146,6 +161,7 @@ function normalizeEvaluation(candidate: unknown): StoredEvaluation | null {
     submittedByDisplay: typeof entry.submittedByDisplay === 'string' ? entry.submittedByDisplay : null,
     receiptHash,
     checks,
+    privateAccessToken,
     receipt: {
       receiptId,
       hash: receiptHash,
@@ -154,6 +170,17 @@ function normalizeEvaluation(candidate: unknown): StoredEvaluation | null {
         agentJson: typeof urls?.agentJson === 'string' ? urls.agentJson : buildHostedArtifactUrls(receiptId).agentJson,
         agentLog: typeof urls?.agentLog === 'string' ? urls.agentLog : buildHostedArtifactUrls(receiptId).agentLog,
       },
+    },
+  }
+
+  const canonicalHash = buildCanonicalReceiptHash(record)
+
+  return {
+    ...record,
+    receiptHash: canonicalHash,
+    receipt: {
+      ...record.receipt,
+      hash: canonicalHash,
     },
   }
 }
@@ -256,6 +283,41 @@ export async function getPersistedEvaluationByReceiptId(receiptId: string) {
   return store.evaluations.find((evaluation) => evaluation.receiptId === receiptId || evaluation.receipt.receiptId === receiptId) ?? null
 }
 
+export function toPublicStoredEvaluation(evaluation: StoredEvaluation): PublicStoredEvaluation {
+  return {
+    id: evaluation.id,
+    receiptId: evaluation.receiptId,
+    createdAt: evaluation.createdAt,
+    decision: evaluation.decision,
+    confidence: evaluation.confidence,
+    reasoningProvider: evaluation.reasoningProvider,
+    publicSummary: evaluation.publicSummary,
+    triggeredChecks: buildPublicArtifactChecks(evaluation.triggeredChecks),
+    policySetId: evaluation.policySetId,
+    policySet: evaluation.policySet,
+    receiptHash: evaluation.receiptHash,
+    receipt: evaluation.receipt,
+    operatorAttribution: getOperatorAttribution(evaluation),
+    policySnapshotHash: buildPolicySnapshotHash(evaluation.policySnapshot),
+  }
+}
+
+export function toPrivateEvaluationDetails(evaluation: StoredEvaluation): PrivateEvaluationDetails {
+  return {
+    privateRationale: evaluation.privateRationale,
+    treasuryStateSnapshot: evaluation.treasuryStateSnapshot,
+    proposedAction: evaluation.proposedAction,
+    policySnapshot: evaluation.policySnapshot,
+    triggeredChecks: evaluation.triggeredChecks,
+    submittedByAddress: evaluation.submittedByAddress,
+    submittedByDisplay: evaluation.submittedByDisplay,
+  }
+}
+
+export function hasPrivateEvaluationAccess(evaluation: StoredEvaluation, accessToken: string | null) {
+  return Boolean(accessToken) && Boolean(evaluation.privateAccessToken) && evaluation.privateAccessToken === accessToken
+}
+
 export async function savePersistedEvaluation(input: {
   createdAt?: string
   request: DemoEvaluationRequest
@@ -275,6 +337,7 @@ export async function savePersistedEvaluation(input: {
       result: check.result,
       detail: check.detail,
     })) satisfies EvaluationCheckRecord[]
+    const privateAccessToken = randomUUID()
 
     const record: StoredEvaluation = {
       ...input.response,
@@ -290,6 +353,7 @@ export async function savePersistedEvaluation(input: {
       submittedByDisplay: input.submittedByLabel ?? null,
       receiptHash,
       checks,
+      privateAccessToken,
       receipt: {
         receiptId,
         hash: receiptHash,
@@ -297,15 +361,25 @@ export async function savePersistedEvaluation(input: {
       },
     }
 
+    const canonicalHash = buildCanonicalReceiptHash(record)
+    const normalizedRecord: StoredEvaluation = {
+      ...record,
+      receiptHash: canonicalHash,
+      receipt: {
+        ...record.receipt,
+        hash: canonicalHash,
+      },
+    }
+
     const nextStore: EvaluationStoreFile = {
       version: currentStore.version || STORE_VERSION,
-      evaluations: [record, ...currentStore.evaluations.filter((evaluation) => evaluation.id !== record.id)]
+      evaluations: [normalizedRecord, ...currentStore.evaluations.filter((evaluation) => evaluation.id !== normalizedRecord.id)]
         .sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
     }
 
     cachedStore = nextStore
     await persistStore(nextStore)
 
-    return record
+    return normalizedRecord
   })
 }

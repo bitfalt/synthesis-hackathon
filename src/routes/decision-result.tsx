@@ -5,7 +5,21 @@ import { ConsoleLayout } from '~/components/layout/console-layout'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Icon } from '~/components/ui/icon'
-import { fetchStoredEvaluation, formatEvaluationTimestamp, getCheckLabel, getCheckTone, getDecisionTone, getReasoningProviderLabel, getReasoningProviderTone, shortenAddress, type StoredEvaluation } from '~/lib/api'
+import {
+  fetchEvaluation,
+  fetchPrivateEvaluation,
+  formatEvaluationTimestamp,
+  getCheckLabel,
+  getCheckTone,
+  getDecisionTone,
+  getEvaluationPrivateAccess,
+  getOperatorAttributionLabel,
+  getReasoningProviderLabel,
+  getReasoningProviderTone,
+  shortenAddress,
+  type PrivateEvaluationDetails,
+  type PublicStoredEvaluation,
+} from '~/lib/api'
 import { getPolicySummaryItems } from '~/lib/policies'
 
 export const Route = createFileRoute('/decision-result')({
@@ -25,25 +39,45 @@ function previewText(value: string, length = 180) {
 
 function DecisionResultPage() {
   const search = Route.useSearch()
-  const [evaluation, setEvaluation] = useState<StoredEvaluation | null>(null)
+  const [evaluation, setEvaluation] = useState<PublicStoredEvaluation | null>(null)
+  const [privateDetails, setPrivateDetails] = useState<PrivateEvaluationDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     let isCancelled = false
 
+    if (!search.evaluation) {
+      setEvaluation(null)
+      setPrivateDetails(null)
+      setErrorMessage(null)
+      setIsLoading(false)
+      return () => {
+        isCancelled = true
+      }
+    }
+
     setIsLoading(true)
     setErrorMessage(null)
 
-    fetchStoredEvaluation(search.evaluation)
-      .then((record) => {
+    const accessToken = getEvaluationPrivateAccess(search.evaluation)
+
+    Promise.all([
+      fetchEvaluation(search.evaluation),
+      accessToken
+        ? fetchPrivateEvaluation(search.evaluation, accessToken)
+        : Promise.resolve(null),
+    ])
+      .then(([record, privateRecord]) => {
         if (!isCancelled) {
           setEvaluation(record)
+          setPrivateDetails(privateRecord)
         }
       })
       .catch((error) => {
         if (!isCancelled) {
           setEvaluation(null)
+          setPrivateDetails(null)
           setErrorMessage(error instanceof Error ? error.message : 'Unable to load this evaluation right now.')
         }
       })
@@ -62,7 +96,7 @@ function DecisionResultPage() {
     <ConsoleLayout
       eyebrow="Bounded recommendation with receipts"
       title="Decision Result"
-      description="A live guardrail outcome with a visible privacy split, provider provenance, and public-safe hosted artifacts. The result is reloaded from the server-backed store so the same evaluation survives refreshes, new tabs, and local restarts."
+      description="A live guardrail outcome with a visible privacy split, provider provenance, and public-safe hosted artifacts. The durable result record is public-safe by default; the private lane only rehydrates inside the browser session that created the run."
       contentClassName="max-w-[1380px]"
       topbarActions={
         <>
@@ -81,22 +115,28 @@ function DecisionResultPage() {
         </>
       }
     >
-      {isLoading ? <DecisionLoadingState /> : evaluation ? <DecisionResultContent evaluation={evaluation} /> : <EmptyDecisionState requestedEvaluation={search.evaluation} errorMessage={errorMessage} />}
+      {isLoading ? <DecisionLoadingState /> : evaluation ? <DecisionResultContent evaluation={evaluation} privateDetails={privateDetails} /> : <EmptyDecisionState requestedEvaluation={search.evaluation} errorMessage={errorMessage} />}
     </ConsoleLayout>
   )
 }
 
-function confidencePercent(confidence: StoredEvaluation['confidence']) {
+function confidencePercent(confidence: PublicStoredEvaluation['confidence']) {
   if (confidence === 'high') return 98
   if (confidence === 'medium') return 76
   return 42
 }
 
-function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation }) {
+function DecisionResultContent({
+  evaluation,
+  privateDetails,
+}: {
+  evaluation: PublicStoredEvaluation
+  privateDetails: PrivateEvaluationDetails | null
+}) {
   const decisionTone = getDecisionTone(evaluation.decision)
   const iconName = evaluation.decision === 'BLOCK' ? 'block' : evaluation.decision === 'WARN' ? 'policy_alert' : 'verified'
   const confidence = confidencePercent(evaluation.confidence)
-  const policySummary = getPolicySummaryItems(evaluation.policySnapshot)
+  const policySummary = privateDetails ? getPolicySummaryItems(privateDetails.policySnapshot) : []
 
   const guardrailSummary = useMemo(() => {
     return evaluation.triggeredChecks.map((check) => ({
@@ -104,6 +144,10 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
       borderClass: check.result === 'pass' ? 'border-aegis-primary/50' : check.result === 'warn' ? 'border-aegis-warning/50' : 'border-aegis-danger/50',
     }))
   }, [evaluation.triggeredChecks])
+
+  const operatorLabel = privateDetails?.submittedByAddress
+    ? shortenAddress(privateDetails.submittedByAddress)
+    : getOperatorAttributionLabel(evaluation.operatorAttribution)
 
   return (
     <div className="space-y-10">
@@ -115,7 +159,7 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
             </span>
             <span className="text-xs text-aegis-text-muted">Timestamp: {formatEvaluationTimestamp(evaluation.createdAt)}</span>
             <span className="text-xs text-aegis-text-muted">
-              Operator: {evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous demo flow'}
+              Operator: {operatorLabel}
             </span>
             <span className="text-xs text-aegis-text-muted">Policy ID: {evaluation.policySet.id}</span>
           </div>
@@ -191,7 +235,7 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
               Receipt JSON, agent manifest, and public-safe log links are live. This decision view reloads from the local durable server store, but the trust artifacts remain unsigned demo-grade surfaces.
             </div>
             <div className="mt-4 rounded-lg border border-white/8 bg-black/20 p-4 text-sm leading-6 text-aegis-text-muted">
-              Submitted by <span className="font-mono text-aegis-text">{evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous demo flow'}</span> against policy set <span className="font-semibold text-aegis-text">{evaluation.policySet.name}</span>.
+              Submitted by <span className="font-mono text-aegis-text">{operatorLabel}</span> against policy set <span className="font-semibold text-aegis-text">{evaluation.policySet.name}</span>.
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge tone={decisionTone}>{evaluation.confidence} confidence</Badge>
@@ -212,22 +256,28 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-aegis-danger">Internal audit only</span>
           </div>
           <div className="space-y-4">
-            {guardrailSummary.map((check) => (
-              <div key={check.name} className={`rounded-xl border-l-4 bg-aegis-shell p-5 ${check.borderClass}`}>
-                <div className="mb-2 flex items-start justify-between gap-3">
-                  <div className="text-sm font-bold text-aegis-text">{check.name}</div>
-                  <Badge tone={getCheckTone(check.result)}>{getCheckLabel(check.result)}</Badge>
+            {privateDetails ? (
+              <>
+                {privateDetails.triggeredChecks.map((check) => (
+                  <div key={check.name} className={`rounded-xl border-l-4 bg-aegis-shell p-5 ${check.result === 'pass' ? 'border-aegis-primary/50' : check.result === 'warn' ? 'border-aegis-warning/50' : 'border-aegis-danger/50'}`}>
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <div className="text-sm font-bold text-aegis-text">{check.name}</div>
+                      <Badge tone={getCheckTone(check.result)}>{getCheckLabel(check.result)}</Badge>
+                    </div>
+                    <p className="text-sm leading-7 text-aegis-text-muted">{check.detail}</p>
+                  </div>
+                ))}
+                <div className="rounded-xl border border-aegis-warning/20 bg-aegis-warning/5 p-5">
+                  <div className="mb-3 flex items-center gap-3">
+                    <Badge tone="warning">Private rationale</Badge>
+                    <span className="text-sm font-semibold text-aegis-text">{evaluation.reasoningProvider === 'venice' ? 'Venice rationale' : 'Fallback rationale'}</span>
+                  </div>
+                  <p className="text-sm leading-7 text-aegis-text-muted">{privateDetails.privateRationale}</p>
                 </div>
-                <p className="text-sm leading-7 text-aegis-text-muted">{check.detail}</p>
-              </div>
-            ))}
-            <div className="rounded-xl border border-aegis-warning/20 bg-aegis-warning/5 p-5">
-              <div className="mb-3 flex items-center gap-3">
-                <Badge tone="warning">Private rationale</Badge>
-                <span className="text-sm font-semibold text-aegis-text">{evaluation.reasoningProvider === 'venice' ? 'Venice rationale' : 'Fallback rationale'}</span>
-              </div>
-              <p className="text-sm leading-7 text-aegis-text-muted">{evaluation.privateRationale}</p>
-            </div>
+              </>
+            ) : (
+              <PrivateLaneUnavailable guardrailSummary={guardrailSummary} />
+            )}
           </div>
         </section>
 
@@ -264,7 +314,7 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
                 </div>
                 <div>
                   <div className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Submitted by</div>
-                  <div className="mt-2 font-headline text-xl font-bold text-aegis-text">{evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous'}</div>
+                  <div className="mt-2 font-headline text-xl font-bold text-aegis-text">{operatorLabel}</div>
                 </div>
               </div>
               {evaluation.receipt.urls?.receiptJson ? (
@@ -306,14 +356,20 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
               <h4 className="font-headline text-lg font-bold text-aegis-text">Policy snapshot used</h4>
               <Badge tone="info">Historical context</Badge>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {policySummary.map((item) => (
-                <div key={item.label} className="rounded-lg border border-white/8 bg-black/20 p-4">
-                  <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">{item.label}</div>
-                  <div className="mt-2 text-sm font-semibold text-aegis-text">{item.value}</div>
-                </div>
-              ))}
-            </div>
+            {privateDetails ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {policySummary.map((item) => (
+                  <div key={item.label} className="rounded-lg border border-white/8 bg-black/20 p-4">
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">{item.label}</div>
+                    <div className="mt-2 text-sm font-semibold text-aegis-text">{item.value}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-white/10 bg-black/20 p-4 text-sm leading-7 text-aegis-text-muted">
+                The durable result keeps the policy set identity and snapshot hash public-safe. The full resolved policy snapshot stays behind the session-bound private lane for the browser that created this evaluation.
+              </div>
+            )}
           </div>
 
           <div className="dashboard-card p-6">
@@ -321,16 +377,22 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
               <h4 className="font-headline text-lg font-bold text-aegis-text">Persisted evaluation context</h4>
               <Badge tone="neutral">Server stored</Badge>
             </div>
-            <div className="grid gap-4">
-              <div className="rounded-lg border border-white/8 bg-black/20 p-4">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Proposed action</div>
-                <p className="mt-3 text-sm leading-7 text-aegis-text-muted">{evaluation.proposedAction}</p>
+            {privateDetails ? (
+              <div className="grid gap-4">
+                <div className="rounded-lg border border-white/8 bg-black/20 p-4">
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Proposed action</div>
+                  <p className="mt-3 text-sm leading-7 text-aegis-text-muted">{privateDetails.proposedAction}</p>
+                </div>
+                <div className="rounded-lg border border-white/8 bg-black/20 p-4">
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Treasury state snapshot</div>
+                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-aegis-text-muted">{previewText(privateDetails.treasuryStateSnapshot, 260)}</p>
+                </div>
               </div>
-              <div className="rounded-lg border border-white/8 bg-black/20 p-4">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">Treasury state snapshot</div>
-                <p className="mt-3 whitespace-pre-line text-sm leading-7 text-aegis-text-muted">{previewText(evaluation.treasuryStateSnapshot, 260)}</p>
+            ) : (
+              <div className="rounded-lg border border-dashed border-white/10 bg-black/20 p-4 text-sm leading-7 text-aegis-text-muted">
+                Raw proposed action text, treasury state, and private reasoning are intentionally excluded from the public evaluation APIs. Re-open this result from the browser session that submitted it to restore the private lane.
               </div>
-            </div>
+            )}
           </div>
         </section>
       </div>
@@ -351,6 +413,25 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
         </div>
       </footer>
     </div>
+  )
+}
+
+function PrivateLaneUnavailable({ guardrailSummary }: { guardrailSummary: Array<{ name: string; result: 'pass' | 'warn' | 'fail'; borderClass: string }> }) {
+  return (
+    <>
+      {guardrailSummary.map((check) => (
+        <div key={check.name} className={`rounded-xl border-l-4 bg-aegis-shell p-5 ${check.borderClass}`}>
+          <div className="mb-2 flex items-start justify-between gap-3">
+            <div className="text-sm font-bold text-aegis-text">{check.name}</div>
+            <Badge tone={getCheckTone(check.result)}>{getCheckLabel(check.result)}</Badge>
+          </div>
+          <p className="text-sm leading-7 text-aegis-text-muted">Public-safe evaluation APIs expose only the check name and outcome. Detailed threshold text stays in the private lane.</p>
+        </div>
+      ))}
+      <div className="rounded-xl border border-dashed border-aegis-warning/20 bg-aegis-warning/5 p-5 text-sm leading-7 text-aegis-text-muted">
+        This result is public-safe by default. Private rationale, raw treasury context, and detailed check text are only available in the browser session that submitted the evaluation.
+      </div>
+    </>
   )
 }
 
@@ -404,7 +485,7 @@ function EmptyDecisionState({ requestedEvaluation, errorMessage }: { requestedEv
           ? errorMessage
           : requestedEvaluation
             ? 'That evaluation is not available in the durable store. Run a fresh evaluation or open another record from history.'
-            : 'Run the MVP loop from the evaluation dashboard to populate this screen with a persisted decision record.'}
+            : 'Run the MVP loop from the evaluation dashboard to open a persisted decision record with an explicit evaluation ID.'}
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
         <Link to="/evaluation-dashboard" className="inline-flex">

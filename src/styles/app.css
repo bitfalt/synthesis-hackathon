@@ -107,15 +107,15 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-lg bg-aegis-primary px-5 py-3 text-sm font-bold uppercase tracking-[0.12em] text-zinc-950 hover:bg-aegis-primary-bright;
+    @apply inline-flex items-center gap-2 rounded-lg bg-aegis-primary px-5 py-3 text-sm font-bold uppercase tracking-[0.12em] text-zinc-950 hover:bg-aegis-primary-bright disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-aegis-primary;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 rounded-lg border border-white/12 px-5 py-3 text-sm font-semibold text-aegis-text hover:bg-white/5;
+    @apply inline-flex items-center gap-2 rounded-lg border border-white/12 px-5 py-3 text-sm font-semibold text-aegis-text hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text;
+    @apply inline-flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-aegis-text-muted hover:bg-white/5 hover:text-aegis-text disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-aegis-text-muted;
   }
 
   .badge {

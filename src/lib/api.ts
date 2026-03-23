@@ -89,10 +89,16 @@ export type DemoEvaluationResponse = {
   }
 }
 
+export type DemoEvaluationSubmissionResponse = DemoEvaluationResponse & {
+  privateAccessToken?: string | null
+}
+
 export type PublicArtifactCheck = {
   name: string
   result: TriggeredCheck['result']
 }
+
+export type EvaluationOperatorAttribution = 'wallet-attributed' | 'anonymous-demo'
 
 export type EvaluationCheckRecord = TriggeredCheck & {
   id: string
@@ -110,6 +116,37 @@ export type StoredEvaluation = DemoEvaluationResponse & {
   submittedByDisplay: string | null
   receiptHash: string | null
   checks: EvaluationCheckRecord[]
+  privateAccessToken: string | null
+}
+
+type EvaluationRecordBase = {
+  id: string
+  receiptId: string
+  createdAt: string
+  decision: DemoDecision
+  confidence: DemoConfidence
+  reasoningProvider: ReasoningProvider
+  publicSummary: string
+  policySetId: string | null
+  policySet: StoredEvaluation['policySet']
+  receiptHash: string | null
+  receipt: StoredEvaluation['receipt']
+  operatorAttribution: EvaluationOperatorAttribution
+  policySnapshotHash: string | null
+}
+
+export type PublicStoredEvaluation = EvaluationRecordBase & {
+  triggeredChecks: PublicArtifactCheck[]
+}
+
+export type PrivateEvaluationDetails = {
+  privateRationale: string
+  treasuryStateSnapshot: string
+  proposedAction: string
+  policySnapshot: ResolvedPolicySnapshotType
+  triggeredChecks: TriggeredCheck[]
+  submittedByAddress: string | null
+  submittedByDisplay: string | null
 }
 
 export type OperatorSession = {
@@ -143,6 +180,60 @@ async function readJsonResponse<T>(response: Response, fallbackMessage: string) 
   }
 
   return (await response.json()) as T
+}
+
+async function readOptionalJsonResponse<T>(response: Response, fallbackMessage: string) {
+  if (response.status === 401 || response.status === 403 || response.status === 404) {
+    return null
+  }
+
+  return readJsonResponse<T>(response, fallbackMessage)
+}
+
+const PRIVATE_ACCESS_STORAGE_KEY = 'aegis-private-evaluation-access'
+
+function readPrivateAccessMap() {
+  if (typeof window === 'undefined') {
+    return {}
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(PRIVATE_ACCESS_STORAGE_KEY)
+
+    if (!raw) {
+      return {}
+    }
+
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1].length > 0),
+    )
+  } catch {
+    return {}
+  }
+}
+
+function writePrivateAccessMap(entries: Record<string, string>) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.setItem(PRIVATE_ACCESS_STORAGE_KEY, JSON.stringify(entries))
+}
+
+export function rememberEvaluationPrivateAccess(evaluationId: string, accessToken?: string | null) {
+  if (!accessToken || typeof window === 'undefined') {
+    return
+  }
+
+  const entries = readPrivateAccessMap()
+  entries[evaluationId] = accessToken
+  writePrivateAccessMap(entries)
+}
+
+export function getEvaluationPrivateAccess(evaluationId: string) {
+  return readPrivateAccessMap()[evaluationId] ?? null
 }
 
 export async function fetchOperatorSession() {
@@ -209,6 +300,7 @@ export async function fetchPolicySets() {
       headers: {
         Accept: 'application/json',
       },
+      credentials: 'include',
     }),
     'Unable to load policy sets.',
   )
@@ -220,6 +312,7 @@ export async function fetchPolicySet(policySetId: string) {
       headers: {
         Accept: 'application/json',
       },
+      credentials: 'include',
     }),
     'Unable to load that policy set.',
   )
@@ -232,6 +325,7 @@ export async function createPolicySet(payload: PolicySetPayload) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(payload),
     }),
     'Unable to create the policy set.',
@@ -245,6 +339,7 @@ export async function updatePolicySet(policySetId: string, payload: PolicySetPay
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(payload),
     }),
     'Unable to update the policy set.',
@@ -255,6 +350,7 @@ export async function archivePolicySet(policySetId: string) {
   return readJsonResponse<PolicySetRecordType>(
     await fetch(`/api/policies/${policySetId}/archive`, {
       method: 'POST',
+      credentials: 'include',
     }),
     'Unable to archive the policy set.',
   )
@@ -264,17 +360,19 @@ export async function activatePolicySet(policySetId: string) {
   return readJsonResponse<PolicySetRecordType>(
     await fetch(`/api/policies/${policySetId}/activate`, {
       method: 'POST',
+      credentials: 'include',
     }),
     'Unable to activate the policy set.',
   )
 }
 
 export async function fetchEvaluationHistory() {
-  const payload = await readJsonResponse<{ evaluations: StoredEvaluation[] }>(
+  const payload = await readJsonResponse<{ evaluations: PublicStoredEvaluation[] }>(
     await fetch('/api/evaluations', {
       headers: {
         Accept: 'application/json',
       },
+      credentials: 'include',
     }),
     'Unable to load evaluation history.',
   )
@@ -283,11 +381,12 @@ export async function fetchEvaluationHistory() {
 }
 
 export async function fetchEvaluation(evaluationId: string) {
-  const payload = await readJsonResponse<{ evaluation: StoredEvaluation }>(
+  const payload = await readJsonResponse<{ evaluation: PublicStoredEvaluation }>(
     await fetch(`/api/evaluations/${evaluationId}`, {
       headers: {
         Accept: 'application/json',
       },
+      credentials: 'include',
     }),
     'Unable to load that evaluation record.',
   )
@@ -295,26 +394,43 @@ export async function fetchEvaluation(evaluationId: string) {
   return payload.evaluation
 }
 
-export async function fetchStoredEvaluation(evaluationId?: string | null) {
-  if (!evaluationId) {
-    const history = await fetchEvaluationHistory()
-    return history[0] ?? null
-  }
+export async function fetchPrivateEvaluation(evaluationId: string, accessToken: string) {
+  const payload = await readOptionalJsonResponse<{ evaluation: PrivateEvaluationDetails }>(
+    await fetch(`/api/evaluations/${evaluationId}/private`, {
+      headers: {
+        Accept: 'application/json',
+        'X-Aegis-Private-Access': accessToken,
+      },
+      credentials: 'include',
+    }),
+    'Unable to load the private evaluation detail.',
+  )
 
-  return fetchEvaluation(evaluationId)
+  return payload?.evaluation ?? null
 }
 
 export async function submitDemoEvaluation(payload: DemoEvaluationRequest) {
-  return readJsonResponse<DemoEvaluationResponse>(
+  const response = await readJsonResponse<DemoEvaluationSubmissionResponse>(
     await fetch('/api/evaluate/demo', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(payload),
     }),
     'Unable to evaluate this treasury action right now.',
   )
+
+  if (response.receipt.receiptId && response.privateAccessToken) {
+    rememberEvaluationPrivateAccess(response.receipt.receiptId, response.privateAccessToken)
+  }
+
+  return response
+}
+
+export function getOperatorAttributionLabel(attribution: EvaluationOperatorAttribution) {
+  return attribution === 'wallet-attributed' ? 'Wallet-attributed operator' : 'Anonymous demo flow'
 }
 
 export function formatEvaluationTimestamp(timestamp: string) {
