@@ -5,7 +5,8 @@ import { ConsoleLayout } from '~/components/layout/console-layout'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Icon } from '~/components/ui/icon'
-import { formatEvaluationTimestamp, getCheckLabel, getCheckTone, getDecisionTone, getReasoningProviderLabel, getReasoningProviderTone, getStoredEvaluation, type StoredEvaluation } from '~/lib/api'
+import { fetchStoredEvaluation, formatEvaluationTimestamp, getCheckLabel, getCheckTone, getDecisionTone, getReasoningProviderLabel, getReasoningProviderTone, shortenAddress, type StoredEvaluation } from '~/lib/api'
+import { getPolicySummaryItems } from '~/lib/policies'
 
 export const Route = createFileRoute('/decision-result')({
   validateSearch: z.object({
@@ -17,18 +18,45 @@ export const Route = createFileRoute('/decision-result')({
 function DecisionResultPage() {
   const search = Route.useSearch()
   const [evaluation, setEvaluation] = useState<StoredEvaluation | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    setEvaluation(getStoredEvaluation(search.evaluation))
+    let isCancelled = false
+
+    setIsLoading(true)
+    setErrorMessage(null)
+
+    fetchStoredEvaluation(search.evaluation)
+      .then((record) => {
+        if (!isCancelled) {
+          setEvaluation(record)
+        }
+      })
+      .catch((error) => {
+        if (!isCancelled) {
+          setEvaluation(null)
+          setErrorMessage(error instanceof Error ? error.message : 'Unable to load this evaluation right now.')
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      isCancelled = true
+    }
   }, [search.evaluation])
 
   return (
     <ConsoleLayout
       eyebrow="Bounded recommendation with receipts"
       title="Decision Result"
-      description="A live guardrail outcome with a visible privacy split, provider provenance, and inspectable hosted artifacts that stay public-safe."
+      description="A live guardrail outcome with a visible privacy split, provider provenance, and public-safe hosted artifacts. The result is reloaded from the server-backed store so the same evaluation survives refreshes, new tabs, and local restarts."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Button className="px-5 py-2 text-[0.65rem]">Connect Wallet</Button>}
+      topbarActions={<Badge tone="primary">Live result view</Badge>}
       actions={
         <>
           <Link to="/evaluation-history" search={evaluation ? { selected: evaluation.id } : undefined} className="inline-flex">
@@ -40,7 +68,7 @@ function DecisionResultPage() {
         </>
       }
     >
-      {evaluation ? <DecisionResultContent evaluation={evaluation} /> : <EmptyDecisionState requestedEvaluation={search.evaluation} />}
+      {isLoading ? <DecisionLoadingState /> : evaluation ? <DecisionResultContent evaluation={evaluation} /> : <EmptyDecisionState requestedEvaluation={search.evaluation} errorMessage={errorMessage} />}
     </ConsoleLayout>
   )
 }
@@ -55,6 +83,7 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
   const decisionTone = getDecisionTone(evaluation.decision)
   const iconName = evaluation.decision === 'BLOCK' ? 'block' : evaluation.decision === 'WARN' ? 'policy_alert' : 'verified'
   const confidence = confidencePercent(evaluation.confidence)
+  const policySummary = getPolicySummaryItems(evaluation.policySnapshot)
 
   const guardrailSummary = useMemo(() => {
     return evaluation.triggeredChecks.map((check) => ({
@@ -72,6 +101,9 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
               Execution ID: {evaluation.receipt.receiptId ?? evaluation.id}
             </span>
             <span className="text-xs text-aegis-text-muted">Timestamp: {formatEvaluationTimestamp(evaluation.createdAt)}</span>
+            <span className="text-xs text-aegis-text-muted">
+              Operator: {evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous demo flow'}
+            </span>
           </div>
           <h2 className="font-headline text-5xl font-extrabold tracking-tight text-aegis-text">
             Decision <span className="text-aegis-primary">Result</span>
@@ -131,22 +163,26 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
           </div>
 
           <div className="dashboard-card-muted p-5">
-            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Identity verification</div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-aegis-text-muted">Trust surface status</div>
             <div className="mt-5 flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-lg border border-white/8 bg-black/20">
                 <Icon name="fingerprint" className="text-aegis-primary" />
               </div>
               <div>
-                <div className="text-sm font-bold text-aegis-text">Agent 0x-Alpha</div>
-                <div className="text-[10px] font-mono text-aegis-text-muted">ID: 8829-X-22</div>
+                <div className="text-sm font-bold text-aegis-text">Hosted demo receipt lane</div>
+                <div className="text-[10px] font-mono text-aegis-text-muted">Manifest published, signatures not yet attached</div>
               </div>
             </div>
-            <div className="mt-5 grid h-24 place-items-center rounded-lg border border-dashed border-white/10 bg-black/20">
-              <span className="text-xs uppercase tracking-[0.2em] text-aegis-text-muted">Signature surface</span>
+            <div className="mt-5 rounded-lg border border-dashed border-white/10 bg-black/20 p-4 text-sm leading-6 text-aegis-text-muted">
+              Receipt JSON, agent manifest, and public-safe log links are live. This decision view reloads from the local durable server store, but the trust artifacts remain unsigned demo-grade surfaces.
+            </div>
+            <div className="mt-4 rounded-lg border border-white/8 bg-black/20 p-4 text-sm leading-6 text-aegis-text-muted">
+              Submitted by <span className="font-mono text-aegis-text">{evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous demo flow'}</span> against policy set <span className="font-semibold text-aegis-text">{evaluation.policySet.name}</span>.
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge tone={decisionTone}>{evaluation.confidence} confidence</Badge>
               <Badge tone={getReasoningProviderTone(evaluation.reasoningProvider)}>{getReasoningProviderLabel(evaluation.reasoningProvider)}</Badge>
+              <Badge tone="warning">Unsigned artifacts</Badge>
             </div>
           </div>
         </div>
@@ -208,6 +244,14 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
                   <div className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Veto status</div>
                   <div className="mt-2 font-headline text-xl font-bold text-aegis-text">{evaluation.decision === 'BLOCK' ? 'Active' : 'None'}</div>
                 </div>
+                <div>
+                  <div className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Policy set</div>
+                  <div className="mt-2 font-headline text-xl font-bold text-aegis-text">{evaluation.policySet.name}</div>
+                </div>
+                <div>
+                  <div className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Submitted by</div>
+                  <div className="mt-2 font-headline text-xl font-bold text-aegis-text">{evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous'}</div>
+                </div>
               </div>
               {evaluation.receipt.urls?.receiptJson ? (
                 <a href={evaluation.receipt.urls.receiptJson} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-medium text-aegis-secondary transition-colors hover:text-aegis-primary">
@@ -222,12 +266,12 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
             <div className="flex items-center gap-4">
               <Icon name="receipt_long" className="text-3xl text-aegis-primary" />
               <div>
-                <div className="text-sm font-bold text-aegis-text">Immutable trust receipt</div>
-                <div className="text-[0.6875rem] text-aegis-text-muted">Hash: {evaluation.receipt.hash ?? 'Unavailable'}</div>
+                <div className="text-sm font-bold text-aegis-text">Hosted receipt record</div>
+                <div className="text-[0.6875rem] text-aegis-text-muted">Hash: {evaluation.receipt.hash ?? 'Unavailable'} • persisted server record</div>
               </div>
             </div>
             <Link to="/evaluation-history" search={{ selected: evaluation.id }} className="inline-flex">
-              <Button variant="secondary">Verify record</Button>
+              <Button variant="secondary">Open verification trail</Button>
             </Link>
           </div>
 
@@ -242,34 +286,53 @@ function DecisionResultContent({ evaluation }: { evaluation: StoredEvaluation })
               <ArtifactButton href={evaluation.receipt.urls?.agentLog} label="Agent log" icon="history" />
             </div>
           </div>
+
+          <div className="dashboard-card p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h4 className="font-headline text-lg font-bold text-aegis-text">Policy snapshot used</h4>
+              <Badge tone="info">Historical context</Badge>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {policySummary.map((item) => (
+                <div key={item.label} className="rounded-lg border border-white/8 bg-black/20 p-4">
+                  <div className="text-[11px] uppercase tracking-[0.18em] text-aegis-text-muted">{item.label}</div>
+                  <div className="mt-2 text-sm font-semibold text-aegis-text">{item.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
       </div>
 
       <footer className="mt-auto flex flex-col items-center justify-between gap-6 border-t border-white/6 pt-10 md:flex-row">
         <div className="flex flex-wrap gap-4">
           <Link to="/evaluation-history" search={{ selected: evaluation.id }} className="inline-flex">
-            <Button leftIcon={<Icon name="verified" className="text-base" />}>Generate trust receipt</Button>
+            <Button leftIcon={<Icon name="verified" className="text-base" />}>Review in history</Button>
           </Link>
           <a href={evaluation.receipt.urls?.agentJson ?? evaluation.receipt.urls?.receiptJson ?? undefined} target="_blank" rel="noreferrer" className="inline-flex">
-            <Button variant="secondary" leftIcon={<Icon name="share_windows" className="text-base" />}>Share summary</Button>
+            <Button variant="secondary" leftIcon={<Icon name="share_windows" className="text-base" />}>Open public-safe artifact</Button>
           </a>
         </div>
         <div className="flex items-center gap-6 text-sm text-aegis-text-muted">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-aegis-primary" />
-            Real-time guardrail monitoring
-          </div>
+          <Badge tone="info">Durable demo artifacts</Badge>
           <div className="h-4 w-px bg-white/10" />
-          <div className="font-mono text-xs">v4.2.1-stable</div>
+          <div className="font-mono text-xs">server-backed result view</div>
         </div>
       </footer>
-
-      <div className="fixed bottom-8 right-8 z-20 hidden lg:block">
-        <button className="grid h-14 w-14 place-items-center rounded-full border border-aegis-primary/20 bg-aegis-shell text-aegis-primary shadow-2xl shadow-black/30 transition-transform hover:scale-105" type="button">
-          <Icon name="gavel" className="text-xl" />
-        </button>
-      </div>
     </div>
+  )
+}
+
+function DecisionLoadingState() {
+  return (
+    <section className="dashboard-card max-w-4xl p-8 lg:p-10">
+      <div className="mb-6 flex items-center gap-3 text-aegis-primary">
+        <Icon name="progress_activity" className="text-3xl" />
+        <span className="eyebrow">Loading evaluation</span>
+      </div>
+      <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">Fetching persisted decision</h2>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-aegis-text-muted">Aegis is loading the stored result, receipt links, and public-safe artifacts from the durable server history.</p>
+    </section>
   )
 }
 
@@ -295,7 +358,7 @@ function ArtifactButton({ href, label, icon }: { href?: string | null; label: st
   )
 }
 
-function EmptyDecisionState({ requestedEvaluation }: { requestedEvaluation?: string }) {
+function EmptyDecisionState({ requestedEvaluation, errorMessage }: { requestedEvaluation?: string; errorMessage?: string | null }) {
   return (
     <section className="dashboard-card max-w-4xl p-8 lg:p-10">
       <div className="mb-6 flex items-center gap-3 text-aegis-primary">
@@ -306,9 +369,11 @@ function EmptyDecisionState({ requestedEvaluation }: { requestedEvaluation?: str
         {requestedEvaluation ? 'Decision not found' : 'No completed evaluation yet'}
       </h2>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-aegis-text-muted">
-        {requestedEvaluation
-          ? 'That receipt is not available in this browser session. Run a fresh evaluation or open one from history.'
-          : 'Run the MVP loop from the evaluation dashboard to populate this screen with live decision data.'}
+        {errorMessage
+          ? errorMessage
+          : requestedEvaluation
+            ? 'That evaluation is not available in the durable store. Run a fresh evaluation or open another record from history.'
+            : 'Run the MVP loop from the evaluation dashboard to populate this screen with a persisted decision record.'}
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
         <Link to="/evaluation-dashboard" className="inline-flex">

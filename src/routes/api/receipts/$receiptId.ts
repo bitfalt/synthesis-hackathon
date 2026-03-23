@@ -1,17 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getReceiptArtifact } from '~/lib/agent-service'
+import { buildReceiptArtifact } from '~/lib/agent-service'
+import { getPersistedEvaluationByReceiptId } from '~/lib/evaluation-store.server'
 
 export const Route = createFileRoute('/api/receipts/$receiptId')({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const artifact = getReceiptArtifact(params.receiptId)
+        const evaluation = await getPersistedEvaluationByReceiptId(params.receiptId)
 
-        if (!artifact) {
+        if (!evaluation) {
           return Response.json({ error: 'Receipt artifact not found.' }, { status: 404 })
         }
 
-        return Response.json(artifact, {
+        return Response.json(buildReceiptArtifact(evaluation), {
           headers: {
             'Cache-Control': 'no-store',
           },

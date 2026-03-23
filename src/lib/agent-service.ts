@@ -1,4 +1,4 @@
-import type { DemoConfidence, DemoDecision, PublicArtifactCheck, ReasoningProvider } from '~/lib/api'
+import type { DemoConfidence, DemoDecision, PublicArtifactCheck, ReasoningProvider, StoredEvaluation } from '~/lib/api'
 import { getRuntimeEnv } from '~/lib/runtime-env'
 
 export const AEGIS_BASE_NETWORK = 'eip155:8453'
@@ -15,9 +15,13 @@ type PublicReceiptArtifact = {
   decision: DemoDecision
   confidence: DemoConfidence
   reasoningProvider: ReasoningProvider
+  policySet: {
+    id: string
+    name: string
+  }
   publicSummary: string
   triggeredChecks: PublicArtifactCheck[]
-  hash: string
+  hash: string | null
 }
 
 type AgentLogArtifact = {
@@ -27,29 +31,13 @@ type AgentLogArtifact = {
     decision: DemoDecision
     confidence: DemoConfidence
     reasoningProvider: ReasoningProvider
+    policySet: {
+      id: string
+      name: string
+    }
     publicSummary: string
     triggeredChecks: PublicArtifactCheck[]
   }>
-}
-
-type ArtifactStore = {
-  receipts: Map<string, PublicReceiptArtifact>
-  logs: Map<string, AgentLogArtifact>
-}
-
-function getArtifactStore() {
-  const runtime = globalThis as typeof globalThis & {
-    __aegisArtifactStore?: ArtifactStore
-  }
-
-  if (!runtime.__aegisArtifactStore) {
-    runtime.__aegisArtifactStore = {
-      receipts: new Map(),
-      logs: new Map(),
-    }
-  }
-
-  return runtime.__aegisArtifactStore
 }
 
 export function getX402ServiceConfig() {
@@ -78,52 +66,50 @@ export function buildHostedArtifactUrls(receiptId: string) {
   }
 }
 
-export function registerEvaluationArtifacts(input: {
-  receiptId: string
-  createdAt: string
-  decision: DemoDecision
-  confidence: DemoConfidence
-  reasoningProvider: ReasoningProvider
-  publicSummary: string
-  triggeredChecks: PublicArtifactCheck[]
-  hash: string
-}) {
-  const store = getArtifactStore()
+function buildPublicArtifactChecks(evaluation: StoredEvaluation) {
+  return evaluation.triggeredChecks.map<PublicArtifactCheck>((check) => ({
+    name: check.name,
+    result: check.result,
+  }))
+}
 
-  store.receipts.set(input.receiptId, {
+export function buildReceiptArtifact(evaluation: StoredEvaluation): PublicReceiptArtifact {
+  return {
     schema: 'erc8004.guardrail.evaluation.v1',
-    receiptId: input.receiptId,
-    createdAt: input.createdAt,
+    receiptId: evaluation.receiptId,
+    createdAt: evaluation.createdAt,
     agent: 'Aegis Treasury Guardrails',
-    decision: input.decision,
-    confidence: input.confidence,
-    reasoningProvider: input.reasoningProvider,
-    publicSummary: input.publicSummary,
-    triggeredChecks: input.triggeredChecks,
-    hash: input.hash,
-  })
+    decision: evaluation.decision,
+    confidence: evaluation.confidence,
+    reasoningProvider: evaluation.reasoningProvider,
+    policySet: {
+      id: evaluation.policySet.id,
+      name: evaluation.policySet.name,
+    },
+    publicSummary: evaluation.publicSummary,
+    triggeredChecks: buildPublicArtifactChecks(evaluation),
+    hash: evaluation.receiptHash ?? evaluation.receipt.hash ?? null,
+  }
+}
 
-  store.logs.set(input.receiptId, {
+export function buildAgentLogArtifact(evaluation: StoredEvaluation): AgentLogArtifact {
+  return {
     entries: [
       {
-        createdAt: input.createdAt,
-        receiptId: input.receiptId,
-        decision: input.decision,
-        confidence: input.confidence,
-        reasoningProvider: input.reasoningProvider,
-        publicSummary: input.publicSummary,
-        triggeredChecks: input.triggeredChecks,
+        createdAt: evaluation.createdAt,
+        receiptId: evaluation.receiptId,
+        decision: evaluation.decision,
+        confidence: evaluation.confidence,
+        reasoningProvider: evaluation.reasoningProvider,
+        policySet: {
+          id: evaluation.policySet.id,
+          name: evaluation.policySet.name,
+        },
+        publicSummary: evaluation.publicSummary,
+        triggeredChecks: buildPublicArtifactChecks(evaluation),
       },
     ],
-  })
-}
-
-export function getReceiptArtifact(receiptId: string) {
-  return getArtifactStore().receipts.get(receiptId) ?? null
-}
-
-export function getAgentLogArtifact(receiptId: string) {
-  return getArtifactStore().logs.get(receiptId) ?? null
+  }
 }
 
 export function getX402DiscoveryDocument() {

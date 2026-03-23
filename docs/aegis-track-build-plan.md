@@ -14,7 +14,7 @@ Ship one convincing MVP loop:
 
 - `/evaluation-dashboard` - canonical entry point for the demo
 - `/decision-result` - live decision and privacy split
-- `/evaluation-history` - real completed evaluations for the current browser session
+- `/evaluation-history` - real completed evaluations from the durable local store
 
 ## Backend contract
 

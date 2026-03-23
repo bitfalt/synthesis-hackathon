@@ -11,6 +11,7 @@ dist
 .vercel
 .output
 .nitro
+.data
 /build/
 /api/
 /server/build

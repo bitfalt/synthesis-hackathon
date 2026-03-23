@@ -1,13 +1,14 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { ConsoleLayout } from '~/components/layout/console-layout'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { FieldLabel, TextArea, UnderlinedSelectInput, UnderlinedTextArea, UnderlinedTextInput } from '~/components/ui/field'
 import { Icon } from '~/components/ui/icon'
 import { MetricCard } from '~/components/ui/metric-card'
-import { demoEvaluationDraft, policies, treasuryMetrics } from '~/content/aegis'
-import { saveCompletedEvaluation, submitDemoEvaluation, type DemoEvaluationRequest } from '~/lib/api'
+import { demoEvaluationDraft, treasuryMetrics } from '~/content/aegis'
+import { fetchPolicySets, submitDemoEvaluation, type PolicySetRecord } from '~/lib/api'
+import { getPolicySummaryItems } from '~/lib/policies'
 
 export const Route = createFileRoute('/evaluation-dashboard')({
   component: EvaluationDashboardPage,
@@ -36,36 +37,99 @@ function deriveActionComposer(action: string) {
 
 function EvaluationDashboardPage() {
   const navigate = useNavigate()
-  const [form, setForm] = useState<DemoEvaluationRequest>({ ...demoEvaluationDraft })
+  const [treasuryState, setTreasuryState] = useState(demoEvaluationDraft.treasuryState)
   const [actionComposer, setActionComposer] = useState(() => deriveActionComposer(demoEvaluationDraft.proposedAction))
+  const [policySets, setPolicySets] = useState<PolicySetRecord[]>([])
+  const [selectedPolicySetId, setSelectedPolicySetId] = useState('')
+  const [isPolicyLoading, setIsPolicyLoading] = useState(true)
+  const [policyErrorMessage, setPolicyErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
+  useEffect(() => {
+    let isCancelled = false
+
+    setIsPolicyLoading(true)
+    setPolicyErrorMessage(null)
+
+    fetchPolicySets()
+      .then((records) => {
+        if (isCancelled) {
+          return
+        }
+
+        setPolicySets(records)
+        const nextActive = records.find((policy) => policy.status === 'active') ?? records.find((policy) => policy.status !== 'archived') ?? null
+        setSelectedPolicySetId((current) => {
+          if (current && records.some((policy) => policy.id === current && policy.status !== 'archived')) {
+            return current
+          }
+
+          return nextActive?.id ?? ''
+        })
+      })
+      .catch((error) => {
+        if (!isCancelled) {
+          setPolicySets([])
+          setPolicyErrorMessage(error instanceof Error ? error.message : 'Unable to load policy sets right now.')
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsPolicyLoading(false)
+        }
+      })
+
+    return () => {
+      isCancelled = true
+    }
+  }, [])
+
+  const availablePolicySets = useMemo(
+    () => policySets.filter((policy) => policy.status !== 'archived'),
+    [policySets],
+  )
+
+  const activePolicy = useMemo(
+    () => policySets.find((policy) => policy.status === 'active') ?? availablePolicySets[0] ?? null,
+    [availablePolicySets, policySets],
+  )
+
+  const selectedPolicy = useMemo(
+    () => availablePolicySets.find((policy) => policy.id === selectedPolicySetId) ?? activePolicy,
+    [activePolicy, availablePolicySets, selectedPolicySetId],
+  )
+
+  const selectedPolicySummary = selectedPolicy ? getPolicySummaryItems(selectedPolicy.resolved) : []
+  const activePolicySummary = activePolicy ? getPolicySummaryItems(activePolicy.resolved).slice(0, 3) : []
+
   function updateActionField<K extends keyof typeof actionComposer>(key: K, value: (typeof actionComposer)[K]) {
-    setActionComposer((current) => {
-      const next = { ...current, [key]: value }
-      return next
-    })
+    setActionComposer((current) => ({ ...current, [key]: value }))
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrorMessage(null)
+
+    if (!selectedPolicy) {
+      setErrorMessage(policyErrorMessage ?? 'No active policy set is available for evaluation.')
+      return
+    }
+
     setIsSubmitting(true)
 
     const composedAction = `${actionComposer.reason.trim()} Transfer ${actionComposer.amount || '0'} ${actionComposer.asset} to ${actionComposer.destination || 'the specified destination'} while keeping stablecoin runway intact.`
-    const payload: DemoEvaluationRequest = {
-      ...form,
-      proposedAction: composedAction,
-    }
 
     try {
-      const response = await submitDemoEvaluation(payload)
-      const record = saveCompletedEvaluation(response)
+      const response = await submitDemoEvaluation({
+        policySetId: selectedPolicy.id,
+        treasuryState,
+        proposedAction: composedAction,
+      })
 
       await navigate({
         to: '/decision-result',
-        search: { evaluation: record.id },
+        search: response.receipt.receiptId ? { evaluation: response.receipt.receiptId } : undefined,
       })
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Unable to evaluate this treasury action right now.')
@@ -74,26 +138,44 @@ function EvaluationDashboardPage() {
     }
   }
 
+  function handleReset() {
+    setTreasuryState(demoEvaluationDraft.treasuryState)
+    setActionComposer(deriveActionComposer(demoEvaluationDraft.proposedAction))
+    setSelectedPolicySetId(activePolicy?.id ?? '')
+    setErrorMessage(null)
+  }
+
   return (
     <ConsoleLayout
       eyebrow="Private cognition and policy enforcement"
       title="Treasury Intelligence"
-      description="Continuous surveillance and policy enforcement for sovereign assets. Aegis preserves the live evaluation flow while mirroring the Stitch dashboard composition more closely."
+      description="The evaluator now resolves a real structured policy set on the server, persists the policy snapshot used for each decision, and reloads completed runs from durable local history."
       contentClassName="max-w-[1400px]"
-      topbarActions={<Button className="px-5 py-2 text-[0.65rem]">Connect Wallet</Button>}
+      topbarActions={<Badge tone="primary">Live MVP flow</Badge>}
       actions={
         <>
           <Link to="/evaluation-history" className="inline-flex">
             <Button variant="secondary">Open history</Button>
           </Link>
-          <Link to="/request-service" className="inline-flex">
-            <Button>Request service</Button>
+          <Link to="/policy-management" className="inline-flex">
+            <Button>Manage policies</Button>
           </Link>
         </>
       }
     >
       <div className="grid gap-6 xl:grid-cols-12">
-        <div className="xl:col-span-8 space-y-6">
+        <div className="space-y-6 xl:col-span-8">
+          <section className="rounded-2xl border border-aegis-primary/15 bg-aegis-primary/8 p-5 text-sm leading-7 text-aegis-text-muted">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="primary">Submission-critical route</Badge>
+              <Badge tone="info">Durable history</Badge>
+              <Badge tone="neutral">Structured policies live</Badge>
+            </div>
+            <p className="mt-4">
+              Use the <span className="font-semibold text-aegis-text">Propose Action</span> panel to evaluate against the active or selected structured policy set. Aegis now stores the resolved policy snapshot with each persisted result so prior decisions stay historically correct after edits.
+            </p>
+          </section>
+
           <div className="grid gap-6 md:grid-cols-3">
             {treasuryMetrics.map((metric) => (
               <MetricCard key={metric.label} {...metric} />
@@ -104,11 +186,9 @@ function EvaluationDashboardPage() {
             <div className="flex items-center justify-between border-b border-white/6 px-6 py-5">
               <div>
                 <h2 className="font-headline text-lg font-bold text-aegis-text">Current Asset State</h2>
-                <p className="mt-1 text-sm text-aegis-text-muted">Closest presentational equivalent of the Stitch allocation table using the existing MVP treasury story.</p>
+                <p className="mt-1 text-sm text-aegis-text-muted">Illustrative treasury snapshot used to preserve the Stitch dashboard layout around the live evaluator.</p>
               </div>
-              <button className="text-sm font-medium text-aegis-secondary hover:text-aegis-text" type="button">
-                View analytics
-              </button>
+              <Button variant="ghost" disabled type="button">Analytics coming soon</Button>
             </div>
             <div className="overflow-x-auto p-4">
               <table className="min-w-full text-left">
@@ -148,31 +228,40 @@ function EvaluationDashboardPage() {
             </div>
           </section>
 
-          <section>
-            <div className="grid gap-6 md:grid-cols-3">
-              {policies.slice(0, 2).map((policy, index) => (
-                <article key={policy.id} className="dashboard-card p-6">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <h3 className="font-headline text-lg font-bold text-aegis-text">{index === 0 ? 'Spending Limit' : 'Whitelist Only'}</h3>
-                    <span className="rounded bg-aegis-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-aegis-primary">Active</span>
-                  </div>
-                  <p className="min-h-16 text-xs leading-6 text-aegis-text-muted">
-                    {index === 0
-                      ? 'Daily withdrawal cap restricted to 2.5% of total TVL per multisig epoch.'
-                      : 'Funds can only be transferred to verified counterparty addresses.'}
-                  </p>
-                  <div className="mt-6 flex items-center gap-2 text-[10px] font-medium text-aegis-text-muted">
-                    <Icon name={index === 0 ? 'lock_clock' : 'verified'} className="text-sm text-aegis-primary" />
-                    <span>{index === 0 ? 'Expires in 184 days' : 'Verified protocols: 142'}</span>
-                  </div>
-                </article>
-              ))}
+          <section className="grid gap-6 md:grid-cols-3">
+            <article className="dashboard-card p-6 md:col-span-2">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Active policy summary</div>
+                  <h3 className="mt-2 font-headline text-2xl font-bold text-aegis-text">{activePolicy?.name ?? 'Loading policy set'}</h3>
+                </div>
+                {activePolicy ? <Badge tone="primary">Active</Badge> : null}
+              </div>
+              <p className="text-sm leading-7 text-aegis-text-muted">{activePolicy?.description ?? (policyErrorMessage || 'Aegis is resolving the current active policy set for evaluation.')}</p>
+              {activePolicySummary.length ? (
+                <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                  {activePolicySummary.map((item) => (
+                    <div key={item.label} className="rounded-xl border border-white/8 bg-black/20 p-4">
+                      <div className="text-[11px] uppercase tracking-[0.16em] text-aegis-text-muted">{item.label}</div>
+                      <div className="mt-2 text-sm font-semibold text-aegis-text">{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </article>
 
-              <Link to="/add-security-policy-modal" className="dashboard-card flex min-h-[196px] flex-col items-center justify-center border-dashed text-center transition-colors hover:border-aegis-primary/25 hover:bg-white/[0.03]">
-                <Icon name="add_moderator" className="mb-3 text-3xl text-aegis-text-muted/45" />
-                <div className="text-xs font-bold uppercase tracking-[0.24em] text-aegis-text-muted hover:text-aegis-primary">Add security policy</div>
+            <article className="dashboard-card flex min-h-[220px] flex-col items-start justify-between p-6">
+              <div>
+                <div className="grid h-11 w-11 place-items-center rounded-lg bg-aegis-primary/10 text-aegis-primary">
+                  <Icon name="gavel" className="text-xl" />
+                </div>
+                <h3 className="mt-5 font-headline text-xl font-bold text-aegis-text">Policy workspace</h3>
+                <p className="mt-3 text-sm leading-7 text-aegis-text-muted">Create, edit, activate, and archive structured policy sets without falling back to freeform policy text.</p>
+              </div>
+              <Link to="/policy-management" className="inline-flex">
+                <Button variant="secondary">Open policy management</Button>
               </Link>
-            </div>
+            </article>
           </section>
         </div>
 
@@ -184,6 +273,48 @@ function EvaluationDashboardPage() {
             </div>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="rounded-xl border border-aegis-primary/15 bg-aegis-primary/8 p-4">
+                <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Evaluating against:</div>
+                <div className="mt-2 font-headline text-2xl font-bold text-aegis-text">
+                  {selectedPolicy?.name ?? (isPolicyLoading ? 'Loading policy set...' : 'No policy set available')}
+                </div>
+                <p className="mt-2 text-sm leading-6 text-aegis-text-muted">
+                  {selectedPolicy?.description ?? 'Select a non-archived policy set before running the evaluator.'}
+                </p>
+
+                {availablePolicySets.length > 1 ? (
+                  <div className="mt-4">
+                    <FieldLabel>Policy selector</FieldLabel>
+                    <div className="relative mt-2">
+                      <UnderlinedSelectInput
+                        value={selectedPolicy?.id ?? ''}
+                        onChange={(event) => setSelectedPolicySetId(event.target.value)}
+                        className="appearance-none pr-8"
+                        disabled={isPolicyLoading || !availablePolicySets.length}
+                      >
+                        {availablePolicySets.map((policy) => (
+                          <option key={policy.id} value={policy.id}>
+                            {policy.name}
+                          </option>
+                        ))}
+                      </UnderlinedSelectInput>
+                      <Icon name="expand_more" className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-base text-aegis-text-muted" />
+                    </div>
+                  </div>
+                ) : null}
+
+                {selectedPolicySummary.length ? (
+                  <div className="mt-4 space-y-2">
+                    {selectedPolicySummary.slice(0, 4).map((item) => (
+                      <div key={item.label} className="flex items-start justify-between gap-3 border-t border-white/6 pt-2 text-sm">
+                        <span className="text-aegis-text-muted">{item.label}</span>
+                        <span className="text-right font-medium text-aegis-text">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+
               <div>
                 <FieldLabel>Amount</FieldLabel>
                 <UnderlinedTextInput
@@ -238,8 +369,14 @@ function EvaluationDashboardPage() {
                   <Badge tone="info">Public-safe lane</Badge>
                   <Badge tone="neutral">Receipt attached</Badge>
                 </div>
-                <p className="mt-4">Private reasoning stays confidential, a bounded public-safe summary is generated for review, and the completed evaluation is retained in local session history for the decision flow.</p>
+                <p className="mt-4">Private reasoning stays confidential, a bounded public-safe summary is generated for review, and the completed evaluation is retained in the server-backed history with the exact policy snapshot used for that run.</p>
               </div>
+
+              {policyErrorMessage ? (
+                <div className="rounded-xl border border-aegis-warning/30 bg-aegis-warning/10 px-4 py-3 text-sm text-aegis-text">
+                  {policyErrorMessage}
+                </div>
+              ) : null}
 
               {errorMessage ? (
                 <div className="rounded-xl border border-aegis-warning/30 bg-aegis-warning/10 px-4 py-3 text-sm text-aegis-text">
@@ -250,7 +387,7 @@ function EvaluationDashboardPage() {
               <div className="space-y-3 pt-2">
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isPolicyLoading || !selectedPolicy}
                   className="w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
                   leftIcon={<Icon name={isSubmitting ? 'hourglass_top' : 'play_circle'} className="text-lg" />}
                 >
@@ -261,10 +398,7 @@ function EvaluationDashboardPage() {
                   variant="secondary"
                   disabled={isSubmitting}
                   className="w-full justify-center disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={() => {
-                    setForm({ ...demoEvaluationDraft })
-                    setActionComposer(deriveActionComposer(demoEvaluationDraft.proposedAction))
-                  }}
+                  onClick={handleReset}
                 >
                   Reset demo inputs
                 </Button>
@@ -277,24 +411,17 @@ function EvaluationDashboardPage() {
                 </summary>
                 <div className="mt-4 space-y-4">
                   <div>
-                    <FieldLabel>Treasury policy</FieldLabel>
-                    <TextArea
-                      value={form.treasuryPolicy}
-                      onChange={(event) => setForm((current) => ({ ...current, treasuryPolicy: event.target.value }))}
-                      className="mt-2 min-h-24 rounded-lg border-white/6 bg-black/25 text-sm"
-                      placeholder="Paste the confidential treasury policy or guardrail excerpts here."
-                    />
-                  </div>
-
-                  <div>
                     <FieldLabel>Treasury state</FieldLabel>
                     <TextArea
-                      value={form.treasuryState}
-                      onChange={(event) => setForm((current) => ({ ...current, treasuryState: event.target.value }))}
-                      className="mt-2 min-h-20 rounded-lg border-white/6 bg-black/25 text-sm"
+                      value={treasuryState}
+                      onChange={(event) => setTreasuryState(event.target.value)}
+                      className="mt-2 min-h-24 rounded-lg border-white/6 bg-black/25 text-sm"
                       placeholder="Describe reserves, runway, concentration, and operator context."
                     />
                   </div>
+                  <p className="text-xs leading-6 text-aegis-text-muted">
+                    Structured policy rules are resolved server-side from the selected policy set. Completed runs persist the policy snapshot, decision, and hosted artifact URLs in the local server store.
+                  </p>
                 </div>
               </details>
             </form>

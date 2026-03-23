@@ -1,20 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
 import { buildX402PaymentRequiredResponse, getX402ServiceConfig } from '~/lib/agent-service'
-import { evaluateDemoRequest } from './demo'
-
-const requestSchema = z.object({
-  treasuryPolicy: z.string().trim().min(1).max(8000),
-  treasuryState: z.string().trim().min(1).max(8000),
-  proposedAction: z.string().trim().min(1).max(4000),
-})
+import type { DemoEvaluationRequest } from '~/lib/api'
+import { evaluateDemoRequest, parseDemoEvaluationRequest } from '~/lib/evaluator'
+import { savePersistedEvaluation } from '~/lib/evaluation-store.server'
 
 export const Route = createFileRoute('/api/evaluate/service')({
   server: {
     handlers: {
       POST: async ({ request }) => {
         try {
-          const body = requestSchema.parse(await request.json())
+          const rawBody = await request.json()
+          const body = parseDemoEvaluationRequest(rawBody)
           const x402 = getX402ServiceConfig()
           const paymentHeader = request.headers.get('x-payment')
 
@@ -42,8 +38,13 @@ export const Route = createFileRoute('/api/evaluate/service')({
           }
 
           const evaluation = await evaluateDemoRequest(body)
+          await savePersistedEvaluation({
+            createdAt: evaluation.createdAt,
+            request: rawBody as DemoEvaluationRequest,
+            response: evaluation.response,
+          })
 
-          return Response.json(evaluation, {
+          return Response.json(evaluation.response, {
             headers: {
               'Cache-Control': 'no-store',
               'X-Aegis-Service-Network': x402.network,
@@ -55,8 +56,8 @@ export const Route = createFileRoute('/api/evaluate/service')({
             },
           })
         } catch (error) {
-          const message = error instanceof z.ZodError
-            ? 'Treasury policy, treasury state, and proposed action are all required.'
+          const message = error instanceof Error
+            ? error.message
             : 'The treasury evaluation service could not process this request.'
 
           return Response.json({ error: message }, { status: 400 })

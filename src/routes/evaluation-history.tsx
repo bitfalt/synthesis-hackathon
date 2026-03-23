@@ -5,7 +5,17 @@ import { ConsoleLayout } from '~/components/layout/console-layout'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Icon } from '~/components/ui/icon'
-import { formatEvaluationTimestamp, getCheckLabel, getCheckTone, getDecisionTone, getReasoningProviderLabel, getReasoningProviderTone, loadEvaluationHistory, type StoredEvaluation } from '~/lib/api'
+import {
+  fetchEvaluationHistory,
+  formatEvaluationTimestamp,
+  getCheckLabel,
+  getCheckTone,
+  getDecisionTone,
+  getReasoningProviderLabel,
+  getReasoningProviderTone,
+  shortenAddress,
+  type StoredEvaluation,
+} from '~/lib/api'
 
 export const Route = createFileRoute('/evaluation-history')({
   validateSearch: z.object({
@@ -17,9 +27,36 @@ export const Route = createFileRoute('/evaluation-history')({
 function EvaluationHistoryPage() {
   const search = Route.useSearch()
   const [history, setHistory] = useState<StoredEvaluation[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    setHistory(loadEvaluationHistory())
+    let isCancelled = false
+
+    setIsLoading(true)
+    setErrorMessage(null)
+
+    fetchEvaluationHistory()
+      .then((evaluations) => {
+        if (!isCancelled) {
+          setHistory(evaluations)
+        }
+      })
+      .catch((error) => {
+        if (!isCancelled) {
+          setHistory([])
+          setErrorMessage(error instanceof Error ? error.message : 'Unable to load evaluation history.')
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      isCancelled = true
+    }
   }, [])
 
   const selected = useMemo(() => {
@@ -39,8 +76,8 @@ function EvaluationHistoryPage() {
       return [
         { label: 'Total evaluations', value: '0', helper: 'Awaiting first run', tone: 'primary' as const, icon: 'history' },
         { label: 'Blocks prevented', value: '0', helper: 'No incidents yet', tone: 'warning' as const, icon: 'gpp_bad' },
-        { label: 'Mean confidence', value: '0%', helper: 'No session data', tone: 'neutral' as const, icon: 'verified' },
-        { label: 'Vault status', value: 'Secure', helper: 'Policies synchronized', tone: 'neutral' as const, icon: 'lock' },
+        { label: 'Mean confidence', value: '0%', helper: 'No persisted history', tone: 'neutral' as const, icon: 'verified' },
+        { label: 'Operator signed runs', value: '0', helper: 'Anonymous demo only', tone: 'neutral' as const, icon: 'verified_user' },
       ]
     }
 
@@ -49,12 +86,13 @@ function EvaluationHistoryPage() {
       history.reduce((sum, entry) => sum + (entry.confidence === 'high' ? 98 : entry.confidence === 'medium' ? 76 : 42), 0) /
         history.length,
     )
+    const signedRuns = history.filter((entry) => Boolean(entry.submittedByAddress)).length
 
     return [
-      { label: 'Total evaluations', value: String(history.length).padStart(2, '0'), helper: 'Session audit log', tone: 'primary' as const, icon: 'trending_up' },
+      { label: 'Total evaluations', value: String(history.length).padStart(2, '0'), helper: 'Persisted server records', tone: 'primary' as const, icon: 'trending_up' },
       { label: 'Blocks prevented', value: String(blocked), helper: 'Risk mitigated', tone: 'warning' as const, icon: 'gpp_bad' },
-      { label: 'Mean confidence', value: `${average}%`, helper: 'High-fidelity audit', tone: 'neutral' as const, icon: 'verified' },
-      { label: 'Vault status', value: 'Secure', helper: 'Policies synchronized', tone: 'neutral' as const, icon: 'lock' },
+      { label: 'Mean confidence', value: `${average}%`, helper: 'Across durable history', tone: 'neutral' as const, icon: 'verified' },
+      { label: 'Operator signed runs', value: String(signedRuns), helper: 'Wallet-attributed submissions', tone: 'neutral' as const, icon: 'verified_user' },
     ]
   }, [history])
 
@@ -62,20 +100,20 @@ function EvaluationHistoryPage() {
     <ConsoleLayout
       eyebrow="Audit log of completed evaluations"
       title="Evaluation History"
-      description="Review stored guardrail assessments, inspect one result in detail, and open the hosted artifacts tied to each completed run."
+      description="Review persisted server-backed evaluations, inspect the active policy snapshot that was used for each run, and confirm when a signed Base operator was attached to the record."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Button className="px-5 py-2 text-[0.65rem]">Connect Wallet</Button>}
+      topbarActions={<Badge tone="info">Durable server history</Badge>}
       actions={
         <>
-          <Button variant="secondary" type="button">Filter logs</Button>
-          <Button variant="secondary" type="button">Export CSV</Button>
+          <Button variant="secondary" disabled type="button">Filtering coming soon</Button>
+          <Button variant="secondary" disabled type="button">CSV export coming soon</Button>
           <Link to="/evaluation-dashboard" className="inline-flex">
             <Button>Run new evaluation</Button>
           </Link>
         </>
       }
     >
-      {history.length ? (
+      {isLoading ? <HistoryLoadingState /> : history.length ? (
         <div className="space-y-8">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {metrics.map((metric) => (
@@ -113,14 +151,17 @@ function EvaluationHistoryPage() {
                       <tr key={entry.id} className={`dashboard-table-row group ${isSelected ? 'bg-aegis-primary/6' : ''}`}>
                         <td className="px-6 py-5">
                           <div className="text-sm font-medium text-aegis-text">{formatEvaluationTimestamp(entry.createdAt)}</div>
-                          <div className="mt-1 text-xs text-aegis-text-muted/60">Browser session receipt</div>
+                          <div className="mt-1 text-xs text-aegis-text-muted/60">Persisted server record</div>
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
                             <Icon name="swap_horiz" className="text-aegis-secondary" />
                             <div>
                               <div className="text-sm font-semibold text-aegis-text">{entry.publicSummary.split('. ')[0] || 'Treasury evaluation'}</div>
-                              <div className="text-[11px] font-mono text-aegis-secondary/80">{entry.receipt.hash ?? 'session-only artifact'}</div>
+                              <div className="text-[11px] text-aegis-text-muted/70">
+                                {entry.submittedByAddress ? `Operator ${shortenAddress(entry.submittedByAddress)}` : 'Anonymous demo submission'}
+                              </div>
+                              <div className="mt-1 text-[11px] text-aegis-text-muted">Policy: {entry.policySet.name}</div>
                             </div>
                           </div>
                         </td>
@@ -170,8 +211,8 @@ function EvaluationHistoryPage() {
             <Icon name="history" className="text-3xl" />
             <span className="eyebrow">No stored evaluations</span>
           </div>
-          <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">No evaluations in session history</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-aegis-text-muted">Complete one treasury evaluation from the dashboard and it will appear here immediately.</p>
+          <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">No persisted evaluations yet</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-aegis-text-muted">{errorMessage ?? 'Complete one treasury evaluation from the dashboard and it will appear here immediately, even after a refresh or restart.'}</p>
           <Link to="/evaluation-dashboard" className="mt-8 inline-flex">
             <Button>Open evaluation dashboard</Button>
           </Link>
@@ -181,11 +222,24 @@ function EvaluationHistoryPage() {
   )
 }
 
+function HistoryLoadingState() {
+  return (
+    <section className="dashboard-card max-w-4xl p-8 lg:p-10">
+      <div className="mb-6 flex items-center gap-3 text-aegis-primary">
+        <Icon name="progress_activity" className="text-3xl" />
+        <span className="eyebrow">Loading history</span>
+      </div>
+      <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">Fetching persisted evaluations</h2>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-aegis-text-muted">Aegis is loading the durable server history so the review log stays correct across refreshes and new tabs.</p>
+    </section>
+  )
+}
+
 function MissingSelectionPanel() {
   return (
     <section className="dashboard-card p-8">
       <h3 className="font-headline text-3xl font-extrabold tracking-tight text-aegis-text">Selected evaluation not found</h3>
-      <p className="mt-3 max-w-2xl text-sm leading-7 text-aegis-text-muted">That receipt is not available in this browser session. Run a new evaluation or choose another stored result.</p>
+      <p className="mt-3 max-w-2xl text-sm leading-7 text-aegis-text-muted">That evaluation is not available in the durable store. Run a new evaluation or choose another stored result.</p>
       <Link to="/evaluation-dashboard" className="mt-8 inline-flex">
         <Button>Run new evaluation</Button>
       </Link>
@@ -194,6 +248,13 @@ function MissingSelectionPanel() {
 }
 
 function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation }) {
+  const policyItems = [
+    ['Runway minimum', `${evaluation.policySnapshot.runwayMonthsMin} months`],
+    ['ETH review threshold', `${evaluation.policySnapshot.ethReviewThreshold} ETH`],
+    ['Stable review threshold', `${evaluation.policySnapshot.stableReviewThreshold.toLocaleString()} units`],
+    ['Concentration max', `${evaluation.policySnapshot.assetConcentrationMaxPercent}%`],
+  ] as const
+
   return (
     <section className="grid gap-8 lg:grid-cols-3">
       <div className="dashboard-card relative overflow-hidden p-8 lg:col-span-2">
@@ -201,20 +262,20 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
         <div className="relative z-10">
           <h3 className="flex items-center gap-2 font-headline text-xl font-bold text-aegis-text">
             <Icon name="verified_user" className="text-aegis-primary" />
-            Last cryptographic receipt
+            Latest durable receipt
           </h3>
           <div className="mt-6 space-y-4">
             <div className="flex items-center justify-between gap-4 border-b border-white/6 pb-3 text-sm">
               <span className="text-aegis-text-muted">Verification method</span>
-              <span className="font-mono text-aegis-primary">Hosted receipt artifact</span>
+              <span className="font-mono text-aegis-primary">Hosted artifact + durable server store</span>
             </div>
             <div className="flex items-center justify-between gap-4 border-b border-white/6 pb-3 text-sm">
               <span className="text-aegis-text-muted">Reasoning provider</span>
               <span className="font-mono text-aegis-text">{getReasoningProviderLabel(evaluation.reasoningProvider)}</span>
             </div>
             <div className="flex items-center justify-between gap-4 border-b border-white/6 pb-3 text-sm">
-              <span className="text-aegis-text-muted">Policy hash</span>
-              <span className="max-w-[260px] truncate font-mono text-aegis-text-muted">{evaluation.receipt.hash ?? 'Unavailable'}</span>
+              <span className="text-aegis-text-muted">Submitted by</span>
+              <span className="font-mono text-aegis-text">{evaluation.submittedByAddress ? shortenAddress(evaluation.submittedByAddress) : 'Anonymous demo flow'}</span>
             </div>
             <div className="grid gap-4 pt-2 md:grid-cols-2">
               <div className="rounded-xl border border-white/8 bg-black/20 p-5">
@@ -249,15 +310,35 @@ function SelectedEvaluationPanel({ evaluation }: { evaluation: StoredEvaluation 
         </div>
       </div>
 
-      <div className="dashboard-card-muted flex flex-col justify-center border-l-4 border-aegis-primary p-8">
-        <div className="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-aegis-primary/10 text-aegis-primary">
-          <Icon name="gavel" className="text-2xl" />
+      <div className="dashboard-card-muted flex flex-col gap-6 border-l-4 border-aegis-primary p-8">
+        <div>
+          <div className="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-aegis-primary/10 text-aegis-primary">
+            <Icon name="gavel" className="text-2xl" />
+          </div>
+          <h4 className="font-headline text-lg font-bold text-aegis-text">Policy snapshot used</h4>
+          <p className="mt-3 text-sm leading-7 text-aegis-text-muted">
+            This evaluation resolves against <span className="font-semibold text-aegis-text">{evaluation.policySet.name}</span> and keeps the policy snapshot alongside the result so history stays reproducible.
+          </p>
         </div>
-        <h4 className="font-headline text-lg font-bold text-aegis-text">Audit compliance</h4>
-        <p className="mt-3 text-sm leading-7 text-aegis-text-muted">
-          Treasury logs remain sealed inside the current browser session and linked to the hosted artifacts for review without changing the MVP storage model.
-        </p>
-        <div className="mt-6 space-y-3">
+
+        <div className="space-y-3 rounded-xl border border-white/8 bg-black/20 p-5">
+          {policyItems.map(([label, value]) => (
+            <div key={label} className="flex items-center justify-between gap-3 text-sm">
+              <span className="text-aegis-text-muted">{label}</span>
+              <span className="font-mono text-aegis-text">{value}</span>
+            </div>
+          ))}
+          <div className="border-t border-white/6 pt-3 text-sm">
+            <div className="mb-2 text-aegis-text-muted">Blocked categories</div>
+            <div className="text-aegis-text">
+              {evaluation.policySnapshot.blockedCounterpartyCategories.length
+                ? evaluation.policySnapshot.blockedCounterpartyCategories.join(', ')
+                : 'None configured'}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
           {evaluation.receipt.urls?.receiptJson ? (
             <a href={evaluation.receipt.urls.receiptJson} target="_blank" rel="noreferrer" className="inline-flex w-full">
               <Button variant="secondary" className="w-full justify-center">Open receipt JSON</Button>

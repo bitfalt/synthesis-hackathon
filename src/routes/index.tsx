@@ -10,9 +10,9 @@ export const Route = createFileRoute('/')({
 })
 
 const stats = [
-  ['TVL reviewed', '$4.2B+'],
-  ['Median eval latency', '0.0ms'],
-  ['Receipt coverage', '100%'],
+  ['Primary live flow', '3 routed steps'],
+  ['History retention', 'Durable local store'],
+  ['Artifact mode', 'Hosted demo JSON'],
 ] as const
 
 const featureCards = [
@@ -40,6 +40,32 @@ const featureCards = [
 
 function LandingPage() {
   const featuredScreens = getFeaturedStitchScreens()
+  const footerGroups = [
+    {
+      title: 'MVP flow',
+      items: [
+        { label: 'Dashboard', href: '/evaluation-dashboard' },
+        { label: 'Decision Result', href: '/decision-result' },
+        { label: 'Evaluation History', href: '/evaluation-history' },
+      ],
+    },
+    {
+      title: 'Trust surfaces',
+      items: [
+        { label: 'Agent Manifest', href: '/.well-known/agent.json' },
+        { label: 'x402 Discovery', href: '/api/x402/discovery' },
+        { label: 'Screen Registry', href: '/screens' },
+      ],
+    },
+    {
+      title: 'Preview routes',
+      items: [
+        { label: 'Policy Management', href: '/policy-management' },
+        { label: 'Settings', href: '/settings' },
+        { label: 'Help Center', href: '/help-center' },
+      ],
+    },
+  ] as const
 
   return (
     <div className="min-h-screen bg-aegis-foundation text-aegis-text">
@@ -74,12 +100,15 @@ function LandingPage() {
             <p className="mt-6 max-w-2xl text-lg leading-8 text-aegis-text-muted">
               Aegis evaluates proposed treasury movements against private institutional guardrails and returns a bounded recommendation with public-safe receipts.
             </p>
+            <div className="mt-6 rounded-2xl border border-aegis-secondary/12 bg-aegis-secondary/5 p-4 text-sm leading-6 text-aegis-text-muted">
+              The submission-critical path is live today: `/evaluation-dashboard` -&gt; backend evaluation -&gt; `/decision-result` -&gt; `/evaluation-history`. Other routed surfaces are kept as clearly labeled previews instead of pretending to be finished product modules.
+            </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/evaluation-dashboard" className="inline-flex">
-                <Button>Request access</Button>
+                <Button>Open live MVP</Button>
               </Link>
               <Link to="/screens" className="inline-flex">
-                <Button variant="secondary">Schedule a demo</Button>
+                <Button variant="secondary">Review route registry</Button>
               </Link>
             </div>
 
@@ -129,12 +158,12 @@ function LandingPage() {
 
         <section className="border-y border-white/6 bg-aegis-shell/60 px-6 py-12 sm:px-8">
           <div className="flex flex-col items-center justify-between gap-8 opacity-70 grayscale transition-all hover:grayscale-0 md:flex-row">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-aegis-text-muted">Secured by confidential computing</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-aegis-text-muted">Submission framing surfaces</p>
             <div className="flex flex-wrap items-center justify-center gap-10 font-headline text-2xl font-black text-aegis-text">
-              <span>ETHEREUM</span>
-              <span>LIDO</span>
-              <span>AAVE</span>
-              <span>MAKER</span>
+              <span>VENICE</span>
+              <span>ERC-8004</span>
+              <span>BASE</span>
+              <span>x402</span>
             </div>
           </div>
         </section>
@@ -171,10 +200,10 @@ function LandingPage() {
                 <h3 className="font-headline text-2xl font-bold text-aegis-text">{card.title}</h3>
                 <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{card.body}</p>
                 {index === 0 ? (
-                  <button className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-aegis-secondary" type="button">
-                    Explore proofs
+                  <a href="/.well-known/agent.json" target="_blank" rel="noreferrer" className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-aegis-secondary">
+                    Open agent manifest
                     <Icon name="arrow_forward" className="text-sm" />
-                  </button>
+                  </a>
                 ) : null}
               </article>
             ))}
@@ -212,10 +241,10 @@ function LandingPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <Link to="/evaluation-dashboard" className="inline-flex">
-                <Button>Request Access</Button>
+                <Button>Run an evaluation</Button>
               </Link>
-              <Link to="/decision-result" className="inline-flex">
-                <Button variant="secondary">View Decision Demo</Button>
+              <Link to="/screens" className="inline-flex">
+                <Button variant="secondary">Review supporting routes</Button>
               </Link>
             </div>
           </div>
@@ -246,9 +275,9 @@ function LandingPage() {
             <p className="mt-2 max-w-md leading-6">Hackathon-built treasury guardrails with private reasoning, public-safe receipts, and Base-native service framing.</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">
-            <FooterGroup title="Product" items={['Dashboard', 'Decision Result', 'Evaluation History']} />
-            <FooterGroup title="Resources" items={['Help Center', 'Screens', 'Settings']} />
-            <FooterGroup title="Contact" items={['Enterprise Desk', 'Audit Lane', '0x Bitfalter']} />
+            {footerGroups.map((group) => (
+              <FooterGroup key={group.title} title={group.title} items={group.items} />
+            ))}
           </div>
         </div>
       </footer>
@@ -256,13 +285,15 @@ function LandingPage() {
   )
 }
 
-function FooterGroup({ title, items }: { title: string; items: string[] }) {
+function FooterGroup({ title, items }: { title: string; items: ReadonlyArray<{ label: string; href: string }> }) {
   return (
     <div>
       <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-aegis-text-muted/65">{title}</div>
       <div className="mt-3 space-y-2">
         {items.map((item) => (
-          <div key={item}>{item}</div>
+          <a key={item.label} href={item.href} className="transition-colors hover:text-aegis-text">
+            {item.label}
+          </a>
         ))}
       </div>
     </div>

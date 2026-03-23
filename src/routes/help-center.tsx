@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { Badge } from '~/components/ui/badge'
 import { ConsoleLayout } from '~/components/layout/console-layout'
 import { Button } from '~/components/ui/button'
 import { Icon } from '~/components/ui/icon'
@@ -10,19 +11,22 @@ export const Route = createFileRoute('/help-center')({
 
 const docs = [
   {
-    title: 'Technical Specifications',
-    body: 'Understand the TEE-style reasoning split, receipt surfaces, and trust architecture behind Aegis Treasury.',
+    title: 'Agent manifest',
+    body: 'Open the published `/.well-known/agent.json` file that describes the current demo service, trust artifacts, and caveats.',
     icon: 'terminal',
+    href: '/.well-known/agent.json',
   },
   {
-    title: 'Getting Started',
-    body: 'Configure your first vault, key-management policy, and review lane in a fast operator onboarding flow.',
+    title: 'x402 discovery',
+    body: 'Inspect the live Base/x402 discovery response instead of relying on marketing copy about payment readiness.',
     icon: 'rocket_launch',
+    href: '/api/x402/discovery',
   },
   {
-    title: 'Policy Configuration',
-    body: 'Define governance structures, spending limits, whitelists, and signer review rules.',
+    title: 'Screen registry',
+    body: 'Review which routed screens are live MVP surfaces versus preserved submission previews.',
     icon: 'gavel',
+    href: '/screens',
   },
 ] as const
 
@@ -31,15 +35,26 @@ export function HelpCenterPage() {
     <ConsoleLayout
       eyebrow="Operator guidance"
       title="Knowledge & Guidance"
-      description="Product and protocol guidance for treasury operators, reviewers, and implementation partners who need a fast understanding of how Aegis works."
+      description="Use this page as an honest guide to the shipped MVP, its trust surfaces, and the routes that remain demo previews. It is not a full documentation portal yet."
       contentClassName="max-w-[1380px]"
-      topbarActions={<Button className="px-5 py-2 text-[0.65rem]">Connect Wallet</Button>}
+      topbarActions={<Badge tone="info">Useful review surface</Badge>}
     >
       <div className="space-y-12">
+        <section className="rounded-2xl border border-aegis-secondary/18 bg-aegis-secondary/8 p-5 text-sm leading-7 text-aegis-text-muted">
+          <div className="flex flex-wrap gap-2">
+            <Badge tone="primary">Live MVP loop</Badge>
+            <Badge tone="info">Published trust surfaces</Badge>
+            <Badge tone="warning">Preview routes labeled in-app</Badge>
+          </div>
+          <p className="mt-4">
+            For judges under time pressure, the core story is simple: submit an evaluation on `/evaluation-dashboard`, inspect the privacy split on `/decision-result`, then review the durable trail on `/evaluation-history`.
+          </p>
+        </section>
+
         <section>
           <div className="mb-16 max-w-3xl">
             <h2 className="font-headline text-5xl font-extrabold tracking-tight text-aegis-text">Documentation Hub</h2>
-            <p className="mt-4 text-lg leading-8 text-aegis-text-muted">Expert guidance for institutional-grade digital asset custody, policy architecture, cryptographic trust surfaces, and operational troubleshooting.</p>
+            <p className="mt-4 text-lg leading-8 text-aegis-text-muted">A truthful review hub for the shipped MVP, its preview routes, and the trust surfaces that are actually published today.</p>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-12">
@@ -50,13 +65,13 @@ export function HelpCenterPage() {
                     <Icon name="terminal" />
                     <span className="text-xs font-bold uppercase tracking-[0.2em]">Deep dive</span>
                   </div>
-                  <h3 className="font-headline text-3xl font-bold text-aegis-text">Technical Specifications</h3>
-                  <p className="mt-4 max-w-md text-sm leading-7 text-aegis-text-muted">Understand our implementation of private reasoning lanes, public-safe trust artifacts, and the architecture that gives Aegis its reviewable operator posture.</p>
+                  <h3 className="font-headline text-3xl font-bold text-aegis-text">What is actually shipped</h3>
+                  <p className="mt-4 max-w-md text-sm leading-7 text-aegis-text-muted">Open the published manifest and discovery docs, then follow the live three-step evaluation loop instead of inferring functionality from the broader UI shell.</p>
                 </div>
-                <div className="mt-12 inline-flex items-center gap-3 text-sm font-bold text-aegis-primary">
-                  <span className="border-b border-aegis-primary/30 pb-1">Read the whitepaper</span>
+                <a href="/.well-known/agent.json" target="_blank" rel="noreferrer" className="mt-12 inline-flex items-center gap-3 text-sm font-bold text-aegis-primary">
+                  <span className="border-b border-aegis-primary/30 pb-1">Open the agent manifest</span>
                   <Icon name="arrow_forward" className="text-sm" />
-                </div>
+                </a>
               </div>
               <Icon name="security" className="pointer-events-none absolute -bottom-12 -right-10 text-[18rem] text-white/[0.04]" />
             </article>
@@ -64,22 +79,22 @@ export function HelpCenterPage() {
             <article className="dashboard-card-muted flex flex-col justify-between p-8 xl:col-span-4">
               <div>
                 <Icon name="rocket_launch" className="mb-6 text-4xl text-aegis-warning" />
-                <h3 className="font-headline text-2xl font-bold text-aegis-text">Getting Started</h3>
-                <p className="mt-3 text-sm leading-7 text-aegis-text-muted">Configure your organization&apos;s first vault in minutes with a quick-start operator checklist.</p>
+                <h3 className="font-headline text-2xl font-bold text-aegis-text">Live MVP checklist</h3>
+                <p className="mt-3 text-sm leading-7 text-aegis-text-muted">Use the evaluator, open a result, and verify the durable trail before exploring the preview-only routes.</p>
               </div>
               <ul className="mt-8 space-y-3 text-xs text-aegis-text">
-                <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-aegis-primary" />Account initialization</li>
-                <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-aegis-primary" />Key management basics</li>
-                <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-aegis-primary" />Inviting team members</li>
+                <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-aegis-primary" />Run one evaluation from the dashboard</li>
+                <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-aegis-primary" />Inspect the private/public reasoning split</li>
+                <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-aegis-primary" />Open the hosted receipt and log artifacts</li>
               </ul>
             </article>
 
             {docs.slice(2).map((doc, index) => (
-              <article key={doc.title} className={`p-8 ${index === 0 ? 'dashboard-card xl:col-span-6' : 'dashboard-card-muted xl:col-span-6'}`}>
+              <a key={doc.title} href={doc.href} target={doc.href.startsWith('/api') || doc.href.startsWith('/.') ? '_blank' : undefined} rel={doc.href.startsWith('/api') || doc.href.startsWith('/.') ? 'noreferrer' : undefined} className={`p-8 ${index === 0 ? 'dashboard-card xl:col-span-6' : 'dashboard-card-muted xl:col-span-6'}`}>
                 <Icon name={doc.icon} className={`mb-4 text-4xl ${index === 0 ? 'text-aegis-secondary' : 'text-aegis-danger'}`} />
                 <h3 className="font-headline text-2xl font-bold text-aegis-text">{doc.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-aegis-text-muted">{doc.body}</p>
-              </article>
+              </a>
             ))}
           </div>
         </section>
@@ -92,12 +107,12 @@ export function HelpCenterPage() {
             </h4>
             <div className="space-y-4">
               {[
-                ['Understanding bounded receipts in Aegis', 'Technical Spec • 12 min read', 'description'],
-                ['Hardware signer and HSM integration', 'Infrastructure • 8 min read', 'verified_user'],
-                ['Multi-signature governance frameworks', 'Policy • 15 min read', 'hub'],
-                ['Handling policy rejected transaction errors', 'Troubleshooting • 5 min read', 'error'],
-              ].map(([title, meta, icon]) => (
-                <article key={title} className="group dashboard-card flex items-center justify-between p-6 transition-colors hover:bg-aegis-highest/45">
+                ['Agent manifest JSON', 'Live trust surface', 'description', '/.well-known/agent.json'],
+                ['x402 discovery document', 'Live service surface', 'verified_user', '/api/x402/discovery'],
+                ['Screen registry and route map', 'Reviewer aid', 'hub', '/screens'],
+                ['Support preview route', 'Explicitly labeled preview', 'error', '/support-access'],
+              ].map(([title, meta, icon, href]) => (
+                <a key={title} href={href} target={href.startsWith('/api') || href.startsWith('/.') ? '_blank' : undefined} rel={href.startsWith('/api') || href.startsWith('/.') ? 'noreferrer' : undefined} className="group dashboard-card flex items-center justify-between p-6 transition-colors hover:bg-aegis-highest/45">
                   <div className="flex items-center gap-6">
                     <Icon name={icon} className="text-aegis-text-muted" />
                     <div>
@@ -106,7 +121,7 @@ export function HelpCenterPage() {
                     </div>
                   </div>
                   <Icon name="chevron_right" className="text-aegis-text-muted transition-colors group-hover:text-aegis-primary" />
-                </article>
+                </a>
               ))}
             </div>
           </div>
@@ -114,20 +129,20 @@ export function HelpCenterPage() {
           <div className="space-y-10 xl:col-span-4">
             <div className="rounded-xl border border-aegis-primary/20 bg-aegis-primary/5 p-8">
               <h5 className="font-headline text-lg font-bold text-aegis-primary">Need direct assistance?</h5>
-              <p className="mt-4 text-sm leading-7 text-aegis-text-muted">Our priority support team remains available for treasury operators who need immediate review help.</p>
+              <p className="mt-4 text-sm leading-7 text-aegis-text-muted">The support workspace is a labeled preview route today, but it remains useful for judges who want to see how the broader operator product could expand.</p>
               <Link to="/support-access" className="mt-6 inline-flex w-full">
-                <Button className="w-full justify-center" leftIcon={<Icon name="support_agent" className="text-base" />}>Open support ticket</Button>
+                <Button className="w-full justify-center" leftIcon={<Icon name="support_agent" className="text-base" />}>Open support preview</Button>
               </Link>
             </div>
 
             <div>
               <h5 className="mb-6 font-headline text-sm font-bold uppercase tracking-[0.18em] text-aegis-text-muted">Network Health</h5>
               <div className="space-y-4">
-                {['Core settlement layer', 'Receipt publication lane', 'Vault API services'].map((item) => (
+                {['Dashboard evaluation loop', 'Receipt publication lane', 'Discovery endpoints'].map((item) => (
                   <div key={item} className="flex items-center justify-between text-xs">
                     <span className="text-aegis-text-muted">{item}</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-aegis-primary">Operational</span>
+                      <span className="font-bold text-aegis-primary">Available</span>
                       <span className="h-2 w-2 animate-pulse rounded-full bg-aegis-primary" />
                     </div>
                   </div>
@@ -156,29 +171,37 @@ export function HelpCenterPage() {
               {
                 title: 'Recursive receipts',
                 body: 'Hosted receipt artifacts and decision packages keep each evaluation auditable without widening the current MVP scope.',
-                cta: 'VIEW MODULES',
+                cta: 'OPEN MANIFEST',
                 active: true,
+                href: '/.well-known/agent.json',
               },
               {
                 title: 'TEE hardening',
                 body: 'Sensitive treasury policy interpretation stays in the internal lane instead of being serialized into public summaries.',
-                cta: 'VIEW ARCHITECTURE',
+                cta: 'SUBMISSION PREVIEW',
                 active: false,
               },
               {
                 title: 'Threshold approvals',
                 body: 'Signer-review and quorum logic remain visible as operator-facing controls across the product surface.',
-                cta: 'VIEW PROTOCOL',
+                cta: 'SUBMISSION PREVIEW',
                 active: false,
               },
             ].map((item) => (
               <article key={item.title} className={`border-t-2 p-8 ${item.active ? 'border-aegis-primary bg-aegis-foundation' : 'border-white/10 bg-black/15'}`}>
                 <h4 className="font-headline text-xl font-bold text-aegis-text">{item.title}</h4>
                 <p className="mt-4 text-sm leading-7 text-aegis-text-muted">{item.body}</p>
-                <button className={`mt-6 inline-flex items-center gap-1 text-xs font-bold ${item.active ? 'text-aegis-primary' : 'text-aegis-text-muted'}`} type="button">
-                  {item.cta}
-                  <Icon name="chevron_right" className="text-sm" />
-                </button>
+                {item.href ? (
+                  <a href={item.href} target="_blank" rel="noreferrer" className={`mt-6 inline-flex items-center gap-1 text-xs font-bold ${item.active ? 'text-aegis-primary' : 'text-aegis-text-muted'}`}>
+                    {item.cta}
+                    <Icon name="chevron_right" className="text-sm" />
+                  </a>
+                ) : (
+                  <button className="mt-6 inline-flex items-center gap-1 text-xs font-bold text-aegis-text-muted" disabled type="button">
+                    {item.cta}
+                    <Icon name="chevron_right" className="text-sm" />
+                  </button>
+                )}
               </article>
             ))}
           </div>

@@ -124,27 +124,36 @@ The requested Design System asset from Stitch was exposed as a `DESIGN_SYSTEM_IN
 
 ## Current implementation surfaces
 - `/` — product overview and hackathon framing
-- `/evaluation-dashboard` — canonical MVP entry point for submitting one treasury evaluation
-- `/decision-result` — live decision output with private and public-safe explanation lanes
-- `/evaluation-history` — session-backed review log for completed evaluations
+- `/evaluation-dashboard` — canonical MVP entry point for submitting one treasury evaluation against a structured policy set
+- `/decision-result` — live decision output with private/public-safe explanation lanes
+- `/evaluation-history` — durable review log for completed evaluations
+- `/policy-management` — structured policy-set configuration surface
 - `/screens` — Stitch reference gallery
+
+Submission status notes:
+- the fully working product loop is `/evaluation-dashboard` -> `/decision-result` -> `/evaluation-history`
+- several additional routes are intentionally kept as labeled preview surfaces rather than pretending to be complete features
+- see `docs/submission-readiness-audit.md` for the route-by-route readiness table and current truth labels
 
 ## Demo API
 
 - `POST /api/evaluate/demo`
 - request fields:
-  - `treasuryPolicy`
+  - `policySetId` (preferred structured-policy path)
+  - `treasuryPolicy` (legacy inline-policy path)
   - `treasuryState`
   - `proposedAction`
 - response fields:
   - `decision`
   - `confidence`
+  - `policySet`
+  - `policySnapshot`
   - `triggeredChecks`
   - `privateRationale`
   - `publicSummary`
   - `receipt`
 
-When `VENICE_API_KEY` and `VENICE_MODEL` are configured, the backend uses Venice for rationale and public-safe explanation wording. Without them, the MVP falls back to deterministic template output so the local demo loop still works.
+When `VENICE_API_KEY` and `VENICE_MODEL` are configured, the backend uses Venice for rationale and public-safe explanation wording. Without them, the MVP falls back to deterministic template output so the local demo loop still works. Completed evaluations persist the resolved policy snapshot plus the request state/action snapshots in the local server store.
 
 Current Venice default:
 - model fallback: `qwen3-5-9b`
@@ -156,7 +165,10 @@ Current Venice default:
 - `/.well-known/x402` publishes the x402 discovery pointer for agent-service clients.
 - `/api/evaluate/service` exposes the evaluation flow as a callable service endpoint.
 - `/api/x402/discovery` advertises the Base/x402 service surface and current payment mode.
+- `/api/evaluations` and `/api/evaluations/:id` expose the persisted evaluation log for the MVP loop.
 - `/api/receipts/:receiptId` and `/api/agent-logs/:receiptId` host public-safe JSON artifacts for completed evaluations.
+
+The current MVP stores evaluations in a single-instance local JSON file under `.data/`, which keeps the dashboard -> result -> history loop durable across refreshes, tabs, and local restarts without adding deployment-heavy infrastructure.
 
 Important: the current ERC-8004 and x402 layers are still demo-grade. Receipt artifacts are hosted JSON, but not signed. The x402 service surface can return a payment challenge when configured, but live settlement still requires additional payment configuration.
 
