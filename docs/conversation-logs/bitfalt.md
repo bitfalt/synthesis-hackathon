@@ -297,3 +297,15 @@ Session 21
 - Pivot or breakthrough: The fastest safe path was realizing the app already had enough data at submit time to reconstruct both the public-safe result view and the private lane locally without weakening the new API boundaries.
 - Artifacts created: `README.md`, `src/lib/api.ts`, `src/routes/api/evaluate/demo.ts`, `src/routes/api/evaluate/service.ts`, `src/routes/decision-result.tsx`, `src/routes/evaluation-dashboard.tsx`, `src/routes/evaluation-history.tsx`, `docs/conversation-logs/bitfalt.md`.
 - Next step: Commit and push the hosted continuity fix, then immediately re-run the deployed browser smoke to confirm the canonical judge flow now survives the Vercel multi-instance store gap.
+
+Session 22
+- Time: 2026-03-23 06:11 UTC
+- Participants: Human (bitfalt), OpenCode (gpt-5.4)
+- Goal: Verify the newly deployed hosted continuity fix against the live Vercel URL.
+- Human input: Re-run the deployed smoke test after the latest push/deploy.
+- Agent work: Confirmed the deployment is serving the new asset bundle, re-ran deployed API smoke against `https://synthesis-hackathon-eta.vercel.app`, verified submit/result/private-lane/x402 behavior, and executed the browser dashboard -> decision-result -> evaluation-history path in a fresh browser context.
+- Decisions made: Treat the hosted browser-session continuity fix as successful for the canonical judge path, while still flagging the remaining hydration error as a non-blocking but real frontend defect.
+- Blockers: The server-side multi-instance persistence gap still exists in the hosted environment, so direct public detail endpoints can still miss on some requests; the browser continuity layer now masks that gap for the originating judge session. A React hydration error (`Minified React error #418`) is still present on the dashboard route in a fresh context.
+- Pivot or breakthrough: The live smoke confirmed the key deadline objective: submit from the hosted dashboard now lands on a working result page and carries through to history even when the underlying runtime-local store is inconsistent across instances.
+- Artifacts created: `docs/conversation-logs/bitfalt.md`.
+- Next step: If time remains before submission freeze, patch the remaining hydration mismatch and add a favicon to eliminate the last visible browser-console/runtime polish issues.
