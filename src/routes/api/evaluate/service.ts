@@ -50,6 +50,7 @@ export const Route = createFileRoute('/api/evaluate/service')({
 
           return Response.json({
             ...evaluation.response,
+            createdAt: storedEvaluation.createdAt,
             receipt: storedEvaluation.receipt,
             privateAccessToken: storedEvaluation.privateAccessToken,
           }, {

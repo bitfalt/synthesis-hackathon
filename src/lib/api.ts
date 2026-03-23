@@ -90,6 +90,7 @@ export type DemoEvaluationResponse = {
 }
 
 export type DemoEvaluationSubmissionResponse = DemoEvaluationResponse & {
+  createdAt?: string
   privateAccessToken?: string | null
 }
 
@@ -149,6 +150,12 @@ export type PrivateEvaluationDetails = {
   submittedByDisplay: string | null
 }
 
+type SessionStoredEvaluation = {
+  publicEvaluation: PublicStoredEvaluation
+  privateDetails: PrivateEvaluationDetails
+  privateAccessToken: string | null
+}
+
 export type OperatorSession = {
   address: string
   display: string
@@ -191,6 +198,7 @@ async function readOptionalJsonResponse<T>(response: Response, fallbackMessage: 
 }
 
 const PRIVATE_ACCESS_STORAGE_KEY = 'aegis-private-evaluation-access'
+const SUBMITTED_EVALUATIONS_STORAGE_KEY = 'aegis-submitted-evaluations'
 
 function readPrivateAccessMap() {
   if (typeof window === 'undefined') {
@@ -222,6 +230,62 @@ function writePrivateAccessMap(entries: Record<string, string>) {
   window.sessionStorage.setItem(PRIVATE_ACCESS_STORAGE_KEY, JSON.stringify(entries))
 }
 
+function readSubmittedEvaluationMap() {
+  if (typeof window === 'undefined') {
+    return {}
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(SUBMITTED_EVALUATIONS_STORAGE_KEY)
+
+    if (!raw) {
+      return {}
+    }
+
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, SessionStoredEvaluation] => {
+        if (!entry[1] || typeof entry[1] !== 'object') {
+          return false
+        }
+
+        const candidate = entry[1] as Record<string, unknown>
+        return Boolean(candidate.publicEvaluation && candidate.privateDetails)
+      }),
+    )
+  } catch {
+    return {}
+  }
+}
+
+function writeSubmittedEvaluationMap(entries: Record<string, SessionStoredEvaluation>) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.setItem(SUBMITTED_EVALUATIONS_STORAGE_KEY, JSON.stringify(entries))
+}
+
+function mergeEvaluationHistory(
+  serverEvaluations: PublicStoredEvaluation[],
+  sessionEvaluations: PublicStoredEvaluation[],
+) {
+  const merged = new Map<string, PublicStoredEvaluation>()
+
+  for (const evaluation of serverEvaluations) {
+    merged.set(evaluation.id, evaluation)
+  }
+
+  for (const evaluation of sessionEvaluations) {
+    if (!merged.has(evaluation.id)) {
+      merged.set(evaluation.id, evaluation)
+    }
+  }
+
+  return Array.from(merged.values()).sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+}
+
 export function rememberEvaluationPrivateAccess(evaluationId: string, accessToken?: string | null) {
   if (!accessToken || typeof window === 'undefined') {
     return
@@ -234,6 +298,83 @@ export function rememberEvaluationPrivateAccess(evaluationId: string, accessToke
 
 export function getEvaluationPrivateAccess(evaluationId: string) {
   return readPrivateAccessMap()[evaluationId] ?? null
+}
+
+export function rememberSubmittedEvaluation(input: {
+  request: DemoEvaluationRequest
+  response: DemoEvaluationSubmissionResponse
+}) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const receiptId = input.response.receipt.receiptId
+
+  if (!receiptId) {
+    return
+  }
+
+  const createdAt = input.response.createdAt ?? new Date().toISOString()
+  const requestCandidate = input.request as Record<string, unknown>
+  const publicEvaluation: PublicStoredEvaluation = {
+    id: receiptId,
+    receiptId,
+    createdAt,
+    decision: input.response.decision,
+    confidence: input.response.confidence,
+    reasoningProvider: input.response.reasoningProvider,
+    publicSummary: input.response.publicSummary,
+    triggeredChecks: input.response.triggeredChecks.map((check) => ({
+      name: check.name,
+      result: check.result,
+    })),
+    policySetId: input.response.policySet.id,
+    policySet: input.response.policySet,
+    receiptHash: input.response.receipt.hash ?? null,
+    receipt: {
+      receiptId,
+      hash: input.response.receipt.hash ?? null,
+      urls: input.response.receipt.urls,
+    },
+    operatorAttribution: 'anonymous-demo',
+    policySnapshotHash: null,
+  }
+
+  const privateDetails: PrivateEvaluationDetails = {
+    privateRationale: input.response.privateRationale,
+    treasuryStateSnapshot: 'treasuryState' in input.request && typeof input.request.treasuryState === 'string'
+      ? input.request.treasuryState
+      : typeof requestCandidate.state === 'string'
+        ? requestCandidate.state
+        : '',
+    proposedAction: 'proposedAction' in input.request && typeof input.request.proposedAction === 'string'
+      ? input.request.proposedAction
+      : typeof requestCandidate.action === 'string'
+        ? requestCandidate.action
+        : '',
+    policySnapshot: input.response.policySnapshot,
+    triggeredChecks: input.response.triggeredChecks,
+    submittedByAddress: null,
+    submittedByDisplay: null,
+  }
+
+  const entries = readSubmittedEvaluationMap()
+  entries[receiptId] = {
+    publicEvaluation,
+    privateDetails,
+    privateAccessToken: input.response.privateAccessToken ?? null,
+  }
+  writeSubmittedEvaluationMap(entries)
+}
+
+export function getSubmittedEvaluation(evaluationId: string) {
+  return readSubmittedEvaluationMap()[evaluationId] ?? null
+}
+
+export function listSubmittedEvaluations() {
+  return Object.values(readSubmittedEvaluationMap())
+    .map((entry) => entry.publicEvaluation)
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
 }
 
 export async function fetchOperatorSession() {
@@ -367,31 +508,51 @@ export async function activatePolicySet(policySetId: string) {
 }
 
 export async function fetchEvaluationHistory() {
-  const payload = await readJsonResponse<{ evaluations: PublicStoredEvaluation[] }>(
-    await fetch('/api/evaluations', {
-      headers: {
-        Accept: 'application/json',
-      },
-      credentials: 'include',
-    }),
-    'Unable to load evaluation history.',
-  )
+  try {
+    const payload = await readJsonResponse<{ evaluations: PublicStoredEvaluation[] }>(
+      await fetch('/api/evaluations', {
+        headers: {
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+      }),
+      'Unable to load evaluation history.',
+    )
 
-  return payload.evaluations
+    return mergeEvaluationHistory(payload.evaluations, listSubmittedEvaluations())
+  } catch (error) {
+    const sessionEvaluations = listSubmittedEvaluations()
+
+    if (sessionEvaluations.length) {
+      return sessionEvaluations
+    }
+
+    throw error
+  }
 }
 
 export async function fetchEvaluation(evaluationId: string) {
-  const payload = await readJsonResponse<{ evaluation: PublicStoredEvaluation }>(
-    await fetch(`/api/evaluations/${evaluationId}`, {
-      headers: {
-        Accept: 'application/json',
-      },
-      credentials: 'include',
-    }),
-    'Unable to load that evaluation record.',
-  )
+  try {
+    const payload = await readJsonResponse<{ evaluation: PublicStoredEvaluation }>(
+      await fetch(`/api/evaluations/${evaluationId}`, {
+        headers: {
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+      }),
+      'Unable to load that evaluation record.',
+    )
 
-  return payload.evaluation
+    return payload.evaluation
+  } catch (error) {
+    const fallback = getSubmittedEvaluation(evaluationId)
+
+    if (fallback) {
+      return fallback.publicEvaluation
+    }
+
+    throw error
+  }
 }
 
 export async function fetchPrivateEvaluation(evaluationId: string, accessToken: string) {
@@ -406,7 +567,17 @@ export async function fetchPrivateEvaluation(evaluationId: string, accessToken: 
     'Unable to load the private evaluation detail.',
   )
 
-  return payload?.evaluation ?? null
+  if (payload?.evaluation) {
+    return payload.evaluation
+  }
+
+  const fallback = getSubmittedEvaluation(evaluationId)
+
+  if (fallback && fallback.privateAccessToken === accessToken) {
+    return fallback.privateDetails
+  }
+
+  return null
 }
 
 export async function submitDemoEvaluation(payload: DemoEvaluationRequest) {
@@ -426,6 +597,11 @@ export async function submitDemoEvaluation(payload: DemoEvaluationRequest) {
     rememberEvaluationPrivateAccess(response.receipt.receiptId, response.privateAccessToken)
   }
 
+  rememberSubmittedEvaluation({
+    request: payload,
+    response,
+  })
+
   return response
 }
 
@@ -440,10 +616,17 @@ export function formatEvaluationTimestamp(timestamp: string) {
     return timestamp
   }
 
-  return new Intl.DateTimeFormat('en', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(value)
+  return `${new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(value)}, ${new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC',
+  }).format(value)} UTC`
 }
 
 export function shortenAddress(address?: string | null) {

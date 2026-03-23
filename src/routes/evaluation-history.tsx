@@ -108,12 +108,12 @@ function EvaluationHistoryPage() {
     <ConsoleLayout
       eyebrow="Audit log of completed evaluations"
       title="Evaluation History"
-      description="Review persisted server-backed evaluations through a public-safe history lens, compare policy set attribution across runs, and open the hosted receipt/log artifacts for each decision."
+      description="Review public-safe evaluation history, compare policy set attribution across runs, and open the hosted receipt/log artifacts for each decision. The page prefers hosted runtime records and merges in current-browser continuity for just-submitted runs when multi-instance demos lose local state."
       contentClassName="max-w-[1380px]"
       topbarActions={
         <>
           <Badge tone="primary">Live MVP</Badge>
-          <Badge tone="info">Durable server history</Badge>
+          <Badge tone="info">Hosted + session continuity</Badge>
         </>
       }
       actions={
@@ -226,7 +226,7 @@ function EvaluationHistoryPage() {
             <span className="eyebrow">No stored evaluations</span>
           </div>
           <h2 className="font-headline text-4xl font-extrabold tracking-tight text-aegis-text">No persisted evaluations yet</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-aegis-text-muted">{errorMessage ?? 'Complete one treasury evaluation from the dashboard and it will appear here immediately, even after a refresh or restart.'}</p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-aegis-text-muted">{errorMessage ?? 'Complete one treasury evaluation from the dashboard and it will appear here immediately. On multi-instance demo hosting, the current browser session keeps the just-submitted run available even if runtime-local server history resets.'}</p>
           <Link to="/evaluation-dashboard" className="mt-8 inline-flex">
             <Button>Open evaluation dashboard</Button>
           </Link>

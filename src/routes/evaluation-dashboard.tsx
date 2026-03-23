@@ -149,7 +149,7 @@ function EvaluationDashboardPage() {
     <ConsoleLayout
       eyebrow="Private cognition and policy enforcement"
       title="Treasury Intelligence"
-      description="The evaluator now resolves a real structured policy set on the server, persists the policy snapshot used for each decision, and reloads completed runs from durable local history."
+      description="The evaluator now resolves a real structured policy set on the server, persists the policy snapshot used for each decision, and keeps the just-submitted review path alive in the originating browser session when multi-instance demo hosting drops local runtime history."
       contentClassName="max-w-[1400px]"
       topbarActions={
         <>

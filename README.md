@@ -172,7 +172,7 @@ The requested Design System asset from Stitch was exposed as a `DESIGN_SYSTEM_IN
 ## Current implementation surfaces
 - `/` — supporting surface for product framing and judge orientation
 - `/evaluation-dashboard` — Live MVP entry point for submitting one treasury evaluation against a structured policy set
-- `/decision-result` — Live MVP decision output with public-safe durable data plus a session-bound private lane for the submitting browser
+- `/decision-result` — Live MVP decision output with public-safe hosted data plus a session-bound private lane and browser continuity for the submitting browser
 - `/evaluation-history` — Live MVP review log for completed evaluations
 - `/policy-management` — live supporting surface with real structured policy CRUD for judges who want to inspect or mutate policy sets
 - `/settings` — supporting surface for runtime disclosures; many form controls remain non-persistent preview UI
@@ -233,7 +233,7 @@ Current Venice default:
 - `/api/evaluations` and `/api/evaluations/:id` expose the persisted evaluation log in a public-safe shape.
 - `/api/receipts/:receiptId` and `/api/agent-logs/:receiptId` host public-safe JSON artifacts for completed evaluations.
 
-The current MVP stores evaluations in a single-instance local JSON file under `.data/`, which keeps the dashboard -> result -> history loop durable across refreshes, tabs, and local restarts without adding deployment-heavy infrastructure.
+The current MVP stores evaluations in a single-instance local JSON file under `.data/`. In local development that keeps the dashboard -> result -> history loop durable across refreshes, tabs, and local restarts. On multi-instance demo hosting, the app also keeps just-submitted evaluations available in the originating browser session so the canonical judge flow still works when runtime-local server state is not shared across instances.
 
 Important: the current ERC-8004 and x402 layers are still demo-grade. Receipt artifacts are hosted JSON, but not signed. The x402 service surface can return a payment challenge only when explicitly configured to do so, and live settlement still requires additional payment configuration.
 

@@ -96,7 +96,7 @@ function DecisionResultPage() {
     <ConsoleLayout
       eyebrow="Bounded recommendation with receipts"
       title="Decision Result"
-      description="A live guardrail outcome with a visible privacy split, provider provenance, and public-safe hosted artifacts. The durable result record is public-safe by default; the private lane only rehydrates inside the browser session that created the run."
+      description="A live guardrail outcome with a visible privacy split, provider provenance, and public-safe hosted artifacts. The private lane only rehydrates inside the browser session that created the run, and the just-submitted result stays available there even when multi-instance demo hosting drops local runtime history."
       contentClassName="max-w-[1380px]"
       topbarActions={
         <>
@@ -232,7 +232,7 @@ function DecisionResultContent({
               </div>
             </div>
             <div className="mt-5 rounded-lg border border-dashed border-white/10 bg-black/20 p-4 text-sm leading-6 text-aegis-text-muted">
-              Receipt JSON, agent manifest, and public-safe log links are live. This decision view reloads from the local durable server store, but the trust artifacts remain unsigned demo-grade surfaces.
+              Receipt JSON, agent manifest, and public-safe log links are live. This decision view uses the hosted runtime store when available and falls back to the submitting browser session in multi-instance demos, while the trust artifacts remain unsigned demo-grade surfaces.
             </div>
             <div className="mt-4 rounded-lg border border-white/8 bg-black/20 p-4 text-sm leading-6 text-aegis-text-muted">
               Submitted by <span className="font-mono text-aegis-text">{operatorLabel}</span> against policy set <span className="font-semibold text-aegis-text">{evaluation.policySet.name}</span>.
