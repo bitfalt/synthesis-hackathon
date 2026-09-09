@@ -24,3 +24,6 @@ dist
 /blob-report/
 /playwright/.cache/
 .tanstack
+/contracts/out/
+/contracts/cache/
+/contracts/broadcast/
