@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PageIntro } from '~/components/layout/page-intro'
+import { Badge } from '~/components/ui/badge'
+import { ConsoleLayout } from '~/components/layout/console-layout'
 import { StitchReferenceCard } from '~/components/stitch/stitch-reference-card'
 import { stitchScreens } from '~/lib/stitch-screens'
 
@@ -9,17 +10,18 @@ export const Route = createFileRoute('/screens')({
 
 function ScreensPage() {
   return (
-    <div className="space-y-8 pb-12">
-      <PageIntro
-        eyebrow="Stitch reference registry"
-        title="Imported Stitch screens are now mirrored as real app routes."
-        description="The cards below link to both the implemented TanStack route and the original raw Stitch export. Use this page as the bridge between design reference material and the actual app surface."
-      />
+    <ConsoleLayout
+      eyebrow="Stitch reference registry"
+      title="Implementation Reference Registry"
+      description="Use this page as the bridge between the preserved Stitch exports and the implemented TanStack surfaces. Some routes are live MVP flows; others remain intentionally labeled submission previews."
+      contentClassName="max-w-[1380px]"
+      topbarActions={<Badge tone="info">Supporting surface</Badge>}
+    >
       <section className="grid gap-5 xl:grid-cols-2">
         {stitchScreens.map((screen) => (
           <StitchReferenceCard key={screen.id} screen={screen} />
         ))}
       </section>
-    </div>
+    </ConsoleLayout>
   )
 }

@@ -7,9 +7,12 @@ dist
 .DS_Store
 .cache
 .env
+.env.local
 .vercel
 .output
 .nitro
+.data
+.aegis-runtime
 /build/
 /api/
 /server/build

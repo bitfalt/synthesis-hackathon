@@ -91,6 +91,47 @@ If you materially change the product direction, also update:
 
 If you discover a judge-relevant decision, document it clearly instead of keeping it only in chat.
 
+## Conversation log rules
+
+`AGENTS.MD` is a living operational document. Agents may patch it when repository instructions drift from the workflow actually being used, but edits must stay narrow, truthful, and should not remove constraints without a concrete reason.
+
+Personal Synthesis conversation logs live at:
+- `docs/conversation-logs/<identity>.md`
+
+Resolve `<identity>` in this exact order so multiple collaborators in the same repo do not write into the wrong log:
+1. active `gh auth status` account login
+2. `git config user.email`
+3. `git config user.name`
+
+Agents must read the current user's existing log before starting meaningful work. Do that immediately after reading `AGENTS.MD`. If the log file does not exist yet, continue and create it when you append the first entry.
+
+Agents must append a new structured log entry after meaningful work. Meaningful work includes:
+- any repository file change
+- any issue, PR, or backlog triage that changes execution decisions
+- any test, build, or debugging pass that produces information used for decisions
+- any documentation or planning update that affects collaborators
+- any `AGENTS.MD` change
+
+Purely read-only help, orientation, or one-off answers with no durable repo impact do not require a log entry.
+
+Append entries sequentially as `Session 1`, `Session 2`, and so on, using this exact format:
+
+```md
+Session N
+- Time:
+- Participants:
+- Goal:
+- Human input:
+- Agent work:
+- Decisions made:
+- Blockers:
+- Pivot or breakthrough:
+- Artifacts created:
+- Next step:
+```
+
+Any change to `AGENTS.MD` must be mentioned in the relevant conversation log entry.
+
 ## Design system rules for agents
 
 This project follows the "Sovereign Vault" design language.

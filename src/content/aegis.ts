@@ -17,14 +17,14 @@ export const primaryTracks = [
 ] as const
 
 export const consoleNav = [
-  { label: 'Dashboard', to: '/evaluation-dashboard', icon: 'dashboard' },
-  { label: 'Policy Management', to: '/policy-management', icon: 'gavel' },
-  { label: 'Evaluation History', to: '/evaluation-history', icon: 'history' },
-  { label: 'Decision Result', to: '/decision-result', icon: 'fact_check' },
-  { label: 'Request Service', to: '/request-service', icon: 'bolt' },
-  { label: 'Support Access', to: '/support-access', icon: 'support_agent' },
-  { label: 'Settings', to: '/settings', icon: 'settings' },
-  { label: 'Help Center', to: '/help-center', icon: 'help' },
+  { label: 'Dashboard', to: '/evaluation-dashboard', icon: 'dashboard', status: 'live' as const },
+  { label: 'Policy Management', to: '/policy-management', icon: 'gavel', status: 'support' as const },
+  { label: 'Evaluation History', to: '/evaluation-history', icon: 'history', status: 'live' as const },
+  { label: 'Decision Result', to: '/decision-result', icon: 'fact_check', status: 'live' as const },
+  { label: 'Request Service', to: '/request-service', icon: 'bolt', status: 'preview' as const },
+  { label: 'Support Access', to: '/support-access', icon: 'support_agent', status: 'preview' as const },
+  { label: 'Settings', to: '/settings', icon: 'settings', status: 'support' as const },
+  { label: 'Help Center', to: '/help-center', icon: 'help', status: 'support' as const },
 ] as const
 
 export const treasuryMetrics = [
@@ -51,60 +51,28 @@ export const treasuryMetrics = [
   },
 ] as const
 
-export const proposedAction = {
-  amount: '450.00 ETH',
-  asset: 'Wrapped Ethereum (WETH)',
-  destination: 'Base ecosystem market-making program',
-  reason: 'Fund a strategic liquidity expansion while preserving stablecoin runway and reserve concentration guardrails.',
+export const demoEvaluationDraft = {
+  treasuryPolicy: `Treasury must preserve at least 18 months of stable reserve runway.\nAny transfer above 400 ETH requires signer review.\nBlocked categories include unapproved bridges, unverified OTC brokers, and sanctioned counterparties.\nETH concentration should remain below 50% of total treasury value.`,
+  treasuryState: `Stable reserve runway: 22 months.\nETH concentration after the proposed transfer: 47%.\nNo active emergency override.\nDestination category is strategic ecosystem liquidity.`,
+  proposedAction: `Transfer 450 ETH from treasury reserves to a Base ecosystem market-making program in order to deepen protocol liquidity while keeping stablecoin runway intact.`,
 }
 
-export const guardrailChecks = [
+export const guardrailCheckBlueprints = [
   {
     name: 'Runway Preservation',
-    result: 'pass' as const,
-    detail: 'Stable reserve runway remains above the 18-month floor after settlement.',
+    detail: 'Treasury state is checked against the minimum reserve runway floor before a recommendation is returned.',
   },
   {
     name: 'Single Transfer Threshold',
-    result: 'review' as const,
-    detail: 'The request crosses the 400 ETH review threshold and requires signer acknowledgement.',
+    detail: 'Large transfers escalate to signer review even when hard-stop policy rules are not breached.',
   },
   {
     name: 'Asset Concentration',
-    result: 'pass' as const,
-    detail: 'Post-transfer ETH concentration remains within the configured guardrail band.',
+    detail: 'Aegis checks whether the resulting portfolio concentration remains inside the configured policy band.',
   },
   {
     name: 'Counterparty Category Policy',
-    result: 'pass' as const,
-    detail: 'Destination category is approved for strategic ecosystem liquidity programs.',
-  },
-] as const
-
-export const evaluationHistory = [
-  {
-    id: 'EV-2048',
-    title: 'Liquidity allocation review',
-    decision: 'WARN',
-    timestamp: '2026-03-20 01:11 UTC',
-    asset: '450.00 ETH',
-    summary: 'Approved for manual review after threshold escalation.',
-  },
-  {
-    id: 'EV-2047',
-    title: 'Vendor payment settlement',
-    decision: 'ALLOW',
-    timestamp: '2026-03-19 19:42 UTC',
-    asset: '250,000 USDC',
-    summary: 'Payment fell within approved operational spend bands.',
-  },
-  {
-    id: 'EV-2046',
-    title: 'Treasury strategy migration',
-    decision: 'BLOCK',
-    timestamp: '2026-03-19 16:08 UTC',
-    asset: '1.2M USDC',
-    summary: 'Blocked due to reserve floor breach and missing override receipt.',
+    detail: 'Blocked or sensitive destination categories are caught before any public-safe summary is produced.',
   },
 ] as const
 
